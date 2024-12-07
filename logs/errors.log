@@ -474,3 +474,4 @@ Traceback (most recent call last):
 AttributeError: 'Config' object has no attribute 'payment_provider_token'
 2024-12-07 22:36:27,498 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
 2024-12-07 22:38:10,904 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:42:18,952 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'

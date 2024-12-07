@@ -112,15 +112,33 @@ async def process_successful_payment(
         # Calculate subscription dates
         start_date = datetime.now()
         end_date = start_date + timedelta(days=30 * months)
+        
+        # Create payment record first
+        payment_id = str(message.successful_payment.provider_payment_charge_id)
+        await db.create_payment({
+            "id": payment_id,
+            "user_id": message.from_user.id,
+            "amount": float(message.successful_payment.total_amount) / 100,  # Convert from kopeks to rubles
+            "status": "completed",
+            "months": months,
+            "created_at": start_date.isoformat()
+        })
 
-        # Create or update subscription
+        # Create subscription
         await db.create_subscription({
             "user_id": message.from_user.id,
-            "payment_id": str(message.successful_payment.provider_payment_charge_id),
-            "start_date": start_date,
-            "end_date": end_date,
+            "payment_id": payment_id,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
             "is_active": True
         })
+
+        # Update user's subscription status
+        await db.update_subscription(
+            user_id=message.from_user.id,
+            status="active",
+            end_date=end_date
+        )
 
         subscription = await db.get_subscription(message.from_user.id)
         await message.answer(
