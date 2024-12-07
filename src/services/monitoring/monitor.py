@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Set
 from core.database import Database
 from services.marketplaces.ozon import OzonClient
 from services.marketplaces.wildberries import WildberriesClient
-from services.marketplaces.factory import MarketplaceClientFactory
+from services.marketplaces.factory import MarketplaceFactory
 
 logger = logging.getLogger(__name__)
 
@@ -21,12 +21,12 @@ class PromotionMonitor:
     def __init__(
         self,
         db: Database,
-        client_factory: MarketplaceClientFactory,
+        marketplace_factory: MarketplaceFactory,
         check_interval: int = 3600  # 1 hour
     ):
         """Initialize monitor."""
         self.db = db
-        self.client_factory = client_factory
+        self.marketplace_factory = marketplace_factory
         self.check_interval = check_interval
         self._task: Optional[asyncio.Task] = None
         self._last_check: Dict[int, datetime] = {}
@@ -122,7 +122,7 @@ class PromotionMonitor:
 
             # Check Ozon promotions
             if user.get("ozon_api_key"):
-                ozon_client = await self.client_factory.get_ozon_client(
+                ozon_client = await self.marketplace_factory.get_ozon_client(
                     user["ozon_api_key"]
                 )
                 current_ozon = await ozon_client.get_hot_sales()
@@ -140,7 +140,7 @@ class PromotionMonitor:
 
             # Check Wildberries promotions
             if user.get("wb_api_key"):
-                wb_client = await self.client_factory.get_wildberries_client(
+                wb_client = await self.marketplace_factory.get_wildberries_client(
                     user["wb_api_key"]
                 )
                 current_wb = await wb_client.get_auto_promotions()

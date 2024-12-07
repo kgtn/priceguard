@@ -1,20 +1,25 @@
 """
-Main entry point for the PriceGuard Telegram bot.
-File: src/main.py
+Main entry point for the PriceGuard bot.
 """
 
 import asyncio
 import logging
+import os
+from typing import Dict, Optional
+
 from aiogram import Bot, Dispatcher
-from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import Message
+from dotenv import load_dotenv
 
 from core.config import load_config
-from core.database import init_db
+from core.database import Database
 from core.logging import setup_logging, get_logger
+from services.monitoring.monitor import PromotionMonitor
+from services.monitoring.notifications import NotificationService
+from services.marketplaces.factory import MarketplaceFactory
 from bot.handlers import register_all_handlers
 from bot.middlewares import setup_middlewares
-from bot.services import PromotionMonitor, NotificationService, MarketplaceClientFactory
 from bot.routers import admin_router, user_router, payment_router
 
 # Initialize logging
@@ -22,7 +27,7 @@ setup_logging()
 logger = get_logger(__name__)
 
 async def main():
-    """Initialize and start the bot."""
+    """Main function."""
     try:
         # Load configuration
         logger.info("Loading configuration...")
@@ -30,55 +35,50 @@ async def main():
 
         # Initialize bot and dispatcher
         logger.info("Initializing bot...")
-        bot = Bot(token=config.telegram.token, parse_mode=ParseMode.HTML)
+        bot = Bot(token=config.telegram.token, parse_mode="HTML")
         dp = Dispatcher(storage=MemoryStorage())
 
         # Initialize database
         logger.info("Initializing database...")
-        db = await init_db(config.database.path)
+        db = await Database(config.database.path)
 
-        # Initialize marketplace client factory
-        client_factory = MarketplaceClientFactory()
+        # Initialize marketplace factory
+        marketplace_factory = MarketplaceFactory(encryption_key=config.encryption.key)
 
-        # Initialize monitoring services
-        monitor = PromotionMonitor(db, client_factory)
-        notifications = NotificationService(bot, db)
+        # Initialize notification service
+        notification_service = NotificationService(bot=bot, database=db)
+
+        # Initialize promotion monitor
+        monitor = PromotionMonitor(
+            database=db,
+            notification_service=notification_service,
+            client_factory=marketplace_factory
+        )
 
         # Setup middlewares
-        logger.info("Setting up middlewares...")
-        setup_middlewares(dp, config)
+        setup_middlewares(dp, db)
 
-        # Register all handlers
-        logger.info("Registering handlers...")
-        register_all_handlers(dp, config, db)
+        # Register routers
         dp.include_router(admin_router)
-        dp.include_router(user_router)
         dp.include_router(payment_router)
+        dp.include_router(user_router)
 
-        # Add bot instance to dispatcher data
-        dp["bot"] = bot
+        # Register handlers
+        register_all_handlers(dp)
 
-        # Start monitoring
+        # Start promotion monitor
         await monitor.start()
 
         # Start polling
         logger.info("Starting bot...")
-        try:
-            await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
-        finally:
-            await monitor.stop()
-            await bot.session.close()
-            logger.info("Closing database connection...")
-            await db.close()
+        await dp.start_polling(bot)
 
     except Exception as e:
-        logger.critical(f"Failed to start bot: {e}", exc_info=True)
+        logger.exception("Error in main function: %s", str(e))
         raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
-        logger.info("Bot stopped by user")
-    except Exception as e:
-        logger.critical("Unexpected error occurred", exc_info=True)
+        logger.info("Bot stopped")

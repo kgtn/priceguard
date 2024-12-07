@@ -36,6 +36,7 @@ class Settings:
         self.bot_token = os.getenv("BOT_TOKEN")
         self.admin_user_id = os.getenv("ADMIN_USER_ID")
         self.database_path = os.getenv("DATABASE_PATH", "bot.db")
+        self.encryption_key = os.getenv("ENCRYPTION_KEY")
         
         # Payment settings
         self.payment_provider_token = os.getenv("PAYMENT_PROVIDER_TOKEN")

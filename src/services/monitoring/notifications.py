@@ -21,6 +21,27 @@ class NotificationService:
         self.bot = bot
         self.db = db
 
+    async def notify_user(self, user_id: int, message: str) -> bool:
+        """
+        Send notification to user.
+        
+        Args:
+            user_id: User's Telegram ID
+            message: Message text
+            
+        Returns:
+            bool: True if sent successfully
+        """
+        try:
+            await self.bot.send_message(
+                chat_id=user_id,
+                text=message
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Error sending notification to user {user_id}: {e}")
+            return False
+
     async def notify_promotion_changes(
         self,
         user_id: int,

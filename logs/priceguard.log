@@ -1,0 +1,75 @@
+2024-12-07 15:37:17,433 - __main__ - INFO - Loading configuration...
+2024-12-07 15:37:17,434 - __main__ - ERROR - Error in main function: ADMIN_USER_ID must be a valid integer
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 63, in load_config
+    admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+ValueError: invalid literal for int() with base 10: 'your_admin_telegram_id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 34, in main
+    config = load_config()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 65, in load_config
+    raise ValueError("ADMIN_USER_ID must be a valid integer")
+ValueError: ADMIN_USER_ID must be a valid integer
+2024-12-07 15:41:33,319 - __main__ - INFO - Loading configuration...
+2024-12-07 15:41:33,320 - __main__ - ERROR - Error in main function: ADMIN_USER_ID must be a valid integer
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 63, in load_config
+    admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+ValueError: invalid literal for int() with base 10: 'your_admin_telegram_id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 34, in main
+    config = load_config()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 65, in load_config
+    raise ValueError("ADMIN_USER_ID must be a valid integer")
+ValueError: ADMIN_USER_ID must be a valid integer
+2024-12-07 15:42:12,247 - __main__ - INFO - Loading configuration...
+2024-12-07 15:42:12,248 - __main__ - ERROR - Error in main function: ADMIN_USER_ID must be a valid integer
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 63, in load_config
+    admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+ValueError: invalid literal for int() with base 10: 'your_admin_telegram_id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 34, in main
+    config = load_config()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 65, in load_config
+    raise ValueError("ADMIN_USER_ID must be a valid integer")
+ValueError: ADMIN_USER_ID must be a valid integer
+2024-12-07 15:45:02,821 - __main__ - INFO - Loading configuration...
+2024-12-07 15:45:02,822 - __main__ - ERROR - Error in main function: ADMIN_USER_ID must be a valid integer
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 63, in load_config
+    admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+ValueError: invalid literal for int() with base 10: 'your_admin_telegram_id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 34, in main
+    config = load_config()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 65, in load_config
+    raise ValueError("ADMIN_USER_ID must be a valid integer")
+ValueError: ADMIN_USER_ID must be a valid integer
+2024-12-07 15:47:20,172 - __main__ - INFO - Loading configuration...
+2024-12-07 15:47:20,173 - __main__ - ERROR - Error in main function: ADMIN_USER_ID must be a valid integer
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 63, in load_config
+    admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+ValueError: invalid literal for int() with base 10: 'your_admin_telegram_id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 34, in main
+    config = load_config()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 65, in load_config
+    raise ValueError("ADMIN_USER_ID must be a valid integer")
+ValueError: ADMIN_USER_ID must be a valid integer
