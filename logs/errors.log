@@ -260,3 +260,31 @@ Traceback (most recent call last):
     return await wrapped()
                  ~~~~~~~^^
 TypeError: cmd_admin() missing 1 required positional argument: 'settings'
+2024-12-07 16:21:21,252 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 16:21:35,583 - bot.middlewares.error - ERROR - Error processing event from user 743731: cmd_admin() missing 1 required positional argument: 'settings'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+                 ~~~~~~~^^
+TypeError: cmd_admin() missing 1 required positional argument: 'settings'
+2024-12-07 16:22:41,650 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 16:22:54,829 - bot.middlewares.error - ERROR - Error processing event from user 743731: 'Config' object has no attribute 'admin_user_id'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/admin.py", line 37, in cmd_admin
+    if not await is_admin(message.from_user.id, settings):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/admin.py", line 32, in is_admin
+    return str(user_id) == settings.admin_user_id
+                           ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Config' object has no attribute 'admin_user_id'
+2024-12-07 16:23:44,639 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 16:25:25,169 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'

@@ -37,21 +37,21 @@ async def main():
         logger.info("Initializing bot...")
         bot = Bot(token=config.telegram.token)
         dp = Dispatcher(storage=MemoryStorage())
-
-        # Initialize database
-        logger.info("Initializing database...")
-        db = Database(config.database.path)
-        await db.init()
+        
+        # Inject dependencies
+        dp["settings"] = config
+        dp["db"] = Database(config.database.path)
+        await dp["db"].init()
 
         # Initialize marketplace factory
         marketplace_factory = MarketplaceFactory(encryption_key=config.encryption_key)
 
         # Initialize notification service
-        notification_service = NotificationService(bot=bot, db=db)
+        notification_service = NotificationService(bot=bot, db=dp["db"])
 
         # Initialize promotion monitor
         monitor = PromotionMonitor(
-            db=db,
+            db=dp["db"],
             marketplace_factory=marketplace_factory
         )
 
@@ -64,7 +64,7 @@ async def main():
         dp.include_router(user_router)
 
         # Register handlers
-        register_all_handlers(dp, config, db)
+        register_all_handlers(dp, config, dp["db"])
 
         # Start promotion monitor
         await monitor.start()

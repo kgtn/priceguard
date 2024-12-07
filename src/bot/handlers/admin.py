@@ -29,7 +29,8 @@ class AdminStates(StatesGroup):
 
 async def is_admin(user_id: int, settings: Settings) -> bool:
     """Check if user is admin."""
-    return str(user_id) == settings.admin_user_id
+    print(f"Checking admin access: user_id={user_id} ({type(user_id)}), admin_id={settings.telegram.admin_user_id} ({type(settings.telegram.admin_user_id)})")
+    return str(user_id) == str(settings.telegram.admin_user_id)
 
 @router.message(Command("admin"))
 async def cmd_admin(message: types.Message, settings: Settings):
@@ -185,3 +186,68 @@ async def process_force_check(
         await message.answer("❌ Некорректный ID пользователя")
     finally:
         await state.clear()
+
+# Callback handlers
+@router.callback_query(F.data == "admin_users")
+async def on_admin_users(callback: types.CallbackQuery, settings: Settings):
+    """Handle admin_users callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+    await callback.message.edit_text(
+        "👥 Управление пользователями",
+        reply_markup=get_users_keyboard()
+    )
+
+@router.callback_query(F.data == "admin_subscriptions")
+async def on_admin_subscriptions(callback: types.CallbackQuery, settings: Settings):
+    """Handle admin_subscriptions callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+    await callback.message.edit_text(
+        "💳 Управление подписками",
+        reply_markup=get_subscriptions_keyboard()
+    )
+
+@router.callback_query(F.data == "admin_broadcast")
+async def on_admin_broadcast(callback: types.CallbackQuery, state: FSMContext, settings: Settings):
+    """Handle admin_broadcast callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+    await state.set_state(AdminStates.waiting_for_broadcast)
+    await callback.message.edit_text(
+        "📢 Введите текст для рассылки:",
+        reply_markup=None
+    )
+
+@router.callback_query(F.data == "admin_stats")
+async def on_admin_stats(callback: types.CallbackQuery, db: Database, settings: Settings):
+    """Handle admin_stats callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+    # TODO: Implement statistics gathering
+    await callback.answer("🚧 Функция в разработке", show_alert=True)
+
+@router.callback_query(F.data == "admin_logs")
+async def on_admin_logs(callback: types.CallbackQuery, settings: Settings):
+    """Handle admin_logs callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+    await callback.message.delete()
+    await cmd_logs(callback.message, settings)
+
+@router.callback_query(F.data == "admin_force_check")
+async def on_admin_force_check(callback: types.CallbackQuery, state: FSMContext, settings: Settings):
+    """Handle admin_force_check callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+    await state.set_state(AdminStates.waiting_for_force_check)
+    await callback.message.edit_text(
+        "🔄 Введите ID пользователя для проверки акций:",
+        reply_markup=None
+    )
