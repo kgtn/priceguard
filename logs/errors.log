@@ -68,3 +68,195 @@ Traceback (most recent call last):
   File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 65, in load_config
     raise ValueError("ADMIN_USER_ID must be a valid integer")
 ValueError: ADMIN_USER_ID must be a valid integer
+2024-12-07 15:49:21,446 - __main__ - ERROR - Error in main function: ADMIN_USER_ID must be a valid integer
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 63, in load_config
+    admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+ValueError: invalid literal for int() with base 10: 'your_admin_telegram_id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 34, in main
+    config = load_config()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 65, in load_config
+    raise ValueError("ADMIN_USER_ID must be a valid integer")
+ValueError: ADMIN_USER_ID must be a valid integer
+2024-12-07 15:50:58,481 - __main__ - ERROR - Error in main function: ADMIN_USER_ID must be a valid integer
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 68, in load_config
+    admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+ValueError: invalid literal for int() with base 10: 'your_admin_telegram_id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 34, in main
+    config = load_config()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 71, in load_config
+    raise ValueError("ADMIN_USER_ID must be a valid integer")
+ValueError: ADMIN_USER_ID must be a valid integer
+2024-12-07 15:52:01,220 - __main__ - ERROR - Error in main function: ADMIN_USER_ID must be a valid integer
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 68, in load_config
+    admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+ValueError: invalid literal for int() with base 10: 'your_admin_telegram_id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 34, in main
+    config = load_config()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/config.py", line 71, in load_config
+    raise ValueError("ADMIN_USER_ID must be a valid integer")
+ValueError: ADMIN_USER_ID must be a valid integer
+2024-12-07 15:53:14,043 - __main__ - ERROR - Error in main function: Passing `parse_mode`, `disable_web_page_preview` or `protect_content` to Bot initializer is not supported anymore. These arguments have been removed in 3.7.0 version. Use `default=DefaultBotProperties(parse_mode='HTML')` argument instead.
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 38, in main
+    bot = Bot(token=config.telegram.token, parse_mode="HTML")
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/bot.py", line 310, in __init__
+    raise TypeError(
+    ...<3 lines>...
+    )
+TypeError: Passing `parse_mode`, `disable_web_page_preview` or `protect_content` to Bot initializer is not supported anymore. These arguments have been removed in 3.7.0 version. Use `default=DefaultBotProperties(parse_mode='HTML')` argument instead.
+2024-12-07 16:08:44,211 - __main__ - ERROR - Error in main function: object Database can't be used in 'await' expression
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 43, in main
+    db = await Database(config.database.path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object Database can't be used in 'await' expression
+2024-12-07 16:09:47,971 - __main__ - ERROR - Error in main function: 'Config' object has no attribute 'encryption'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 46, in main
+    marketplace_factory = MarketplaceFactory(encryption_key=config.encryption.key)
+                                                            ^^^^^^^^^^^^^^^^^
+AttributeError: 'Config' object has no attribute 'encryption'. Did you mean: 'encryption_key'?
+2024-12-07 16:10:35,036 - __main__ - ERROR - Error in main function: Fernet key must be 32 url-safe base64-encoded bytes.
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/cryptography/fernet.py", line 34, in __init__
+    key = base64.urlsafe_b64decode(key)
+  File "/usr/local/Cellar/python@3.13/3.13.0_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/base64.py", line 134, in urlsafe_b64decode
+    return b64decode(s)
+  File "/usr/local/Cellar/python@3.13/3.13.0_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/base64.py", line 88, in b64decode
+    return binascii.a2b_base64(s, strict_mode=validate)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+binascii.Error: Incorrect padding
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 46, in main
+    marketplace_factory = MarketplaceFactory(encryption_key=config.encryption_key)
+  File "/Users/kagitin/CascadeProjects/priceguard/src/services/marketplaces/factory.py", line 22, in __init__
+    self.fernet = Fernet(encryption_key.encode())
+                  ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/cryptography/fernet.py", line 36, in __init__
+    raise ValueError(
+        "Fernet key must be 32 url-safe base64-encoded bytes."
+    ) from exc
+ValueError: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-12-07 16:11:49,088 - __main__ - ERROR - Error in main function: NotificationService.__init__() got an unexpected keyword argument 'database'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 49, in main
+    notification_service = NotificationService(bot=bot, database=db)
+TypeError: NotificationService.__init__() got an unexpected keyword argument 'database'
+2024-12-07 16:12:53,190 - __main__ - ERROR - Error in main function: PromotionMonitor.__init__() got an unexpected keyword argument 'database'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 52, in main
+    monitor = PromotionMonitor(
+        database=db,
+        notification_service=notification_service,
+        client_factory=marketplace_factory
+    )
+TypeError: PromotionMonitor.__init__() got an unexpected keyword argument 'database'
+2024-12-07 16:13:45,166 - __main__ - ERROR - Error in main function: 'Database' object has no attribute 'telegram'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 58, in main
+    setup_middlewares(dp, db)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/__init__.py", line 20, in setup_middlewares
+    dp.message.middleware(AuthMiddleware(config.telegram.admin_user_id))
+                                         ^^^^^^^^^^^^^^^
+AttributeError: 'Database' object has no attribute 'telegram'
+2024-12-07 16:14:34,918 - __main__ - ERROR - Error in main function: register_all_handlers() missing 2 required positional arguments: 'config' and 'db'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 66, in main
+    register_all_handlers(dp)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^
+TypeError: register_all_handlers() missing 2 required positional arguments: 'config' and 'db'
+2024-12-07 16:15:22,698 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 16:16:35,311 - aiogram.event - ERROR - Cause exception while process update id=20180897 by bot id=7683347152
+RuntimeError: Database not initialized
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/auth.py", line 38, in __call__
+    user_data = await db.get_user(user.id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/core/database.py", line 149, in get_user
+    raise RuntimeError("Database not initialized")
+RuntimeError: Database not initialized
+2024-12-07 16:17:35,370 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 16:18:10,441 - bot.middlewares.error - ERROR - Error processing event from user 743731: cmd_admin() missing 1 required positional argument: 'settings'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+                 ~~~~~~~^^
+TypeError: cmd_admin() missing 1 required positional argument: 'settings'

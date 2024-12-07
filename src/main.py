@@ -7,7 +7,7 @@ import logging
 import os
 from typing import Dict, Optional
 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from dotenv import load_dotenv
@@ -35,28 +35,28 @@ async def main():
 
         # Initialize bot and dispatcher
         logger.info("Initializing bot...")
-        bot = Bot(token=config.telegram.token, parse_mode="HTML")
+        bot = Bot(token=config.telegram.token)
         dp = Dispatcher(storage=MemoryStorage())
 
         # Initialize database
         logger.info("Initializing database...")
-        db = await Database(config.database.path)
+        db = Database(config.database.path)
+        await db.init()
 
         # Initialize marketplace factory
-        marketplace_factory = MarketplaceFactory(encryption_key=config.encryption.key)
+        marketplace_factory = MarketplaceFactory(encryption_key=config.encryption_key)
 
         # Initialize notification service
-        notification_service = NotificationService(bot=bot, database=db)
+        notification_service = NotificationService(bot=bot, db=db)
 
         # Initialize promotion monitor
         monitor = PromotionMonitor(
-            database=db,
-            notification_service=notification_service,
-            client_factory=marketplace_factory
+            db=db,
+            marketplace_factory=marketplace_factory
         )
 
         # Setup middlewares
-        setup_middlewares(dp, db)
+        setup_middlewares(dp, config)
 
         # Register routers
         dp.include_router(admin_router)
@@ -64,7 +64,7 @@ async def main():
         dp.include_router(user_router)
 
         # Register handlers
-        register_all_handlers(dp)
+        register_all_handlers(dp, config, db)
 
         # Start promotion monitor
         await monitor.start()

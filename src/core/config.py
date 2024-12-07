@@ -43,7 +43,12 @@ class Settings:
 
 def load_config() -> Config:
     """Load configuration from environment variables."""
-    load_dotenv()
+    # Load .env file from the correct path
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+    print(f"Loading .env from: {env_path}")
+    load_dotenv(env_path)
+    
+    print(f"ADMIN_USER_ID from env: {os.getenv('ADMIN_USER_ID')}")
 
     # Required environment variables
     required_vars = [
@@ -61,6 +66,7 @@ def load_config() -> Config:
 
     try:
         admin_user_id = int(os.getenv('ADMIN_USER_ID'))
+        print(f"Parsed admin_user_id: {admin_user_id}")
     except ValueError:
         raise ValueError("ADMIN_USER_ID must be a valid integer")
 
