@@ -953,3 +953,6 @@ AttributeError: 'Config' object has no attribute 'payment_provider_token'
 2024-12-07 22:42:57,928 - aiogram.event - INFO - Update id=20181082 is handled. Duration 341 ms by bot id=7683347152
 2024-12-07 22:43:00,102 - aiogram.event - INFO - Update id=20181083 is handled. Duration 160 ms by bot id=7683347152
 2024-12-07 22:43:24,105 - aiogram.event - INFO - Update id=20181084 is handled. Duration 607 ms by bot id=7683347152
+2024-12-07 22:46:19,840 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:46:19,840 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:46:19,841 - aiogram.dispatcher - INFO - Polling stopped

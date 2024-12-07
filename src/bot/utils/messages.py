@@ -178,12 +178,31 @@ def format_subscription_info(sub: Dict) -> str:
     """Format subscription info message."""
     status = "✅ Активна" if sub.get("is_active") else "❌ Неактивна"
     
+    # Конвертируем даты в нужный формат
+    try:
+        start_date = datetime.fromisoformat(sub.get('start_date')).strftime("%d.%m.%Y")
+        end_date = datetime.fromisoformat(sub.get('end_date')).strftime("%d.%m.%Y")
+    except (ValueError, TypeError):
+        start_date = "Неизвестно"
+        end_date = "Неизвестно"
+
+    # Определяем название тарифа по длительности
+    months = (datetime.fromisoformat(sub.get('end_date')) - 
+              datetime.fromisoformat(sub.get('start_date'))).days // 30
+    tariff_names = {
+        1: "Базовый (1 месяц)",
+        3: "Стандарт (3 месяца)",
+        6: "Премиум (6 месяцев)",
+        12: "VIP (12 месяцев)"
+    }
+    tariff = tariff_names.get(months, f"Подписка на {months} мес.")
+    
     return (
-        f"💳 *ID:* `{sub.get('id')}`\n"
-        f"├ *Пользователь:* `{sub.get('user_id')}`\n"
+        "💳 *Оплата:*\n"
+        f"├ *Тариф:* {tariff}\n"
         f"├ *Статус:* {status}\n"
-        f"├ *Начало:* {sub.get('start_date')}\n"
-        f"└ *Окончание:* {sub.get('end_date')}"
+        f"├ *Начало:* {start_date}\n"
+        f"└ *Окончание:* {end_date}"
     )
 
 def format_payment_info(payment: Dict) -> str:
