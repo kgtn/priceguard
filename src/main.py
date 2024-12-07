@@ -42,9 +42,7 @@ async def main():
         dp["settings"] = config
         dp["db"] = Database(config.database.path)
         await dp["db"].init()
-
-        # Initialize marketplace factory
-        marketplace_factory = MarketplaceFactory(encryption_key=config.encryption_key)
+        dp["marketplace_factory"] = MarketplaceFactory(encryption_key=config.encryption_key)
 
         # Initialize notification service
         notification_service = NotificationService(bot=bot, db=dp["db"])
@@ -52,7 +50,7 @@ async def main():
         # Initialize promotion monitor
         monitor = PromotionMonitor(
             db=dp["db"],
-            marketplace_factory=marketplace_factory
+            marketplace_factory=dp["marketplace_factory"]
         )
 
         # Setup middlewares

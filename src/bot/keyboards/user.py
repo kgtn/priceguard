@@ -79,3 +79,20 @@ def get_confirmation_keyboard() -> InlineKeyboardMarkup:
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+def get_main_menu_keyboard() -> InlineKeyboardMarkup:
+    """Get main menu keyboard."""
+    builder = InlineKeyboardBuilder()
+    
+    # Main actions
+    builder.button(text="📊 Мои акции", callback_data="my_promotions")
+    builder.button(text="⚙️ Настройки", callback_data="settings")
+    builder.button(text="💳 Подписка", callback_data="subscription")
+    
+    # Settings and info
+    builder.button(text="🔑 API ключи", callback_data="api_keys")
+    builder.button(text="⏰ Интервал проверки", callback_data="check_interval")
+    builder.button(text="ℹ️ Помощь", callback_data="help")
+    
+    builder.adjust(2, 2, 2)  # 2 кнопки в каждой строке
+    return builder.as_markup()

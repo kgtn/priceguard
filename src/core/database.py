@@ -159,6 +159,26 @@ class Database:
             columns = [description[0] for description in cursor.description]
             return dict(zip(columns, row))
 
+    async def get_all_users(self) -> List[Dict]:
+        """Get all users from database."""
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+        
+        users = []
+        async with self.db.execute("SELECT * FROM users") as cursor:
+            async for row in cursor:
+                users.append({
+                    "user_id": row[0],
+                    "email": row[1],
+                    "ozon_api_key": row[2],
+                    "wildberries_api_key": row[3],
+                    "subscription_status": row[4],
+                    "subscription_end_date": row[5],
+                    "created_at": row[6],
+                    "check_interval": row[7]
+                })
+        return users
+
     async def update_promo_check(self, user_id: int, marketplace: str,
                                base_count: int, current_count: int) -> bool:
         """Update or create promo check record."""

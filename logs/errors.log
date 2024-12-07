@@ -288,3 +288,50 @@ Traceback (most recent call last):
 AttributeError: 'Config' object has no attribute 'admin_user_id'
 2024-12-07 16:23:44,639 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
 2024-12-07 16:25:25,169 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:00:06,566 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:00:57,032 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:03:07,081 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: process_ozon_api_key() missing 1 required positional argument: 'marketplace_factory'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+                 ~~~~~~~^^
+TypeError: process_ozon_api_key() missing 1 required positional argument: 'marketplace_factory'
+2024-12-07 17:05:09,802 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:17:24,662 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:17:42,353 - bot.middlewares.error - ERROR - Error processing event from user 743731: 'Database' object has no attribute 'get_all_users'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/admin.py", line 198, in on_admin_users
+    users = await db.get_all_users()
+                  ^^^^^^^^^^^^^^^^
+AttributeError: 'Database' object has no attribute 'get_all_users'
+2024-12-07 17:19:02,319 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:19:21,720 - bot.middlewares.error - ERROR - Error processing event from user 743731: fromisoformat: argument must be str
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/admin.py", line 208, in on_admin_users
+    text += format_user_info(user) + "\n"
+            ~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/utils/messages.py", line 142, in format_user_info
+    end_date = datetime.fromisoformat(end_date).strftime("%d.%m.%Y")
+               ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+TypeError: fromisoformat: argument must be str
+2024-12-07 17:21:13,163 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:28:57,390 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:30:08,026 - services.marketplaces.factory - ERROR - Error creating ozon client: 
+2024-12-07 17:35:13,035 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:35:33,963 - services.marketplaces.base - ERROR - Connection error: 404, message='Attempt to decode JSON with unexpected mimetype: text/plain; charset=utf-8', url='https://api-seller.ozon.ru/v1/product/info/list'
+2024-12-07 17:35:33,964 - services.marketplaces.factory - ERROR - Error creating ozon client: Invalid ozon API key

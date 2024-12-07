@@ -1,0 +1,7 @@
+logs/priceguard.log
+sqlite.db
+logs/errors.log
+src/bot/handlers/__pycache__/admin.cpython-313.pyc
+src/bot/handlers/__pycache__/user.cpython-313.pyc
+src/core/__pycache__/database.cpython-313.pyc
+src/services/marketplaces/__pycache__/factory.cpython-313.pyc

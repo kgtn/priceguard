@@ -23,7 +23,8 @@ from ..keyboards.user import (
     get_settings_keyboard,
     get_api_key_keyboard,
     get_subscription_keyboard,
-    get_confirmation_keyboard
+    get_confirmation_keyboard,
+    get_main_menu_keyboard
 )
 
 router = Router()
@@ -41,9 +42,19 @@ async def cmd_start(message: Message, db: Database) -> None:
     user_data = await db.get_user(message.from_user.id)
     is_registered = user_data is not None
     
+    if not is_registered:
+        await db.add_user(message.from_user.id)
+    
     await message.answer(
         format_start_message(is_registered),
         reply_markup=get_start_keyboard()
+    )
+    
+    # Show main menu after welcome message
+    await message.answer(
+        "🤖 Главное меню PriceGuard\n\n"
+        "Выберите нужное действие:",
+        reply_markup=get_main_menu_keyboard()
     )
 
 @router.message(Command("help"))
@@ -126,30 +137,49 @@ async def process_ozon_api_key(
         # Parse client_id and api_key
         client_id, api_key = message.text.strip().split(":")
         
+        await message.answer("🔄 Проверяю API ключ...")
+        
+        # Encrypt API key first
+        encrypted_key = marketplace_factory.encrypt_api_key(api_key)
+        
         # Validate API key
         async with await marketplace_factory.create_client(
-            "ozon", api_key, client_id
+            "ozon", encrypted_key, client_id
         ) as client:
             is_valid = await client.validate_api_key()
             
         if is_valid:
-            # Encrypt and save API key
-            encrypted_key = marketplace_factory.encrypt_api_key(api_key)
+            # Save encrypted API key
             await db.update_api_keys(
                 message.from_user.id,
                 ozon_key=encrypted_key
             )
             
-            await message.answer("✅ API ключ Ozon успешно добавлен!")
+            await message.answer(
+                "✅ API ключ Ozon успешно добавлен!\n\n"
+                "Теперь вы можете:\n"
+                "1️⃣ Добавить API ключ Wildberries в разделе 🔑 API ключи\n"
+                "2️⃣ Настроить интервал проверки в разделе ⏰ Интервал проверки\n"
+                "3️⃣ Начать отслеживать акции в разделе 📊 Мои акции",
+                reply_markup=get_main_menu_keyboard()
+            )
         else:
-            await message.answer("❌ Неверный API ключ")
-            
+            await message.answer(
+                "❌ Неверный API ключ\n\n"
+                "Пожалуйста, проверьте правильность введенных данных и попробуйте снова.\n"
+                "Формат: CLIENT_ID:API_KEY",
+                reply_markup=get_main_menu_keyboard()
+            )
     except ValueError:
         await message.answer(
-            "❌ Неверный формат. Отправьте в формате: CLIENT_ID:API_KEY"
+            "❌ Неверный формат. Отправьте в формате: CLIENT_ID:API_KEY",
+            reply_markup=get_main_menu_keyboard()
         )
     except Exception as e:
-        await message.answer(f"❌ Ошибка: {str(e)}")
+        await message.answer(
+            f"❌ Ошибка: {str(e)}",
+            reply_markup=get_main_menu_keyboard()
+        )
         
     finally:
         await state.clear()
@@ -308,3 +338,81 @@ async def process_cancellation(
     await callback.message.edit_text("❌ Действие отменено")
     await state.clear()
     await callback.answer()
+
+@router.message(Command("menu"))
+async def cmd_menu(message: Message, db: Database):
+    """Show main menu."""
+    user_data = await db.get_user(message.from_user.id)
+    if not user_data:
+        await db.add_user(message.from_user.id)
+    
+    await message.answer(
+        "🤖 Главное меню PriceGuard\n\n"
+        "Выберите нужное действие:",
+        reply_markup=get_main_menu_keyboard()
+    )
+
+@router.callback_query(F.data == "my_promotions")
+async def show_promotions(callback: CallbackQuery, db: Database):
+    """Show user's promotions."""
+    user_data = await db.get_user(callback.from_user.id)
+    if not user_data:
+        await callback.answer("❌ Сначала добавьте API ключи", show_alert=True)
+        return
+    
+    # TODO: Implement promotions display
+    await callback.message.edit_text(
+        "📊 Ваши акции\n\n"
+        "🚧 Функция в разработке",
+        reply_markup=get_main_menu_keyboard()
+    )
+
+@router.callback_query(F.data == "settings")
+async def show_settings(callback: CallbackQuery):
+    """Show settings menu."""
+    await callback.message.edit_text(
+        "⚙️ Настройки\n\n"
+        "Выберите параметр для настройки:",
+        reply_markup=get_settings_keyboard()
+    )
+
+@router.callback_query(F.data == "subscription")
+async def show_subscription(callback: CallbackQuery, db: Database):
+    """Show subscription info."""
+    user_data = await db.get_user(callback.from_user.id)
+    if not user_data:
+        await callback.answer("❌ Пользователь не найден", show_alert=True)
+        return
+    
+    status_text = await format_subscription_status(user_data)
+    await callback.message.edit_text(
+        status_text,
+        reply_markup=get_subscription_keyboard()
+    )
+
+@router.callback_query(F.data == "api_keys")
+async def show_api_keys(callback: CallbackQuery):
+    """Show API keys management."""
+    await callback.message.edit_text(
+        "🔑 Управление API ключами\n\n"
+        "Выберите маркетплейс для настройки:",
+        reply_markup=get_api_key_keyboard()
+    )
+
+@router.callback_query(F.data == "check_interval")
+async def show_check_interval(callback: CallbackQuery):
+    """Show check interval settings."""
+    await callback.message.edit_text(
+        "⏰ Интервал проверки акций\n\n"
+        "Выберите, как часто проверять акции:",
+        reply_markup=get_settings_keyboard()
+    )
+
+@router.callback_query(F.data == "help")
+async def show_help(callback: CallbackQuery):
+    """Show help message."""
+    help_text = format_help_message()
+    await callback.message.edit_text(
+        help_text,
+        reply_markup=get_main_menu_keyboard()
+    )

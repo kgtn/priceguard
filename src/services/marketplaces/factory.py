@@ -31,7 +31,13 @@ class MarketplaceFactory:
         Returns:
             str: Encrypted API key
         """
-        return self.fernet.encrypt(api_key.encode()).decode()
+        try:
+            encrypted = self.fernet.encrypt(api_key.encode()).decode()
+            logger.debug(f"API key encrypted successfully")
+            return encrypted
+        except Exception as e:
+            logger.error(f"Error encrypting API key: {str(e)}")
+            raise
         
     def decrypt_api_key(self, encrypted_key: str) -> str:
         """
@@ -43,7 +49,13 @@ class MarketplaceFactory:
         Returns:
             str: Decrypted API key
         """
-        return self.fernet.decrypt(encrypted_key.encode()).decode()
+        try:
+            decrypted = self.fernet.decrypt(encrypted_key.encode()).decode()
+            logger.debug(f"API key decrypted successfully")
+            return decrypted
+        except Exception as e:
+            logger.error(f"Error decrypting API key: {str(e)}")
+            raise
         
     async def create_client(
         self,

@@ -189,15 +189,29 @@ async def process_force_check(
 
 # Callback handlers
 @router.callback_query(F.data == "admin_users")
-async def on_admin_users(callback: types.CallbackQuery, settings: Settings):
+async def on_admin_users(callback: types.CallbackQuery, db: Database, settings: Settings):
     """Handle admin_users callback."""
     if not await is_admin(callback.from_user.id, settings):
         await callback.answer("❌ У вас нет прав администратора", show_alert=True)
         return
+
+    users = await db.get_all_users()
+    if not users:
+        await callback.message.edit_text(
+            "👥 Пользователей пока нет",
+            reply_markup=get_admin_keyboard()
+        )
+        return
+
+    text = "👥 Список пользователей:\n\n"
+    for user in users:
+        text += format_user_info(user) + "\n"
+
     await callback.message.edit_text(
-        "👥 Управление пользователями",
-        reply_markup=get_users_keyboard()
+        text,
+        reply_markup=get_admin_keyboard()
     )
+    await callback.answer()
 
 @router.callback_query(F.data == "admin_subscriptions")
 async def on_admin_subscriptions(callback: types.CallbackQuery, settings: Settings):

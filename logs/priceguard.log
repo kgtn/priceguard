@@ -413,3 +413,188 @@ AttributeError: 'Config' object has no attribute 'admin_user_id'
 2024-12-07 16:26:41,968 - aiogram.dispatcher - WARNING - Received SIGINT signal
 2024-12-07 16:26:41,969 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
 2024-12-07 16:26:41,970 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 17:00:06,530 - __main__ - INFO - Loading configuration...
+2024-12-07 17:00:06,531 - __main__ - INFO - Initializing bot...
+2024-12-07 17:00:06,565 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 17:00:06,565 - __main__ - INFO - Starting bot...
+2024-12-07 17:00:06,566 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 17:00:06,566 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:00:06,990 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:00:19,961 - aiogram.event - INFO - Update id=20180931 is handled. Duration 397 ms by bot id=7683347152
+2024-12-07 17:00:30,558 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:00:30,558 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:00:30,559 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 17:00:30,726 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:00:57,011 - __main__ - INFO - Loading configuration...
+2024-12-07 17:00:57,013 - __main__ - INFO - Initializing bot...
+2024-12-07 17:00:57,032 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 17:00:57,032 - __main__ - INFO - Starting bot...
+2024-12-07 17:00:57,032 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 17:00:57,032 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:00:57,368 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:01:07,535 - aiogram.event - INFO - Update id=20180932 is handled. Duration 459 ms by bot id=7683347152
+2024-12-07 17:01:13,207 - aiogram.event - INFO - Update id=20180933 is handled. Duration 277 ms by bot id=7683347152
+2024-12-07 17:01:17,293 - aiogram.event - INFO - Update id=20180934 is handled. Duration 255 ms by bot id=7683347152
+2024-12-07 17:01:20,052 - aiogram.event - INFO - Update id=20180935 is handled. Duration 178 ms by bot id=7683347152
+2024-12-07 17:01:25,218 - aiogram.event - INFO - Update id=20180936 is handled. Duration 225 ms by bot id=7683347152
+2024-12-07 17:01:28,039 - aiogram.event - INFO - Update id=20180937 is handled. Duration 282 ms by bot id=7683347152
+2024-12-07 17:01:30,417 - aiogram.event - INFO - Update id=20180938 is handled. Duration 202 ms by bot id=7683347152
+2024-12-07 17:01:33,025 - aiogram.event - INFO - Update id=20180939 is handled. Duration 144 ms by bot id=7683347152
+2024-12-07 17:01:34,620 - aiogram.event - INFO - Update id=20180940 is handled. Duration 265 ms by bot id=7683347152
+2024-12-07 17:03:07,081 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: process_ozon_api_key() missing 1 required positional argument: 'marketplace_factory'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+                 ~~~~~~~^^
+TypeError: process_ozon_api_key() missing 1 required positional argument: 'marketplace_factory'
+2024-12-07 17:03:07,624 - aiogram.event - INFO - Update id=20180941 is handled. Duration 544 ms by bot id=7683347152
+2024-12-07 17:03:27,631 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:03:27,632 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:03:27,633 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 17:05:09,776 - __main__ - INFO - Loading configuration...
+2024-12-07 17:05:09,777 - __main__ - INFO - Initializing bot...
+2024-12-07 17:05:09,800 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 17:05:09,801 - __main__ - INFO - Starting bot...
+2024-12-07 17:05:09,802 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 17:05:09,802 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:05:10,453 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:05:18,338 - aiogram.event - INFO - Update id=20180942 is handled. Duration 362 ms by bot id=7683347152
+2024-12-07 17:05:26,419 - aiogram.event - INFO - Update id=20180943 is handled. Duration 227 ms by bot id=7683347152
+2024-12-07 17:05:28,844 - aiogram.event - INFO - Update id=20180944 is handled. Duration 214 ms by bot id=7683347152
+2024-12-07 17:05:30,831 - aiogram.event - INFO - Update id=20180945 is handled. Duration 261 ms by bot id=7683347152
+2024-12-07 17:05:34,269 - aiogram.event - INFO - Update id=20180946 is handled. Duration 144 ms by bot id=7683347152
+2024-12-07 17:06:08,645 - aiogram.event - INFO - Update id=20180947 is not handled. Duration 1 ms by bot id=7683347152
+2024-12-07 17:06:25,596 - aiogram.event - INFO - Update id=20180948 is handled. Duration 364 ms by bot id=7683347152
+2024-12-07 17:06:27,295 - aiogram.event - INFO - Update id=20180949 is handled. Duration 134 ms by bot id=7683347152
+2024-12-07 17:06:29,595 - aiogram.event - INFO - Update id=20180950 is handled. Duration 266 ms by bot id=7683347152
+2024-12-07 17:06:33,052 - aiogram.event - INFO - Update id=20180951 is handled. Duration 138 ms by bot id=7683347152
+2024-12-07 17:06:35,516 - aiogram.event - INFO - Update id=20180952 is handled. Duration 247 ms by bot id=7683347152
+2024-12-07 17:06:37,207 - aiogram.event - INFO - Update id=20180953 is handled. Duration 299 ms by bot id=7683347152
+2024-12-07 17:06:40,450 - aiogram.event - INFO - Update id=20180954 is handled. Duration 164 ms by bot id=7683347152
+2024-12-07 17:06:42,537 - aiogram.event - INFO - Update id=20180955 is handled. Duration 202 ms by bot id=7683347152
+2024-12-07 17:06:45,409 - aiogram.event - INFO - Update id=20180956 is handled. Duration 152 ms by bot id=7683347152
+2024-12-07 17:07:04,507 - aiogram.event - INFO - Update id=20180957 is handled. Duration 363 ms by bot id=7683347152
+2024-12-07 17:07:05,933 - aiogram.event - INFO - Update id=20180958 is handled. Duration 150 ms by bot id=7683347152
+2024-12-07 17:07:18,331 - aiogram.event - INFO - Update id=20180959 is handled. Duration 229 ms by bot id=7683347152
+2024-12-07 17:07:25,298 - aiogram.event - INFO - Update id=20180960 is handled. Duration 158 ms by bot id=7683347152
+2024-12-07 17:07:26,906 - aiogram.event - INFO - Update id=20180961 is handled. Duration 129 ms by bot id=7683347152
+2024-12-07 17:07:28,855 - aiogram.event - INFO - Update id=20180962 is not handled. Duration 3 ms by bot id=7683347152
+2024-12-07 17:07:38,251 - aiogram.event - INFO - Update id=20180963 is not handled. Duration 3 ms by bot id=7683347152
+2024-12-07 17:07:39,890 - aiogram.event - INFO - Update id=20180964 is handled. Duration 191 ms by bot id=7683347152
+2024-12-07 17:07:42,601 - aiogram.event - INFO - Update id=20180965 is handled. Duration 259 ms by bot id=7683347152
+2024-12-07 17:07:44,609 - aiogram.event - INFO - Update id=20180966 is handled. Duration 125 ms by bot id=7683347152
+2024-12-07 17:07:46,337 - aiogram.event - INFO - Update id=20180967 is not handled. Duration 3 ms by bot id=7683347152
+2024-12-07 17:07:47,977 - aiogram.event - INFO - Update id=20180968 is not handled. Duration 4 ms by bot id=7683347152
+2024-12-07 17:11:50,155 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:11:50,156 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:11:50,157 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 17:17:24,640 - __main__ - INFO - Loading configuration...
+2024-12-07 17:17:24,642 - __main__ - INFO - Initializing bot...
+2024-12-07 17:17:24,662 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 17:17:24,662 - __main__ - INFO - Starting bot...
+2024-12-07 17:17:24,662 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 17:17:24,662 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:17:25,466 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:17:32,778 - aiogram.event - INFO - Update id=20180969 is handled. Duration 425 ms by bot id=7683347152
+2024-12-07 17:17:38,979 - aiogram.event - INFO - Update id=20180970 is handled. Duration 130 ms by bot id=7683347152
+2024-12-07 17:17:42,353 - bot.middlewares.error - ERROR - Error processing event from user 743731: 'Database' object has no attribute 'get_all_users'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/admin.py", line 198, in on_admin_users
+    users = await db.get_all_users()
+                  ^^^^^^^^^^^^^^^^
+AttributeError: 'Database' object has no attribute 'get_all_users'
+2024-12-07 17:17:42,615 - aiogram.event - INFO - Update id=20180971 is handled. Duration 263 ms by bot id=7683347152
+2024-12-07 17:18:02,073 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:18:02,073 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:18:02,074 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 17:19:02,300 - __main__ - INFO - Loading configuration...
+2024-12-07 17:19:02,301 - __main__ - INFO - Initializing bot...
+2024-12-07 17:19:02,319 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 17:19:02,319 - __main__ - INFO - Starting bot...
+2024-12-07 17:19:02,319 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 17:19:02,319 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:19:02,653 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:19:16,489 - aiogram.event - INFO - Update id=20180972 is handled. Duration 380 ms by bot id=7683347152
+2024-12-07 17:19:20,259 - aiogram.event - INFO - Update id=20180973 is handled. Duration 137 ms by bot id=7683347152
+2024-12-07 17:19:21,720 - bot.middlewares.error - ERROR - Error processing event from user 743731: fromisoformat: argument must be str
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/admin.py", line 208, in on_admin_users
+    text += format_user_info(user) + "\n"
+            ~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/utils/messages.py", line 142, in format_user_info
+    end_date = datetime.fromisoformat(end_date).strftime("%d.%m.%Y")
+               ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+TypeError: fromisoformat: argument must be str
+2024-12-07 17:19:22,024 - aiogram.event - INFO - Update id=20180974 is handled. Duration 306 ms by bot id=7683347152
+2024-12-07 17:19:58,259 - aiogram.event - INFO - Update id=20180975 is handled. Duration 453 ms by bot id=7683347152
+2024-12-07 17:20:03,452 - aiogram.event - INFO - Update id=20180976 is handled. Duration 138 ms by bot id=7683347152
+2024-12-07 17:20:06,865 - aiogram.event - INFO - Update id=20180977 is handled. Duration 368 ms by bot id=7683347152
+2024-12-07 17:20:08,951 - aiogram.event - INFO - Update id=20180978 is handled. Duration 294 ms by bot id=7683347152
+2024-12-07 17:20:14,951 - aiogram.event - INFO - Update id=20180979 is handled. Duration 268 ms by bot id=7683347152
+2024-12-07 17:20:16,962 - aiogram.event - INFO - Update id=20180980 is handled. Duration 189 ms by bot id=7683347152
+2024-12-07 17:20:19,866 - aiogram.event - INFO - Update id=20180981 is handled. Duration 160 ms by bot id=7683347152
+2024-12-07 17:20:21,732 - aiogram.event - INFO - Update id=20180982 is handled. Duration 293 ms by bot id=7683347152
+2024-12-07 17:20:24,805 - aiogram.event - INFO - Update id=20180983 is handled. Duration 134 ms by bot id=7683347152
+2024-12-07 17:20:26,249 - aiogram.event - INFO - Update id=20180984 is handled. Duration 200 ms by bot id=7683347152
+2024-12-07 17:20:29,558 - aiogram.event - INFO - Update id=20180985 is handled. Duration 234 ms by bot id=7683347152
+2024-12-07 17:20:55,975 - aiogram.event - INFO - Update id=20180986 is handled. Duration 352 ms by bot id=7683347152
+2024-12-07 17:21:01,670 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:21:01,670 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:21:01,670 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 17:21:13,145 - __main__ - INFO - Loading configuration...
+2024-12-07 17:21:13,146 - __main__ - INFO - Initializing bot...
+2024-12-07 17:21:13,163 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 17:21:13,163 - __main__ - INFO - Starting bot...
+2024-12-07 17:21:13,163 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 17:21:13,163 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:21:13,493 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:21:32,620 - aiogram.event - INFO - Update id=20180987 is handled. Duration 363 ms by bot id=7683347152
+2024-12-07 17:21:38,196 - aiogram.event - INFO - Update id=20180988 is handled. Duration 139 ms by bot id=7683347152
+2024-12-07 17:21:40,040 - aiogram.event - INFO - Update id=20180989 is handled. Duration 503 ms by bot id=7683347152
+2024-12-07 17:22:23,053 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:22:23,054 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:22:23,054 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 17:28:57,370 - __main__ - INFO - Loading configuration...
+2024-12-07 17:28:57,371 - __main__ - INFO - Initializing bot...
+2024-12-07 17:28:57,389 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 17:28:57,389 - __main__ - INFO - Starting bot...
+2024-12-07 17:28:57,390 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 17:28:57,390 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:28:58,154 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:28:58,291 - bot.middlewares.auth - INFO - New user registered: 1879978399
+2024-12-07 17:28:58,720 - aiogram.event - INFO - Update id=20180990 is handled. Duration 433 ms by bot id=7683347152
+2024-12-07 17:29:05,691 - aiogram.event - INFO - Update id=20180991 is handled. Duration 146 ms by bot id=7683347152
+2024-12-07 17:29:07,864 - aiogram.event - INFO - Update id=20180992 is handled. Duration 303 ms by bot id=7683347152
+2024-12-07 17:29:09,484 - aiogram.event - INFO - Update id=20180993 is handled. Duration 253 ms by bot id=7683347152
+2024-12-07 17:30:08,026 - services.marketplaces.factory - ERROR - Error creating ozon client: 
+2024-12-07 17:30:08,198 - aiogram.event - INFO - Update id=20180994 is handled. Duration 617 ms by bot id=7683347152
+2024-12-07 17:30:41,884 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:30:41,884 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:30:41,885 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 17:35:13,016 - __main__ - INFO - Loading configuration...
+2024-12-07 17:35:13,017 - __main__ - INFO - Initializing bot...
+2024-12-07 17:35:13,034 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 17:35:13,034 - __main__ - INFO - Starting bot...
+2024-12-07 17:35:13,035 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 17:35:13,035 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 17:35:13,813 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:35:17,350 - aiogram.event - INFO - Update id=20180995 is handled. Duration 404 ms by bot id=7683347152
+2024-12-07 17:35:18,645 - aiogram.event - INFO - Update id=20180996 is handled. Duration 260 ms by bot id=7683347152
+2024-12-07 17:35:33,963 - services.marketplaces.base - ERROR - Connection error: 404, message='Attempt to decode JSON with unexpected mimetype: text/plain; charset=utf-8', url='https://api-seller.ozon.ru/v1/product/info/list'
+2024-12-07 17:35:33,964 - services.marketplaces.factory - ERROR - Error creating ozon client: Invalid ozon API key
+2024-12-07 17:35:34,137 - aiogram.event - INFO - Update id=20180997 is handled. Duration 780 ms by bot id=7683347152
