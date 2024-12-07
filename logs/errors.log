@@ -424,3 +424,4 @@ NameError: name 'logger' is not defined
 2024-12-07 22:03:14,225 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
 2024-12-07 22:03:39,071 - services.marketplaces.base - ERROR - Validation error: Invalid API endpoint or Client ID
 2024-12-07 22:07:23,783 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:17:49,519 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'

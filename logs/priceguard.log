@@ -817,3 +817,21 @@ NameError: name 'logger' is not defined
 2024-12-07 22:14:13,082 - aiogram.dispatcher - WARNING - Received SIGINT signal
 2024-12-07 22:14:13,083 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
 2024-12-07 22:14:13,084 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 22:17:49,497 - __main__ - INFO - Loading configuration...
+2024-12-07 22:17:49,498 - __main__ - INFO - Initializing bot...
+2024-12-07 22:17:49,518 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 22:17:49,518 - __main__ - INFO - Starting bot...
+2024-12-07 22:17:49,519 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 22:17:49,519 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:17:50,243 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:18:04,282 - aiogram.event - INFO - Update id=20181053 is handled. Duration 465 ms by bot id=7683347152
+2024-12-07 22:18:07,757 - aiogram.event - INFO - Update id=20181054 is handled. Duration 133 ms by bot id=7683347152
+2024-12-07 22:18:09,410 - aiogram.event - INFO - Update id=20181055 is handled. Duration 269 ms by bot id=7683347152
+2024-12-07 22:18:10,567 - aiogram.event - INFO - Update id=20181056 is handled. Duration 258 ms by bot id=7683347152
+2024-12-07 22:18:14,930 - aiogram.event - INFO - Update id=20181057 is handled. Duration 1282 ms by bot id=7683347152
+2024-12-07 22:18:35,575 - aiogram.event - INFO - Update id=20181058 is handled. Duration 399 ms by bot id=7683347152
+2024-12-07 22:18:40,294 - aiogram.event - INFO - Update id=20181059 is handled. Duration 126 ms by bot id=7683347152
+2024-12-07 22:18:42,609 - aiogram.event - INFO - Update id=20181060 is handled. Duration 316 ms by bot id=7683347152
+2024-12-07 22:18:57,181 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:18:57,182 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:18:57,182 - aiogram.dispatcher - INFO - Polling stopped

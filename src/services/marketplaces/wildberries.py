@@ -12,6 +12,7 @@ class WildberriesClient(MarketplaceClient):
         super().__init__(api_key)
         self.base_url = "https://discounts-prices-api-sandbox.wildberries.ru"
         self.calendar_url = "https://dp-calendar-api.wildberries.ru"
+        self.common_url = "https://common-api.wildberries.ru"
         
     def _get_headers(self) -> Dict[str, str]:
         """Get headers for Wildberries API requests."""
@@ -22,7 +23,7 @@ class WildberriesClient(MarketplaceClient):
         
     async def validate_api_key(self) -> bool:
         """
-        Validate Wildberries API key by making a test request.
+        Validate Wildberries API key by making a test request to /ping endpoint.
         
         Returns:
             bool: True if API key is valid
@@ -31,18 +32,11 @@ class WildberriesClient(MarketplaceClient):
             ValueError: If API key is invalid
         """
         try:
-            # Use sandbox endpoint for validation
+            # Use ping endpoint for validation
             await self._make_request(
-                method="POST",
-                url=f"{self.base_url}/api/v1/promo/search",
-                headers=self._get_headers(),
-                json={
-                    "search": {
-                        "limit": 1,
-                        "offset": 0,
-                        "nmIds": []
-                    }
-                }
+                method="GET",
+                url=f"{self.common_url}/ping",
+                headers=self._get_headers()
             )
             return True
         except ValueError:

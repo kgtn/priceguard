@@ -188,7 +188,34 @@ exceptionProductsCount (integer <uint>)
 Использование
 С помощью данного метода можно получить информацию о том, сколько товаров клиента участвуют в автоакциях Wildberries ("type": "auto").
 
+## Метод валидации ключа WB
+```python
+self.common_url = "https://common-api.wildberries.ru"
+async def validate_api_key(self) -> bool:
+        """
+        Validate Wildberries API key by making a test request to /ping endpoint.
+        
+        Returns:
+            bool: True if API key is valid
+            
+        Raises:
+            ValueError: If API key is invalid
+        """
+        try:
+            # Use ping endpoint for validation
+            await self._make_request(
+                method="GET",
+                url=f"{self.common_url}/ping",
+                headers=self._get_headers()
+            )
+            return True
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Validation error: {str(e)}")
+            return False
 ```
+
 
 
 ### Как получить API-ключ Ozon
