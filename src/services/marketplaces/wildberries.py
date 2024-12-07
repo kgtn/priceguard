@@ -10,7 +10,7 @@ from .base import MarketplaceClient, logger
 class WildberriesClient(MarketplaceClient):
     def __init__(self, api_key: str):
         super().__init__(api_key)
-        self.base_url = "https://suppliers-api.wildberries.ru"
+        self.base_url = "https://discounts-prices-api-sandbox.wildberries.ru"
         self.calendar_url = "https://dp-calendar-api.wildberries.ru"
         
     def _get_headers(self) -> Dict[str, str]:
@@ -31,15 +31,24 @@ class WildberriesClient(MarketplaceClient):
             ValueError: If API key is invalid
         """
         try:
+            # Use sandbox endpoint for validation
             await self._make_request(
-                method="GET",
-                url=f"{self.base_url}/public/api/v1/info",
-                headers=self._get_headers()
+                method="POST",
+                url=f"{self.base_url}/api/v1/promo/search",
+                headers=self._get_headers(),
+                json={
+                    "search": {
+                        "limit": 1,
+                        "offset": 0,
+                        "nmIds": []
+                    }
+                }
             )
             return True
         except ValueError:
             raise
-        except Exception:
+        except Exception as e:
+            logger.error(f"Validation error: {str(e)}")
             return False
             
     async def get_promo_products(self) -> List[Dict]:

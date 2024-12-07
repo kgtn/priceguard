@@ -70,21 +70,34 @@ class MarketplaceClient(ABC):
                 json=json,
                 params=params
             ) as response:
+                content_type = response.headers.get('content-type', '')
+                if not content_type.startswith('application/json'):
+                    text = await response.text()
+                    logger.error(f"Unexpected response type: {content_type}, body: {text}")
+                    raise ValueError("Invalid API key or Client ID")
+                
                 response_data = await response.json()
                 
                 if response.status == 401:
                     raise ValueError("Invalid API key")
+                elif response.status == 403:
+                    raise ValueError("Invalid Client ID")
+                elif response.status == 404:
+                    raise ValueError("Invalid API endpoint or Client ID")
                 elif response.status >= 500:
                     raise ConnectionError(f"Marketplace API error: {response.status}")
                 elif response.status >= 400:
-                    raise Exception(f"Request error: {response_data.get('message', 'Unknown error')}")
+                    error_msg = response_data.get('message', 'Unknown error')
+                    logger.error(f"API error: {error_msg}")
+                    raise Exception(f"Request error: {error_msg}")
                     
                 return response_data
                 
         except aiohttp.ClientError as e:
             logger.error(f"Connection error: {str(e)}")
             raise ConnectionError(f"Failed to connect to marketplace API: {str(e)}")
-        except ValueError:
+        except ValueError as e:
+            logger.error(f"Validation error: {str(e)}")
             raise
         except Exception as e:
             logger.error(f"Request error: {str(e)}")

@@ -11,7 +11,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from core.database import Database
+from core.logging import get_logger
 from services.marketplaces.factory import MarketplaceFactory
+from services.marketplaces.ozon import OzonClient
+from services.marketplaces.wildberries import WildberriesClient
 from ..utils.messages import (
     format_start_message,
     format_help_message,
@@ -28,6 +31,7 @@ from ..keyboards.user import (
 )
 
 router = Router()
+logger = get_logger(__name__)
 
 class UserStates(StatesGroup):
     """User state machine for conversation handling."""
@@ -139,17 +143,13 @@ async def process_ozon_api_key(
         
         await message.answer("🔄 Проверяю API ключ...")
         
-        # Encrypt API key first
-        encrypted_key = marketplace_factory.encrypt_api_key(api_key)
-        
-        # Validate API key
-        async with await marketplace_factory.create_client(
-            "ozon", encrypted_key, client_id
-        ) as client:
+        # Create client directly for validation
+        async with OzonClient(api_key=api_key, client_id=client_id) as client:
             is_valid = await client.validate_api_key()
             
         if is_valid:
-            # Save encrypted API key
+            # Encrypt and save API key only if valid
+            encrypted_key = marketplace_factory.encrypt_api_key(api_key)
             await db.update_api_keys(
                 message.from_user.id,
                 ozon_key=encrypted_key
@@ -165,22 +165,34 @@ async def process_ozon_api_key(
             )
         else:
             await message.answer(
-                "❌ Неверный API ключ\n\n"
-                "Пожалуйста, проверьте правильность введенных данных и попробуйте снова.\n"
-                "Формат: CLIENT_ID:API_KEY",
+                "❌ Неверный API ключ или Client ID\n\n"
+                "Убедитесь, что:\n"
+                "1. Вы скопировали Client ID из личного кабинета Ozon\n"
+                "2. API ключ активен и имеет необходимые права\n"
+                "3. Формат строго соответствует: CLIENT_ID:API_KEY\n\n"
+                "Попробуйте снова или обратитесь в поддержку Ozon",
                 reply_markup=get_main_menu_keyboard()
             )
     except ValueError:
         await message.answer(
-            "❌ Неверный формат. Отправьте в формате: CLIENT_ID:API_KEY",
+            "❌ Неверный формат данных\n\n"
+            "Отправьте в формате: CLIENT_ID:API_KEY\n"
+            "Пример: 12345:a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6\n\n"
+            "Где:\n"
+            "- CLIENT_ID: ID клиента из личного кабинета Ozon\n"
+            "- API_KEY: Ключ API из раздела 'API ключи'",
             reply_markup=get_main_menu_keyboard()
         )
     except Exception as e:
+        logger.error(f"Error processing Ozon API key: {str(e)}")
         await message.answer(
-            f"❌ Ошибка: {str(e)}",
+            "❌ Произошла ошибка при проверке API ключа\n\n"
+            "Пожалуйста, убедитесь что:\n"
+            "1. У вас есть доступ к API Ozon\n"
+            "2. API ключ активен\n"
+            "3. Формат данных верный: CLIENT_ID:API_KEY",
             reply_markup=get_main_menu_keyboard()
         )
-        
     finally:
         await state.clear()
 
@@ -195,28 +207,47 @@ async def process_wb_api_key(
     try:
         api_key = message.text.strip()
         
-        # Validate API key
-        async with await marketplace_factory.create_client(
-            "wildberries",
-            api_key
-        ) as client:
+        await message.answer("🔄 Проверяю API ключ...")
+        
+        # Create client directly for validation
+        async with WildberriesClient(api_key=api_key) as client:
             is_valid = await client.validate_api_key()
             
         if is_valid:
-            # Encrypt and save API key
+            # Encrypt and save API key only if valid
             encrypted_key = marketplace_factory.encrypt_api_key(api_key)
             await db.update_api_keys(
                 message.from_user.id,
                 wildberries_key=encrypted_key
             )
             
-            await message.answer("✅ API ключ Wildberries успешно добавлен!")
+            await message.answer(
+                "✅ API ключ Wildberries успешно добавлен!\n\n"
+                "Теперь вы можете:\n"
+                "1️⃣ Настроить интервал проверки в разделе ⏰ Интервал проверки\n"
+                "2️⃣ Начать отслеживать акции в разделе 📊 Мои акции",
+                reply_markup=get_main_menu_keyboard()
+            )
         else:
-            await message.answer("❌ Неверный API ключ")
-            
+            await message.answer(
+                "❌ Неверный API ключ\n\n"
+                "Убедитесь, что:\n"
+                "1. Вы скопировали API ключ из личного кабинета Wildberries\n"
+                "2. API ключ активен и имеет необходимые права\n"
+                "3. Ключ не содержит лишних пробелов\n\n"
+                "Попробуйте снова или обратитесь в поддержку Wildberries",
+                reply_markup=get_main_menu_keyboard()
+            )
     except Exception as e:
-        await message.answer(f"❌ Ошибка: {str(e)}")
-        
+        logger.error(f"Error processing Wildberries API key: {str(e)}")
+        await message.answer(
+            "❌ Произошла ошибка при проверке API ключа\n\n"
+            "Пожалуйста, убедитесь что:\n"
+            "1. У вас есть доступ к API Wildberries\n"
+            "2. API ключ активен\n"
+            "3. Ключ не содержит лишних символов",
+            reply_markup=get_main_menu_keyboard()
+        )
     finally:
         await state.clear()
 

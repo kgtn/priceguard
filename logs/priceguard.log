@@ -598,3 +598,222 @@ TypeError: fromisoformat: argument must be str
 2024-12-07 17:35:33,963 - services.marketplaces.base - ERROR - Connection error: 404, message='Attempt to decode JSON with unexpected mimetype: text/plain; charset=utf-8', url='https://api-seller.ozon.ru/v1/product/info/list'
 2024-12-07 17:35:33,964 - services.marketplaces.factory - ERROR - Error creating ozon client: Invalid ozon API key
 2024-12-07 17:35:34,137 - aiogram.event - INFO - Update id=20180997 is handled. Duration 780 ms by bot id=7683347152
+2024-12-07 17:43:29,456 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 17:43:29,457 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 17:43:29,457 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 21:37:10,194 - __main__ - INFO - Loading configuration...
+2024-12-07 21:37:10,195 - __main__ - INFO - Initializing bot...
+2024-12-07 21:37:10,215 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 21:37:10,215 - __main__ - INFO - Starting bot...
+2024-12-07 21:37:10,215 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 21:37:10,216 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:37:10,655 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:37:11,223 - aiogram.event - INFO - Update id=20180998 is handled. Duration 439 ms by bot id=7683347152
+2024-12-07 21:37:37,742 - aiogram.event - INFO - Update id=20180999 is handled. Duration 357 ms by bot id=7683347152
+2024-12-07 21:37:44,510 - aiogram.event - INFO - Update id=20181000 is handled. Duration 162 ms by bot id=7683347152
+2024-12-07 21:37:46,033 - aiogram.event - INFO - Update id=20181001 is handled. Duration 308 ms by bot id=7683347152
+2024-12-07 21:37:47,512 - aiogram.event - INFO - Update id=20181002 is handled. Duration 382 ms by bot id=7683347152
+2024-12-07 21:37:50,088 - services.marketplaces.factory - ERROR - Error decrypting API key: 
+2024-12-07 21:37:50,088 - services.marketplaces.factory - ERROR - Error creating ozon client: 
+2024-12-07 21:37:50,266 - aiogram.event - INFO - Update id=20181003 is handled. Duration 367 ms by bot id=7683347152
+2024-12-07 21:38:57,542 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 21:38:57,542 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:38:57,543 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 21:39:09,866 - __main__ - INFO - Loading configuration...
+2024-12-07 21:39:09,867 - __main__ - INFO - Initializing bot...
+2024-12-07 21:39:09,887 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 21:39:09,887 - __main__ - INFO - Starting bot...
+2024-12-07 21:39:09,887 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 21:39:09,888 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:39:10,227 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:39:20,585 - aiogram.event - INFO - Update id=20181004 is handled. Duration 372 ms by bot id=7683347152
+2024-12-07 21:39:25,330 - aiogram.event - INFO - Update id=20181005 is handled. Duration 198 ms by bot id=7683347152
+2024-12-07 21:39:27,117 - aiogram.event - INFO - Update id=20181006 is handled. Duration 263 ms by bot id=7683347152
+2024-12-07 21:39:28,448 - aiogram.event - INFO - Update id=20181007 is handled. Duration 248 ms by bot id=7683347152
+2024-12-07 21:39:32,491 - services.marketplaces.base - ERROR - Unexpected response type: text/plain; charset=utf-8, body: 404 page not found
+
+2024-12-07 21:39:32,491 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:39:32,633 - aiogram.event - INFO - Update id=20181008 is handled. Duration 902 ms by bot id=7683347152
+2024-12-07 21:40:57,368 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 21:40:57,369 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:40:57,369 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 21:41:20,522 - __main__ - INFO - Loading configuration...
+2024-12-07 21:41:20,523 - __main__ - INFO - Initializing bot...
+2024-12-07 21:41:20,543 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 21:41:20,543 - __main__ - INFO - Starting bot...
+2024-12-07 21:41:20,544 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 21:41:20,544 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:41:20,881 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:41:28,901 - aiogram.event - INFO - Update id=20181009 is handled. Duration 377 ms by bot id=7683347152
+2024-12-07 21:41:33,478 - aiogram.event - INFO - Update id=20181010 is handled. Duration 163 ms by bot id=7683347152
+2024-12-07 21:41:35,199 - aiogram.event - INFO - Update id=20181011 is handled. Duration 344 ms by bot id=7683347152
+2024-12-07 21:41:36,462 - aiogram.event - INFO - Update id=20181012 is handled. Duration 259 ms by bot id=7683347152
+2024-12-07 21:41:40,813 - services.marketplaces.base - ERROR - Unexpected response type: text/plain; charset=utf-8, body: 404 page not found
+
+2024-12-07 21:41:40,813 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:41:41,035 - aiogram.event - INFO - Update id=20181013 is handled. Duration 692 ms by bot id=7683347152
+2024-12-07 21:42:14,154 - aiogram.event - INFO - Update id=20181014 is handled. Duration 350 ms by bot id=7683347152
+2024-12-07 21:42:15,660 - aiogram.event - INFO - Update id=20181015 is handled. Duration 257 ms by bot id=7683347152
+2024-12-07 21:42:20,142 - services.marketplaces.factory - ERROR - Error decrypting API key: 
+2024-12-07 21:42:20,142 - services.marketplaces.factory - ERROR - Error creating wildberries client: 
+2024-12-07 21:42:20,273 - aiogram.event - INFO - Update id=20181016 is handled. Duration 132 ms by bot id=7683347152
+2024-12-07 21:44:15,910 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 21:44:15,911 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:44:15,911 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 21:44:24,774 - __main__ - INFO - Loading configuration...
+2024-12-07 21:44:24,775 - __main__ - INFO - Initializing bot...
+2024-12-07 21:44:24,793 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 21:44:24,793 - __main__ - INFO - Starting bot...
+2024-12-07 21:44:24,793 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 21:44:24,794 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:44:25,128 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:44:34,263 - aiogram.event - INFO - Update id=20181017 is handled. Duration 382 ms by bot id=7683347152
+2024-12-07 21:44:38,411 - aiogram.event - INFO - Update id=20181018 is handled. Duration 141 ms by bot id=7683347152
+2024-12-07 21:44:40,484 - aiogram.event - INFO - Update id=20181019 is handled. Duration 285 ms by bot id=7683347152
+2024-12-07 21:44:41,693 - aiogram.event - INFO - Update id=20181020 is handled. Duration 248 ms by bot id=7683347152
+2024-12-07 21:44:47,775 - services.marketplaces.base - ERROR - Unexpected response type: text/plain; charset=utf-8, body: 404 page not found
+
+2024-12-07 21:44:47,775 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:44:47,900 - aiogram.event - INFO - Update id=20181021 is handled. Duration 944 ms by bot id=7683347152
+2024-12-07 21:44:57,503 - aiogram.event - INFO - Update id=20181022 is handled. Duration 204 ms by bot id=7683347152
+2024-12-07 21:44:59,179 - aiogram.event - INFO - Update id=20181023 is handled. Duration 344 ms by bot id=7683347152
+2024-12-07 21:45:08,443 - services.marketplaces.base - ERROR - Unexpected response type: text/html; charset=utf-8, body: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+2024-12-07 21:45:08,443 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:45:08,443 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: name 'logger' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 212, in process_wb_api_key
+    is_valid = await client.validate_api_key()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/services/marketplaces/wildberries.py", line 34, in validate_api_key
+    await self._make_request(
+    ...<3 lines>...
+    )
+  File "/Users/kagitin/CascadeProjects/priceguard/src/services/marketplaces/base.py", line 77, in _make_request
+    raise ValueError("Invalid API key or Client ID")
+ValueError: Invalid API key or Client ID
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 240, in process_wb_api_key
+    logger.error(f"Error processing Wildberries API key: {str(e)}")
+    ^^^^^^
+NameError: name 'logger' is not defined
+2024-12-07 21:45:08,894 - aiogram.event - INFO - Update id=20181024 is handled. Duration 1461 ms by bot id=7683347152
+2024-12-07 21:47:33,115 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 21:47:33,115 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:47:33,116 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 21:49:35,861 - __main__ - INFO - Loading configuration...
+2024-12-07 21:49:35,862 - __main__ - INFO - Initializing bot...
+2024-12-07 21:49:35,881 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 21:49:35,881 - __main__ - INFO - Starting bot...
+2024-12-07 21:49:35,882 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 21:49:35,882 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:49:36,508 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:49:46,380 - aiogram.event - INFO - Update id=20181025 is handled. Duration 375 ms by bot id=7683347152
+2024-12-07 21:49:50,874 - aiogram.event - INFO - Update id=20181026 is handled. Duration 174 ms by bot id=7683347152
+2024-12-07 21:49:52,510 - aiogram.event - INFO - Update id=20181027 is handled. Duration 293 ms by bot id=7683347152
+2024-12-07 21:49:53,874 - aiogram.event - INFO - Update id=20181028 is handled. Duration 306 ms by bot id=7683347152
+2024-12-07 21:49:59,210 - services.marketplaces.base - ERROR - Unexpected response type: application/problem+json, body: {
+    "title": "path not found",
+    "detail": "Please consult the https://openapi.wildberries.ru",
+    "code": "9995b4770d66c-f3e1c2a5 afe5729a7d2c3880a9d26a24a4224b81",
+    "requestId": "afe5729a7d2c3880a9d26a24a4224b81",
+    "origin": "s2s-api-auth-dp-sandbox",
+    "status": 404,
+    "statusText": "Not Found",
+    "timestamp": "2024-12-07T18:49:58Z"
+}
+
+2024-12-07 21:49:59,210 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:49:59,211 - bot.handlers.user - ERROR - Error processing Wildberries API key: Invalid API key or Client ID
+2024-12-07 21:49:59,348 - aiogram.event - INFO - Update id=20181029 is handled. Duration 1628 ms by bot id=7683347152
+2024-12-07 21:50:22,990 - aiogram.event - INFO - Update id=20181030 is handled. Duration 463 ms by bot id=7683347152
+2024-12-07 21:50:24,628 - aiogram.event - INFO - Update id=20181031 is handled. Duration 361 ms by bot id=7683347152
+2024-12-07 21:50:27,645 - services.marketplaces.base - ERROR - API error: No search criteria
+2024-12-07 21:50:27,646 - services.marketplaces.base - ERROR - Request error: Request error: No search criteria
+2024-12-07 21:50:27,646 - services.marketplaces.base - ERROR - Validation error: Request error: No search criteria
+2024-12-07 21:50:27,912 - aiogram.event - INFO - Update id=20181032 is handled. Duration 1121 ms by bot id=7683347152
+2024-12-07 21:53:00,620 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 21:53:00,620 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:53:00,620 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 21:53:10,842 - __main__ - INFO - Loading configuration...
+2024-12-07 21:53:10,843 - __main__ - INFO - Initializing bot...
+2024-12-07 21:53:10,863 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 21:53:10,863 - __main__ - INFO - Starting bot...
+2024-12-07 21:53:10,863 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 21:53:10,863 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:53:11,329 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 21:53:20,277 - aiogram.event - INFO - Update id=20181033 is handled. Duration 372 ms by bot id=7683347152
+2024-12-07 21:53:24,578 - aiogram.event - INFO - Update id=20181034 is handled. Duration 272 ms by bot id=7683347152
+2024-12-07 21:53:25,934 - aiogram.event - INFO - Update id=20181035 is handled. Duration 211 ms by bot id=7683347152
+2024-12-07 21:53:27,520 - aiogram.event - INFO - Update id=20181036 is handled. Duration 244 ms by bot id=7683347152
+2024-12-07 21:53:30,910 - services.marketplaces.base - ERROR - Unexpected response type: text/plain; charset=utf-8, body: 404 page not found
+
+2024-12-07 21:53:30,910 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:53:31,122 - aiogram.event - INFO - Update id=20181037 is handled. Duration 687 ms by bot id=7683347152
+2024-12-07 21:53:38,050 - aiogram.event - INFO - Update id=20181038 is handled. Duration 174 ms by bot id=7683347152
+2024-12-07 21:53:39,622 - aiogram.event - INFO - Update id=20181039 is handled. Duration 280 ms by bot id=7683347152
+2024-12-07 21:53:44,360 - services.marketplaces.base - ERROR - Unexpected response type: application/problem+json, body: {
+    "title": "path not found",
+    "detail": "Please consult the https://openapi.wildberries.ru",
+    "code": "9995b4770d66c-f3e1c2a5 100383f3cea0510517f9c548ba59a5a0",
+    "requestId": "100383f3cea0510517f9c548ba59a5a0",
+    "origin": "s2s-api-auth-dp-sandbox",
+    "status": 404,
+    "statusText": "Not Found",
+    "timestamp": "2024-12-07T18:53:43Z"
+}
+
+2024-12-07 21:53:44,360 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:53:44,361 - bot.handlers.user - ERROR - Error processing Wildberries API key: Invalid API key or Client ID
+2024-12-07 21:53:44,497 - aiogram.event - INFO - Update id=20181040 is handled. Duration 1263 ms by bot id=7683347152
+2024-12-07 22:03:03,042 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:03:03,045 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:03:03,046 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 22:03:14,202 - __main__ - INFO - Loading configuration...
+2024-12-07 22:03:14,203 - __main__ - INFO - Initializing bot...
+2024-12-07 22:03:14,224 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 22:03:14,224 - __main__ - INFO - Starting bot...
+2024-12-07 22:03:14,225 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 22:03:14,225 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:03:14,665 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:03:26,302 - aiogram.event - INFO - Update id=20181041 is handled. Duration 406 ms by bot id=7683347152
+2024-12-07 22:03:30,791 - aiogram.event - INFO - Update id=20181042 is handled. Duration 142 ms by bot id=7683347152
+2024-12-07 22:03:32,231 - aiogram.event - INFO - Update id=20181043 is handled. Duration 225 ms by bot id=7683347152
+2024-12-07 22:03:33,570 - aiogram.event - INFO - Update id=20181044 is handled. Duration 258 ms by bot id=7683347152
+2024-12-07 22:03:39,071 - services.marketplaces.base - ERROR - Validation error: Invalid API endpoint or Client ID
+2024-12-07 22:03:39,224 - aiogram.event - INFO - Update id=20181045 is handled. Duration 1057 ms by bot id=7683347152
+2024-12-07 22:07:13,190 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:07:13,191 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:07:13,192 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 22:07:23,760 - __main__ - INFO - Loading configuration...
+2024-12-07 22:07:23,761 - __main__ - INFO - Initializing bot...
+2024-12-07 22:07:23,782 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 22:07:23,782 - __main__ - INFO - Starting bot...
+2024-12-07 22:07:23,782 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 22:07:23,783 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:07:24,590 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:07:35,811 - aiogram.event - INFO - Update id=20181046 is handled. Duration 434 ms by bot id=7683347152
+2024-12-07 22:07:41,572 - aiogram.event - INFO - Update id=20181047 is handled. Duration 137 ms by bot id=7683347152
+2024-12-07 22:07:43,065 - aiogram.event - INFO - Update id=20181048 is handled. Duration 313 ms by bot id=7683347152
+2024-12-07 22:07:44,368 - aiogram.event - INFO - Update id=20181049 is handled. Duration 267 ms by bot id=7683347152
+2024-12-07 22:07:48,040 - aiogram.event - INFO - Update id=20181050 is handled. Duration 1060 ms by bot id=7683347152
+2024-12-07 22:07:59,542 - aiogram.event - INFO - Update id=20181051 is handled. Duration 149 ms by bot id=7683347152
+2024-12-07 22:08:03,311 - aiogram.event - INFO - Update id=20181052 is handled. Duration 286 ms by bot id=7683347152
+2024-12-07 22:14:13,082 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:14:13,083 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:14:13,084 - aiogram.dispatcher - INFO - Polling stopped

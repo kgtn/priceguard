@@ -55,6 +55,46 @@ stock (number <double>)
 
 total (number <double>)
 Общее количество товаров, которое доступно для акции.
+## метода валидации ключа ozon (рабочий):
+```python
+async def validate_api_key(self) -> bool:
+        """
+        Validate Ozon API key by making a test request.
+        
+        Returns:
+            bool: True if API key is valid
+            
+        Raises:
+            ValueError: If API key is invalid
+        """
+        try:
+            # Use seller info endpoint for validation
+            await self._make_request(
+                method="POST",
+                url=f"{self.base_url}/v3/product/info/stocks",
+                headers=self._get_headers(),
+                json={
+                    "filter": {
+                            "offer_id": [
+                                "136834"
+                            ],
+                            "product_id": [
+                                "214887921"
+                            ],
+                            "visibility": "ALL"
+                        },
+                        "last_id": "",
+                        "limit": 100
+                }
+            )
+            return True
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Validation error: {str(e)}")
+            return False
+```
+
 *******
 
 ## Метод Wildberries API: Детали акций, чтобы узнать какие товары в акциях

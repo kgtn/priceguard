@@ -335,3 +335,92 @@ TypeError: fromisoformat: argument must be str
 2024-12-07 17:35:13,035 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
 2024-12-07 17:35:33,963 - services.marketplaces.base - ERROR - Connection error: 404, message='Attempt to decode JSON with unexpected mimetype: text/plain; charset=utf-8', url='https://api-seller.ozon.ru/v1/product/info/list'
 2024-12-07 17:35:33,964 - services.marketplaces.factory - ERROR - Error creating ozon client: Invalid ozon API key
+2024-12-07 21:37:10,216 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:37:50,088 - services.marketplaces.factory - ERROR - Error decrypting API key: 
+2024-12-07 21:37:50,088 - services.marketplaces.factory - ERROR - Error creating ozon client: 
+2024-12-07 21:39:09,888 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:39:32,491 - services.marketplaces.base - ERROR - Unexpected response type: text/plain; charset=utf-8, body: 404 page not found
+
+2024-12-07 21:39:32,491 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:41:20,544 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:41:40,813 - services.marketplaces.base - ERROR - Unexpected response type: text/plain; charset=utf-8, body: 404 page not found
+
+2024-12-07 21:41:40,813 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:42:20,142 - services.marketplaces.factory - ERROR - Error decrypting API key: 
+2024-12-07 21:42:20,142 - services.marketplaces.factory - ERROR - Error creating wildberries client: 
+2024-12-07 21:44:24,794 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:44:47,775 - services.marketplaces.base - ERROR - Unexpected response type: text/plain; charset=utf-8, body: 404 page not found
+
+2024-12-07 21:44:47,775 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:45:08,443 - services.marketplaces.base - ERROR - Unexpected response type: text/html; charset=utf-8, body: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+2024-12-07 21:45:08,443 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:45:08,443 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: name 'logger' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 212, in process_wb_api_key
+    is_valid = await client.validate_api_key()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/services/marketplaces/wildberries.py", line 34, in validate_api_key
+    await self._make_request(
+    ...<3 lines>...
+    )
+  File "/Users/kagitin/CascadeProjects/priceguard/src/services/marketplaces/base.py", line 77, in _make_request
+    raise ValueError("Invalid API key or Client ID")
+ValueError: Invalid API key or Client ID
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 240, in process_wb_api_key
+    logger.error(f"Error processing Wildberries API key: {str(e)}")
+    ^^^^^^
+NameError: name 'logger' is not defined
+2024-12-07 21:49:35,882 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:49:59,210 - services.marketplaces.base - ERROR - Unexpected response type: application/problem+json, body: {
+    "title": "path not found",
+    "detail": "Please consult the https://openapi.wildberries.ru",
+    "code": "9995b4770d66c-f3e1c2a5 afe5729a7d2c3880a9d26a24a4224b81",
+    "requestId": "afe5729a7d2c3880a9d26a24a4224b81",
+    "origin": "s2s-api-auth-dp-sandbox",
+    "status": 404,
+    "statusText": "Not Found",
+    "timestamp": "2024-12-07T18:49:58Z"
+}
+
+2024-12-07 21:49:59,210 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:49:59,211 - bot.handlers.user - ERROR - Error processing Wildberries API key: Invalid API key or Client ID
+2024-12-07 21:50:27,645 - services.marketplaces.base - ERROR - API error: No search criteria
+2024-12-07 21:50:27,646 - services.marketplaces.base - ERROR - Request error: Request error: No search criteria
+2024-12-07 21:50:27,646 - services.marketplaces.base - ERROR - Validation error: Request error: No search criteria
+2024-12-07 21:53:10,863 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 21:53:30,910 - services.marketplaces.base - ERROR - Unexpected response type: text/plain; charset=utf-8, body: 404 page not found
+
+2024-12-07 21:53:30,910 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:53:44,360 - services.marketplaces.base - ERROR - Unexpected response type: application/problem+json, body: {
+    "title": "path not found",
+    "detail": "Please consult the https://openapi.wildberries.ru",
+    "code": "9995b4770d66c-f3e1c2a5 100383f3cea0510517f9c548ba59a5a0",
+    "requestId": "100383f3cea0510517f9c548ba59a5a0",
+    "origin": "s2s-api-auth-dp-sandbox",
+    "status": 404,
+    "statusText": "Not Found",
+    "timestamp": "2024-12-07T18:53:43Z"
+}
+
+2024-12-07 21:53:44,360 - services.marketplaces.base - ERROR - Validation error: Invalid API key or Client ID
+2024-12-07 21:53:44,361 - bot.handlers.user - ERROR - Error processing Wildberries API key: Invalid API key or Client ID
+2024-12-07 22:03:14,225 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:03:39,071 - services.marketplaces.base - ERROR - Validation error: Invalid API endpoint or Client ID
+2024-12-07 22:07:23,783 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'

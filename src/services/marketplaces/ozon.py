@@ -32,16 +32,30 @@ class OzonClient(MarketplaceClient):
             ValueError: If API key is invalid
         """
         try:
+            # Use seller info endpoint for validation
             await self._make_request(
                 method="POST",
-                url=f"{self.base_url}/v1/product/info/list",
+                url=f"{self.base_url}/v3/product/info/stocks",
                 headers=self._get_headers(),
-                json={"limit": 1}
+                json={
+                    "filter": {
+                            "offer_id": [
+                                "136834"
+                            ],
+                            "product_id": [
+                                "214887921"
+                            ],
+                            "visibility": "ALL"
+                        },
+                        "last_id": "",
+                        "limit": 100
+                }
             )
             return True
         except ValueError:
             raise
-        except Exception:
+        except Exception as e:
+            logger.error(f"Validation error: {str(e)}")
             return False
             
     async def get_promo_products(self) -> List[Dict]:
