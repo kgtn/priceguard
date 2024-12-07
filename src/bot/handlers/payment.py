@@ -59,7 +59,7 @@ async def process_plan_selection(
             "• Статистика и аналитика"
         ),
         payload=f"sub_{months}",
-        provider_token=settings.payment_provider_token,
+        provider_token=settings.telegram.payment_provider_token,
         currency="RUB",
         prices=[
             LabeledPrice(

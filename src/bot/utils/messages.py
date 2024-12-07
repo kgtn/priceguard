@@ -70,27 +70,29 @@ def format_help_message() -> str:
         "По всем вопросам обращайтесь к @admin"
     )
 
-def format_subscription_status(
-    status: str,
-    end_date: str,
-    check_interval: int
-) -> str:
+async def format_subscription_status(user_data: Dict) -> str:
     """Format subscription status message."""
-    status_emoji = {
-        "trial": "🎁",
-        "active": "✅",
-        "inactive": "❌"
-    }
-    status_text = {
-        "trial": "Пробный период",
-        "active": "Активна",
-        "inactive": "Неактивна"
-    }
+    subscription_active = user_data.get('subscription_active', False)
+    subscription_expires = user_data.get('subscription_expires')
+    check_interval = user_data.get('check_interval', 60)  # default 60 minutes
+    
+    if subscription_active and subscription_expires:
+        expires = datetime.fromisoformat(subscription_expires)
+        days_left = (expires - datetime.now()).days
+        status = "✅ Активна"
+        expires_text = f"Действует до: {expires.strftime('%d.%m.%Y')}\n"
+        days_text = f"Осталось дней: {days_left}\n"
+    else:
+        status = "❌ Неактивна"
+        expires_text = ""
+        days_text = ""
     
     return (
-        f"Статус подписки: {status_emoji.get(status, '❓')} {status_text.get(status, 'Неизвестно')}\n"
-        f"Действует до: {end_date}\n"
-        f"Интервал проверок: {check_interval} час(ов)"
+        f"📊 Статус подписки\n\n"
+        f"Статус: {status}\n"
+        f"{expires_text}"
+        f"{days_text}"
+        f"Интервал проверки: {check_interval} мин."
     )
 
 def format_promo_update(

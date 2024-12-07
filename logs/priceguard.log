@@ -835,3 +835,107 @@ NameError: name 'logger' is not defined
 2024-12-07 22:18:57,181 - aiogram.dispatcher - WARNING - Received SIGINT signal
 2024-12-07 22:18:57,182 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
 2024-12-07 22:18:57,182 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 22:30:39,132 - __main__ - INFO - Loading configuration...
+2024-12-07 22:30:39,133 - __main__ - INFO - Initializing bot...
+2024-12-07 22:30:39,150 - __main__ - ERROR - Error in main function: name 'register_all_handlers' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 65, in main
+    register_all_handlers(dp, config, dp["db"])
+    ^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'register_all_handlers' is not defined
+2024-12-07 22:31:45,630 - __main__ - INFO - Loading configuration...
+2024-12-07 22:31:45,630 - __main__ - INFO - Initializing bot...
+2024-12-07 22:31:45,649 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 22:31:45,649 - __main__ - INFO - Starting bot...
+2024-12-07 22:31:45,650 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 22:31:45,650 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:31:46,571 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:31:58,012 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: format_subscription_status() missing 2 required positional arguments: 'end_date' and 'check_interval'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 418, in show_subscription
+    status_text = await format_subscription_status(user_data)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: format_subscription_status() missing 2 required positional arguments: 'end_date' and 'check_interval'
+2024-12-07 22:31:58,485 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-07 22:31:58,485 - aiogram.event - INFO - Update id=20181061 is handled. Duration 478 ms by bot id=7683347152
+2024-12-07 22:32:11,479 - aiogram.event - INFO - Update id=20181062 is handled. Duration 263 ms by bot id=7683347152
+2024-12-07 22:32:13,236 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: format_subscription_status() missing 2 required positional arguments: 'end_date' and 'check_interval'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 418, in show_subscription
+    status_text = await format_subscription_status(user_data)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: format_subscription_status() missing 2 required positional arguments: 'end_date' and 'check_interval'
+2024-12-07 22:32:13,395 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-07 22:32:13,395 - aiogram.event - INFO - Update id=20181063 is handled. Duration 163 ms by bot id=7683347152
+2024-12-07 22:33:00,406 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:33:00,407 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:33:00,408 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 22:33:27,339 - __main__ - INFO - Loading configuration...
+2024-12-07 22:33:27,340 - __main__ - INFO - Initializing bot...
+2024-12-07 22:33:27,360 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 22:33:27,360 - __main__ - INFO - Starting bot...
+2024-12-07 22:33:27,360 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 22:33:27,361 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:33:27,690 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:33:38,632 - aiogram.event - INFO - Update id=20181064 is handled. Duration 515 ms by bot id=7683347152
+2024-12-07 22:33:40,038 - aiogram.event - INFO - Update id=20181065 is handled. Duration 222 ms by bot id=7683347152
+2024-12-07 22:33:43,272 - aiogram.event - INFO - Update id=20181066 is handled. Duration 156 ms by bot id=7683347152
+2024-12-07 22:34:06,702 - aiogram.event - INFO - Update id=20181067 is handled. Duration 342 ms by bot id=7683347152
+2024-12-07 22:34:22,776 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:34:22,777 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:34:22,777 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 22:36:15,760 - __main__ - INFO - Loading configuration...
+2024-12-07 22:36:15,761 - __main__ - INFO - Initializing bot...
+2024-12-07 22:36:15,778 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 22:36:15,778 - __main__ - INFO - Starting bot...
+2024-12-07 22:36:15,778 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 22:36:15,778 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:36:16,576 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:36:21,830 - aiogram.event - INFO - Update id=20181068 is handled. Duration 591 ms by bot id=7683347152
+2024-12-07 22:36:24,221 - aiogram.event - INFO - Update id=20181069 is handled. Duration 251 ms by bot id=7683347152
+2024-12-07 22:36:25,784 - aiogram.event - INFO - Update id=20181070 is handled. Duration 380 ms by bot id=7683347152
+2024-12-07 22:36:27,335 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: 'Config' object has no attribute 'payment_provider_token'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/payment.py", line 62, in process_plan_selection
+    provider_token=settings.payment_provider_token,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Config' object has no attribute 'payment_provider_token'
+2024-12-07 22:36:27,498 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-07 22:36:27,498 - aiogram.event - INFO - Update id=20181071 is handled. Duration 166 ms by bot id=7683347152
+2024-12-07 22:37:19,306 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:37:19,306 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:37:19,307 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-07 22:38:10,884 - __main__ - INFO - Loading configuration...
+2024-12-07 22:38:10,884 - __main__ - INFO - Initializing bot...
+2024-12-07 22:38:10,904 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-07 22:38:10,904 - __main__ - INFO - Starting bot...
+2024-12-07 22:38:10,904 - aiogram.dispatcher - INFO - Start polling
+2024-12-07 22:38:10,904 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:38:11,233 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:38:20,500 - aiogram.event - INFO - Update id=20181072 is handled. Duration 509 ms by bot id=7683347152
+2024-12-07 22:38:22,888 - aiogram.event - INFO - Update id=20181073 is handled. Duration 233 ms by bot id=7683347152
+2024-12-07 22:38:24,840 - aiogram.event - INFO - Update id=20181074 is handled. Duration 339 ms by bot id=7683347152
+2024-12-07 22:38:26,703 - aiogram.event - INFO - Update id=20181075 is handled. Duration 278 ms by bot id=7683347152
+2024-12-07 22:39:48,311 - aiogram.event - INFO - Update id=20181076 is handled. Duration 372 ms by bot id=7683347152
+2024-12-07 22:39:58,432 - aiogram.event - INFO - Update id=20181077 is handled. Duration 136 ms by bot id=7683347152
+2024-12-07 22:40:08,072 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-07 22:40:08,073 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-07 22:40:08,073 - aiogram.dispatcher - INFO - Polling stopped

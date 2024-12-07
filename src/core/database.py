@@ -289,6 +289,78 @@ class Database:
             columns = [description[0] for description in cursor.description]
             return [dict(zip(columns, row)) for row in rows]
 
+    async def create_tables(self):
+        """Create necessary tables if they don't exist."""
+        async with aiosqlite.connect(self.database_path) as db:
+            # Create users table
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id INTEGER PRIMARY KEY,
+                    username TEXT,
+                    is_admin INTEGER DEFAULT 0,
+                    is_active INTEGER DEFAULT 0,
+                    subscription_active INTEGER DEFAULT 0,
+                    subscription_expires TEXT,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Create api_keys table
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS api_keys (
+                    user_id INTEGER,
+                    marketplace TEXT,
+                    api_key TEXT,
+                    client_id TEXT,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (user_id, marketplace),
+                    FOREIGN KEY (user_id) REFERENCES users(user_id)
+                )
+            ''')
+            
+            await db.commit()
+
+    async def update_user_subscription(self, user_id: int, is_active: bool):
+        """Update user subscription status."""
+        async with aiosqlite.connect(self.database_path) as db:
+            expires_at = (datetime.now() + datetime.timedelta(days=30)).isoformat() if is_active else None
+            await db.execute(
+                '''
+                UPDATE users 
+                SET subscription_active = ?, subscription_expires = ?
+                WHERE user_id = ?
+                ''',
+                (1 if is_active else 0, expires_at, user_id)
+            )
+            await db.commit()
+
+    async def check_subscription(self, user_id: int) -> bool:
+        """Check if user has active subscription."""
+        async with aiosqlite.connect(self.database_path) as db:
+            async with db.execute(
+                '''
+                SELECT subscription_active, subscription_expires 
+                FROM users 
+                WHERE user_id = ?
+                ''',
+                (user_id,)
+            ) as cursor:
+                row = await cursor.fetchone()
+                if not row:
+                    return False
+                
+                is_active, expires_at = row
+                if not is_active:
+                    return False
+                
+                if expires_at:
+                    expires = datetime.fromisoformat(expires_at)
+                    if expires < datetime.now():
+                        await self.update_user_subscription(user_id, False)
+                        return False
+                
+                return True
+
 async def init_db(database_path: str) -> Database:
     """Initialize and return database instance."""
     db = Database(database_path)

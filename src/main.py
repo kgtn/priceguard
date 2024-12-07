@@ -18,7 +18,7 @@ from core.logging import setup_logging, get_logger
 from services.monitoring.monitor import PromotionMonitor
 from services.monitoring.notifications import NotificationService
 from services.marketplaces.factory import MarketplaceFactory
-from bot.handlers import register_all_handlers
+from bot.handlers import admin, user, payment
 from bot.middlewares import setup_middlewares
 from bot.routers import admin_router, user_router, payment_router
 
@@ -57,12 +57,9 @@ async def main():
         setup_middlewares(dp, config)
 
         # Register routers
-        dp.include_router(admin_router)
-        dp.include_router(payment_router)
-        dp.include_router(user_router)
-
-        # Register handlers
-        register_all_handlers(dp, config, dp["db"])
+        dp.include_router(admin.router)
+        dp.include_router(user.router)
+        dp.include_router(payment.router)
 
         # Start promotion monitor
         await monitor.start()

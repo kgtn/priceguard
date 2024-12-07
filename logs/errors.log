@@ -425,3 +425,52 @@ NameError: name 'logger' is not defined
 2024-12-07 22:03:39,071 - services.marketplaces.base - ERROR - Validation error: Invalid API endpoint or Client ID
 2024-12-07 22:07:23,783 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
 2024-12-07 22:17:49,519 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:30:39,150 - __main__ - ERROR - Error in main function: name 'register_all_handlers' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 65, in main
+    register_all_handlers(dp, config, dp["db"])
+    ^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'register_all_handlers' is not defined
+2024-12-07 22:31:45,650 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:31:58,012 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: format_subscription_status() missing 2 required positional arguments: 'end_date' and 'check_interval'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 418, in show_subscription
+    status_text = await format_subscription_status(user_data)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: format_subscription_status() missing 2 required positional arguments: 'end_date' and 'check_interval'
+2024-12-07 22:31:58,485 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-07 22:32:13,236 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: format_subscription_status() missing 2 required positional arguments: 'end_date' and 'check_interval'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 418, in show_subscription
+    status_text = await format_subscription_status(user_data)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: format_subscription_status() missing 2 required positional arguments: 'end_date' and 'check_interval'
+2024-12-07 22:32:13,395 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-07 22:33:27,361 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:36:15,778 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-07 22:36:27,335 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: 'Config' object has no attribute 'payment_provider_token'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/payment.py", line 62, in process_plan_selection
+    provider_token=settings.payment_provider_token,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Config' object has no attribute 'payment_provider_token'
+2024-12-07 22:36:27,498 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-07 22:38:10,904 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'

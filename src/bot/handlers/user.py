@@ -4,17 +4,17 @@ File: src/bot/handlers/user.py
 """
 
 from datetime import datetime, timedelta
+from typing import Dict, Optional
+
 from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
-from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import Message, CallbackQuery
 
 from core.database import Database
 from core.logging import get_logger
 from services.marketplaces.factory import MarketplaceFactory
-from services.marketplaces.ozon import OzonClient
-from services.marketplaces.wildberries import WildberriesClient
 from ..utils.messages import (
     format_start_message,
     format_help_message,
@@ -25,9 +25,12 @@ from ..keyboards.user import (
     get_start_keyboard,
     get_settings_keyboard,
     get_api_key_keyboard,
-    get_subscription_keyboard,
     get_confirmation_keyboard,
     get_main_menu_keyboard
+)
+from ..keyboards.payment import (
+    get_subscription_keyboard,
+    get_subscription_plans_keyboard
 )
 
 router = Router()
@@ -316,8 +319,15 @@ async def process_subscribe(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "pay_subscription")
 async def process_payment(callback: CallbackQuery, db: Database) -> None:
     """Handle payment request."""
-    # TODO: Implement payment processing with YooKassa
-    await callback.answer("🔄 Платежная система в разработке")
+    await callback.message.edit_text(
+        "💳 Выберите план подписки:\n\n"
+        "1️⃣ Месяц - 299₽\n"
+        "3️⃣ Месяца - 799₽\n"
+        "6️⃣ Месяцев - 1499₽\n"
+        "1️⃣2️⃣ Месяцев - 2699₽",
+        reply_markup=get_subscription_plans_keyboard()
+    )
+    await callback.answer()
 
 @router.callback_query(F.data == "cancel_subscription")
 async def process_cancel_subscription(
