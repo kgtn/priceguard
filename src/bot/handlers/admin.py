@@ -265,3 +265,86 @@ async def on_admin_force_check(callback: types.CallbackQuery, state: FSMContext,
         "🔄 Введите ID пользователя для проверки акций:",
         reply_markup=None
     )
+
+@router.callback_query(F.data == "admin_active_subs")
+async def on_admin_active_subs(callback: types.CallbackQuery, db: Database, settings: Settings):
+    """Handle admin_active_subs callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+
+    subscriptions = await db.get_active_subscriptions()
+    if not subscriptions:
+        text = "❌ Активных подписок не найдено"
+    else:
+        text = "✅ Активные подписки:\n\n"
+        for sub in subscriptions:
+            user = await db.get_user(sub["user_id"])
+            if user:
+                text += f"👤 ID: {user['user_id']}\n"
+                text += f"📅 До: {datetime.fromisoformat(sub['end_date']).strftime('%d.%m.%Y')}\n"
+                text += f"⏱ Интервал проверки: {sub['check_interval']} ч.\n\n"
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=get_subscriptions_keyboard()
+    )
+    await callback.answer()
+
+@router.callback_query(F.data == "admin_inactive_subs")
+async def on_admin_inactive_subs(callback: types.CallbackQuery, db: Database, settings: Settings):
+    """Handle admin_inactive_subs callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+
+    async with db.db.execute(
+        """
+        SELECT s.*, u.check_interval
+        FROM subscriptions s
+        JOIN users u ON s.user_id = u.user_id
+        WHERE u.subscription_status = 'inactive'
+        OR s.end_date <= CURRENT_TIMESTAMP
+        """
+    ) as cursor:
+        rows = await cursor.fetchall()
+        subscriptions = [
+            {
+                "user_id": row[1],
+                "payment_id": row[2],
+                "start_date": row[3],
+                "end_date": row[4],
+                "check_interval": row[5]
+            }
+            for row in rows
+        ]
+
+    if not subscriptions:
+        text = "✅ Неактивных подписок не найдено"
+    else:
+        text = "❌ Неактивные подписки:\n\n"
+        for sub in subscriptions:
+            user = await db.get_user(sub["user_id"])
+            if user:
+                text += f"👤 ID: {user['user_id']}\n"
+                text += f"📅 Истекла: {datetime.fromisoformat(sub['end_date']).strftime('%d.%m.%Y')}\n"
+                text += f"⏱ Интервал проверки: {sub['check_interval']} ч.\n\n"
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=get_subscriptions_keyboard()
+    )
+    await callback.answer()
+
+@router.callback_query(F.data == "admin_back")
+async def on_admin_back(callback: types.CallbackQuery, settings: Settings):
+    """Handle admin_back callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+    
+    await callback.message.edit_text(
+        "🤖 Панель администратора",
+        reply_markup=get_admin_keyboard()
+    )
+    await callback.answer()
