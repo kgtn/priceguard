@@ -4,13 +4,14 @@ File: src/bot/handlers/user.py
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from aiogram import Router, F, Bot
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, BotCommand, BotCommandScopeDefault
+from aiogram.exceptions import TelegramBadRequest
 
 from core.database import Database
 from core.logging import get_logger
@@ -51,21 +52,16 @@ class UserStates(StatesGroup):
     waiting_for_wb_api = State()
     waiting_for_interval = State()
     waiting_for_confirmation = State()
-    waiting_for_ozon_key = State()
-    waiting_for_wb_key = State()
 
 async def setup_bot_commands(bot: Bot):
     """Setup bot commands."""
     commands = [
-        BotCommand(command="start", description="Запустить бота"),
         BotCommand(command="menu", description="Открыть главное меню"),
         BotCommand(command="help", description="Показать справку"),
         BotCommand(command="status", description="Проверить статус подписки"),
-        BotCommand(command="add_api", description="Добавить API ключи"),
-        BotCommand(command="interval", description="Изменить интервал проверки"),
-        BotCommand(command="delete", description="Удалить все данные")
+        BotCommand(command="add_api", description="Добавить API ключи")
     ]
-    await bot.set_my_commands(commands, scope=BotCommandScopeDefault())
+    await bot.set_my_commands(commands)
 
 @router.message(Command("start"))
 async def cmd_start(message: Message, db: Database):
@@ -100,17 +96,21 @@ async def process_start_setup(callback: CallbackQuery):
 @router.callback_query(F.data == "add_ozon_key")
 async def process_add_ozon_key(callback: CallbackQuery, state: FSMContext):
     """Handle Ozon API key addition."""
-    await state.set_state(UserStates.waiting_for_ozon_key)
-    await callback.message.edit_text(
-        text=OZON_API_KEY_INSTRUCTION,
-        reply_markup=get_api_key_keyboard()
-    )
+    try:
+        await state.set_state(UserStates.waiting_for_ozon_api)
+        await callback.message.edit_text(
+            text=OZON_API_KEY_INSTRUCTION,
+            reply_markup=get_api_key_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 @router.callback_query(F.data == "add_wb_key")
 async def process_add_wb_key(callback: CallbackQuery, state: FSMContext):
     """Handle Wildberries API key addition."""
-    await state.set_state(UserStates.waiting_for_wb_key)
+    await state.set_state(UserStates.waiting_for_wb_api)
     await callback.message.edit_text(
         text=WILDBERRIES_API_KEY_INSTRUCTION,
         reply_markup=get_api_key_keyboard()
@@ -204,20 +204,31 @@ async def process_ozon_api_key(
             await message.answer("❌ API ключ не может быть пустым")
             return
             
-        parts = api_key.split()
+        parts = api_key.split(':')
         if len(parts) != 2:
             await message.answer(
-                "❌ Неверный формат. Отправьте API ключ и Client ID через пробел"
+                "❌ Неверный формат. Отправьте ключ в формате CLIENT_ID:API_KEY"
             )
             return
             
-        api_key, client_id = parts
+        client_id, api_key = parts
         
-        encrypted_key = marketplace_factory.encrypt_api_key(api_key)
+        await message.answer("🔄 Проверяю API ключ...")
+        
+        # Создаем клиента с незашифрованным ключом для проверки
         client = await marketplace_factory.create_client(
-            'ozon', encrypted_key, client_id=client_id
+            'ozon', api_key, client_id=client_id, is_encrypted=False
         )
         
+        # Проверяем валидность ключа
+        async with client:
+            is_valid = await client.validate_api_key()
+            if not is_valid:
+                await message.answer("❌ Неверный API ключ")
+                return
+        
+        # Если ключ валидный, шифруем и сохраняем
+        encrypted_key = marketplace_factory.encrypt_api_key(api_key)
         await db.update_api_keys(
             message.from_user.id,
             ozon_key=encrypted_key
@@ -229,15 +240,22 @@ async def process_ozon_api_key(
         ):
             await db.db.commit()
             
-        await message.answer("✅ API ключ Ozon успешно добавлен")
-        await state.clear()
-        await show_api_keys(message, db)
+        await message.answer(
+            "✅ API ключ Ozon успешно добавлен!\n\n"
+            "Теперь вы можете:\n"
+            "1️⃣ Настроить интервал проверки в разделе ⚙️ Настройки\n"
+            "2️⃣ Начать отслеживать акции в разделе 📊 Мои акции",
+            reply_markup=get_main_menu_keyboard()
+        )
+        await show_api_keys_message(message, db)
         
     except ValueError as e:
         await message.answer(f"❌ Ошибка валидации: {str(e)}")
     except Exception as e:
         logger.error(f"Error adding Ozon API key: {str(e)}")
         await message.answer("❌ Произошла ошибка при добавлении API ключа")
+    finally:
+        await state.clear()
 
 @router.message(UserStates.waiting_for_wb_api)
 async def process_wb_api_key(
@@ -249,36 +267,40 @@ async def process_wb_api_key(
     """Process Wildberries API key submission."""
     try:
         api_key = message.text.strip()
+        if not api_key:
+            await message.answer("❌ API ключ не может быть пустым")
+            return
         
         await message.answer("🔄 Проверяю API ключ...")
         
-        async with WildberriesClient(api_key=api_key) as client:
+        # Создаем клиента с незашифрованным ключом для проверки
+        client = await marketplace_factory.create_client(
+            'wildberries', api_key, is_encrypted=False
+        )
+        
+        # Проверяем валидность ключа
+        async with client:
             is_valid = await client.validate_api_key()
-            
-        if is_valid:
-            encrypted_key = marketplace_factory.encrypt_api_key(api_key)
-            await db.update_api_keys(
-                message.from_user.id,
-                wildberries_key=encrypted_key
-            )
-            
-            await message.answer(
-                "✅ API ключ Wildberries успешно добавлен!\n\n"
-                "Теперь вы можете:\n"
-                "1️⃣ Настроить интервал проверки в разделе ⏰ Интервал проверки\n"
-                "2️⃣ Начать отслеживать акции в разделе 📊 Мои акции",
-                reply_markup=get_main_menu_keyboard()
-            )
-        else:
-            await message.answer(
-                "❌ Неверный API ключ\n\n"
-                "Убедитесь, что:\n"
-                "1. Вы скопировали API ключ из личного кабинета Wildberries\n"
-                "2. API ключ активен и имеет необходимые права\n"
-                "3. Ключ не содержит лишних пробелов\n\n"
-                "Попробуйте снова или обратитесь в поддержку Wildberries",
-                reply_markup=get_main_menu_keyboard()
-            )
+            if not is_valid:
+                await message.answer("❌ Неверный API ключ")
+                return
+        
+        # Если ключ валидный, шифруем и сохраняем
+        encrypted_key = marketplace_factory.encrypt_api_key(api_key)
+        await db.update_api_keys(
+            message.from_user.id,
+            wildberries_key=encrypted_key
+        )
+        
+        await message.answer(
+            "✅ API ключ Wildberries успешно добавлен!\n\n"
+            "Теперь вы можете:\n"
+            "1️⃣ Настроить интервал проверки в разделе ⚙️ Настройки\n"
+            "2️⃣ Начать отслеживать акции в разделе 📊 Мои акции",
+            reply_markup=get_main_menu_keyboard()
+        )
+        await show_api_keys_message(message, db)
+        
     except Exception as e:
         logger.error(f"Error processing Wildberries API key: {str(e)}")
         await message.answer(
@@ -291,6 +313,18 @@ async def process_wb_api_key(
         )
     finally:
         await state.clear()
+
+async def show_api_keys_message(message: Message, db: Database) -> None:
+    """Show API keys for message."""
+    user_data = await db.get_user(message.from_user.id)
+    if not user_data:
+        await message.answer("❌ Вы не зарегистрированы. Используйте /start")
+        return
+
+    await message.answer(
+        await format_api_keys_message(user_data),
+        reply_markup=get_api_key_keyboard()
+    )
 
 @router.callback_query(F.data == "settings")
 async def process_settings(callback: CallbackQuery):
@@ -345,15 +379,23 @@ async def cmd_unsubscribe(message: Message, db: Database) -> None:
     )
 
 @router.message(Command("delete_data"))
-async def cmd_delete_data(message: Message, state: FSMContext) -> None:
-    """Handle /delete_data command."""
-    await message.answer(
-        "❗️ Вы уверены, что хотите удалить все свои данные?\n"
-        "Это действие нельзя отменить.",
-        reply_markup=get_confirmation_keyboard()
-    )
+@router.callback_query(F.data == "delete_data")
+async def cmd_delete_data(event: Union[Message, CallbackQuery], state: FSMContext):
+    """Handle /delete_data command and delete_data button."""
+    if isinstance(event, CallbackQuery):
+        await event.message.edit_text(
+            "❗️ Вы уверены, что хотите удалить все сохранённые API ключи?\n"
+            "Это действие нельзя отменить.",
+            reply_markup=get_confirmation_keyboard()
+        )
+    else:
+        await event.answer(
+            "❗️ Вы уверены, что хотите удалить все сохранённые API ключи?\n"
+            "Это действие нельзя отменить.",
+            reply_markup=get_confirmation_keyboard()
+        )
     await state.set_state(UserStates.waiting_for_confirmation)
-    await state.update_data(action="delete_data")
+    await state.update_data(action="delete_keys")
 
 @router.callback_query(F.data == "subscribe")
 async def process_subscribe(callback: CallbackQuery) -> None:
@@ -406,11 +448,11 @@ async def process_confirmation(
         state_data = await state.get_data()
         action = state_data.get("action")
         
-        if action == "delete_data":
+        if action == "delete_keys":
             try:
-                await db.delete_user(callback.from_user.id)
+                await db.clear_api_keys(callback.from_user.id)
                 await callback.message.edit_text(
-                    "✅ Все ваши данные успешно удалены"
+                    "✅ Все API ключи успешно удалены"
                 )
             except Exception as e:
                 await callback.message.edit_text(f"❌ Ошибка: {str(e)}")
@@ -510,4 +552,34 @@ async def show_help(callback: CallbackQuery):
     await callback.message.edit_text(
         help_text,
         reply_markup=get_main_menu_keyboard()
+    )
+
+@router.callback_query(F.data == "check_api_status")
+async def check_api_status(
+    callback: CallbackQuery,
+    db: Database,
+    marketplace_factory: MarketplaceFactory
+):
+    """Handle API status check."""
+    user_data = await db.get_user(callback.from_user.id)
+    if not user_data:
+        await callback.answer("❌ Сначала добавьте API ключи", show_alert=True)
+        return
+        
+    # Check if any keys are present
+    if not (user_data.get('ozon_api_key') or user_data.get('wildberries_api_key')):
+        await callback.answer("❌ Добавьте хотя бы один API ключ", show_alert=True)
+        return
+    
+    await callback.message.edit_text(
+        "🔄 Проверяю статус API ключей...",
+        reply_markup=None
+    )
+    
+    # Get status message with validation
+    status_message = await format_api_keys_message(user_data, marketplace_factory, validate=True)
+    
+    await callback.message.edit_text(
+        status_message,
+        reply_markup=get_api_key_keyboard()
     )

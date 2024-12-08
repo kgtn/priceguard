@@ -48,23 +48,33 @@ def get_settings_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def get_api_key_keyboard() -> InlineKeyboardMarkup:
-    """Get API key menu keyboard."""
+    """Get API key management keyboard."""
     keyboard = [
         [
             InlineKeyboardButton(
-                text="🔑 Добавить ключ Ozon",
+                text="🔑 OZON",
                 callback_data="add_ozon_key"
-            )
-        ],
-        [
+            ),
             InlineKeyboardButton(
-                text="🔑 Добавить ключ Wildberries",
+                text="🔑 Wildberries",
                 callback_data="add_wb_key"
             )
         ],
         [
             InlineKeyboardButton(
-                text="◀️ Назад",
+                text="🔄 Проверить статус",
+                callback_data="check_api_status"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="❌ Удалить ключи",
+                callback_data="delete_data"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="« Назад",
                 callback_data="back_to_main"
             )
         ]
@@ -118,5 +128,5 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     # Help
     builder.button(text="ℹ️ Помощь", callback_data="help")
     
-    builder.adjust(2, 2, 1)  # 2 кнопки в первых двух рядах, 1 в последнем
+    builder.adjust(2, 2, 1)  # 2 buttons in first two rows, 1 in last
     return builder.as_markup()

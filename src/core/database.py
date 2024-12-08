@@ -7,6 +7,9 @@ import aiosqlite
 from typing import Optional, List, Dict
 from datetime import datetime
 import json
+from core.logging import get_logger
+
+logger = get_logger(__name__)
 
 CREATE_TABLES = [
     """
@@ -41,7 +44,7 @@ CREATE_TABLES = [
         status TEXT NOT NULL,
         months INTEGER NOT NULL,
         created_at TIMESTAMP NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     )
     """,
     """
@@ -52,10 +55,14 @@ CREATE_TABLES = [
         start_date TIMESTAMP NOT NULL,
         end_date TIMESTAMP NOT NULL,
         is_active BOOLEAN NOT NULL DEFAULT 1,
-        FOREIGN KEY (user_id) REFERENCES users(user_id),
-        FOREIGN KEY (payment_id) REFERENCES payments(id)
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+        FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE CASCADE
     );
     """
+]
+
+MIGRATIONS = [
+    "ALTER TABLE users ADD COLUMN ozon_client_id TEXT"
 ]
 
 class Database:
@@ -70,6 +77,15 @@ class Database:
         
         for table_query in CREATE_TABLES:
             await self.db.execute(table_query)
+            
+        for migration in MIGRATIONS:
+            try:
+                await self.db.execute(migration)
+            except aiosqlite.OperationalError as e:
+                if "duplicate column name" not in str(e):
+                    logger.error(f"Migration error: {str(e)}")
+                    raise
+                
         await self.db.commit()
 
     async def close(self):
@@ -165,20 +181,40 @@ class Database:
         if not self.db:
             raise RuntimeError("Database not initialized")
         
+        # First, let's check if the column exists
+        async with self.db.execute("PRAGMA table_info(users)") as cursor:
+            columns = [row[1] async for row in cursor]
+        
+        # Build query based on existing columns
+        select_columns = ["user_id", "email", "ozon_api_key"]
+        if "ozon_client_id" in columns:
+            select_columns.append("ozon_client_id")
+        select_columns.extend([
+            "wildberries_api_key", "subscription_status",
+            "subscription_end_date", "created_at", "check_interval"
+        ])
+        
+        query = f"SELECT {', '.join(select_columns)} FROM users"
         users = []
-        async with self.db.execute("SELECT * FROM users") as cursor:
+        async with self.db.execute(query) as cursor:
             async for row in cursor:
-                users.append({
+                user_dict = {
                     "user_id": row[0],
                     "email": row[1],
                     "ozon_api_key": row[2],
-                    "ozon_client_id": row[3],
-                    "wildberries_api_key": row[4],
-                    "subscription_status": row[5],
-                    "subscription_end_date": row[6],
-                    "created_at": row[7],
-                    "check_interval": row[8]
+                }
+                current_idx = 3
+                if "ozon_client_id" in columns:
+                    user_dict["ozon_client_id"] = row[current_idx]
+                    current_idx += 1
+                user_dict.update({
+                    "wildberries_api_key": row[current_idx],
+                    "subscription_status": row[current_idx + 1],
+                    "subscription_end_date": row[current_idx + 2],
+                    "created_at": row[current_idx + 3],
+                    "check_interval": row[current_idx + 4]
                 })
+                users.append(user_dict)
         return users
 
     async def update_promo_check(self, user_id: int, marketplace: str,
@@ -293,34 +329,25 @@ class Database:
 
     async def create_tables(self):
         """Create necessary tables if they don't exist."""
-        async with aiosqlite.connect(self.database_path) as db:
-            # Create users table
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS users (
-                    user_id INTEGER PRIMARY KEY,
-                    username TEXT,
-                    is_admin INTEGER DEFAULT 0,
-                    is_active INTEGER DEFAULT 0,
-                    subscription_active INTEGER DEFAULT 0,
-                    subscription_expires TEXT,
-                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Create api_keys table
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS api_keys (
-                    user_id INTEGER,
-                    marketplace TEXT,
-                    api_key TEXT,
-                    client_id TEXT,
-                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (user_id, marketplace),
-                    FOREIGN KEY (user_id) REFERENCES users(user_id)
-                )
-            ''')
-            
-            await db.commit()
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+
+        # Add ozon_client_id column if it doesn't exist
+        async with self.db.execute("PRAGMA table_info(users)") as cursor:
+            columns = [row[1] async for row in cursor]
+
+        if "ozon_client_id" not in columns:
+            try:
+                await self.db.execute("ALTER TABLE users ADD COLUMN ozon_client_id TEXT")
+                await self.db.commit()
+            except Exception as e:
+                logger.error(f"Error adding ozon_client_id column: {str(e)}")
+                # If column already exists, ignore the error
+                pass
+
+        for table in CREATE_TABLES:
+            await self.db.execute(table)
+        await self.db.commit()
 
     async def update_user_subscription(self, user_id: int, is_active: bool):
         """Update user subscription status."""
@@ -406,6 +433,48 @@ class Database:
                 }
                 for row in rows
             ]
+
+    async def delete_user(self, user_id: int) -> bool:
+        """Delete user and all associated data from the database."""
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+        
+        try:
+            # Delete user data from all tables
+            # Due to ON DELETE CASCADE in foreign keys, this will automatically
+            # delete related records in other tables
+            await self.db.execute(
+                "DELETE FROM users WHERE user_id = ?",
+                (user_id,)
+            )
+            await self.db.commit()
+            return True
+        except Exception as e:
+            await self.db.rollback()
+            raise
+
+    async def clear_api_keys(self, user_id: int) -> bool:
+        """Clear user's API keys."""
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+        
+        try:
+            # Clear both API key and client_id
+            await self.db.execute(
+                """
+                UPDATE users 
+                SET ozon_api_key = NULL,
+                    ozon_client_id = NULL,
+                    wildberries_api_key = NULL
+                WHERE user_id = ?
+                """,
+                (user_id,)
+            )
+            await self.db.commit()
+            return True
+        except Exception as e:
+            await self.db.rollback()
+            raise
 
 async def init_db(database_path: str) -> Database:
     """Initialize and return database instance."""

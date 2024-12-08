@@ -55,6 +55,7 @@ stock (number <double>)
 
 total (number <double>)
 Общее количество товаров, которое доступно для акции.
+
 ## метода валидации ключа ozon (рабочий):
 ```python
 async def validate_api_key(self) -> bool:

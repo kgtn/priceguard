@@ -3,8 +3,12 @@ Message templates for the PriceGuard bot.
 File: src/bot/utils/messages.py
 """
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 from datetime import datetime
+from core.logging import get_logger
+from services.marketplaces.factory import MarketplaceFactory
+
+logger = get_logger(__name__)
 
 # Инструкции по API ключам
 OZON_API_KEY_INSTRUCTION = """
@@ -115,8 +119,7 @@ def format_help_message() -> str:
         "/help - Показать эту справку\n"
         "/status - Проверить статус подписки\n"
         "/add_api - Добавить API ключи\n"
-        "/interval - Изменить интервал проверки\n"
-        "/delete - Удалить все данные\n\n"
+        "/interval - Изменить интервал проверки\n\n"
         "По всем вопросам обращайтесь к @kagitin"
     )
 
@@ -199,8 +202,9 @@ def format_api_instructions(marketplace: str) -> str:
 
 def format_user_info(user: Dict) -> str:
     """Format user info message."""
-    ozon_key = "✅" if user.get("ozon_api_key") else "❌"
+    ozon_key = "✅" if user.get("ozon_api_key") and user.get("ozon_client_id") else "❌"
     wb_key = "✅" if user.get("wildberries_api_key") else "❌"
+    
     status = user.get("subscription_status", "trial")
     if status == "active":
         status = "✅ Активна"
@@ -285,13 +289,62 @@ def format_payment_info(payment: Dict) -> str:
         f"└ *Дата:* {payment.get('created_at')}"
     )
 
-async def format_api_keys_message(user_data: Dict) -> str:
+async def validate_marketplace_keys(user_data: Dict, marketplace_factory: MarketplaceFactory) -> Dict[str, bool]:
+    """Validate marketplace API keys.
+    
+    Returns:
+        Dict with validation status for each marketplace
+    """
+    results = {
+        "ozon": False,
+        "wildberries": False
+    }
+    
+    # Check Ozon keys
+    if user_data.get('ozon_api_key') and user_data.get('ozon_client_id'):
+        try:
+            # Передаем зашифрованный ключ напрямую
+            ozon_client = await marketplace_factory.create_client(
+                'ozon',
+                user_data['ozon_api_key'],
+                client_id=user_data['ozon_client_id'],
+                is_encrypted=True
+            )
+            async with ozon_client:
+                results["ozon"] = await ozon_client.validate_api_key()
+        except Exception as e:
+            logger.error(f"Ozon validation error: {str(e)}")
+    
+    # Check Wildberries key
+    if user_data.get('wildberries_api_key'):
+        try:
+            # Передаем зашифрованный ключ напрямую
+            wb_client = await marketplace_factory.create_client(
+                'wildberries',
+                user_data['wildberries_api_key'],
+                is_encrypted=True
+            )
+            async with wb_client:
+                results["wildberries"] = await wb_client.validate_api_key()
+        except Exception as e:
+            logger.error(f"Wildberries validation error: {str(e)}")
+    
+    return results
+
+async def format_api_keys_message(user_data: Dict, marketplace_factory: Optional[MarketplaceFactory] = None, validate: bool = False) -> str:
     """Format API keys message."""
     ozon_key = user_data.get('ozon_api_key', '')
-    wb_key = user_data.get('wb_api_key', '')
+    ozon_client_id = user_data.get('ozon_client_id', '')
+    wb_key = user_data.get('wildberries_api_key', '')
     
-    ozon_status = "✅" if ozon_key else "❌"
-    wb_status = "✅" if wb_key else "❌"
+    if validate and marketplace_factory:
+        validation_results = await validate_marketplace_keys(user_data, marketplace_factory)
+        ozon_status = "✅" if validation_results["ozon"] else "❌"
+        wb_status = "✅" if validation_results["wildberries"] else "❌"
+    else:
+        # Basic presence check
+        ozon_status = "✅" if ozon_key and ozon_client_id else "❌"
+        wb_status = "✅" if wb_key else "❌"
     
     return (
         "🔑 Управление API ключами\n\n"
