@@ -6,11 +6,11 @@ File: src/bot/handlers/user.py
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, BotCommand, BotCommandScopeDefault
 
 from core.database import Database
 from core.logging import get_logger
@@ -25,7 +25,8 @@ from ..utils.messages import (
     START_SETUP_MESSAGE,
     OZON_API_KEY_INSTRUCTION,
     WILDBERRIES_API_KEY_INSTRUCTION,
-    SETUP_COMPLETE_MESSAGE
+    SETUP_COMPLETE_MESSAGE,
+    MENU_MESSAGE
 )
 from ..keyboards.user import (
     get_start_keyboard,
@@ -50,6 +51,19 @@ class UserStates(StatesGroup):
     waiting_for_confirmation = State()
     waiting_for_ozon_key = State()
     waiting_for_wb_key = State()
+
+async def setup_bot_commands(bot: Bot):
+    """Setup bot commands."""
+    commands = [
+        BotCommand(command="start", description="Запустить бота"),
+        BotCommand(command="menu", description="Открыть главное меню"),
+        BotCommand(command="help", description="Показать справку"),
+        BotCommand(command="status", description="Проверить статус подписки"),
+        BotCommand(command="add_api", description="Добавить API ключи"),
+        BotCommand(command="interval", description="Изменить интервал проверки"),
+        BotCommand(command="delete", description="Удалить все данные")
+    ]
+    await bot.set_my_commands(commands, scope=BotCommandScopeDefault())
 
 @router.message(Command("start"))
 async def cmd_start(message: Message, db: Database):
@@ -124,11 +138,7 @@ async def cmd_status(message: Message, db: Database) -> None:
         return
         
     await message.answer(
-        format_subscription_status(
-            status=user_data["subscription_status"],
-            end_date=user_data["subscription_end_date"],
-            check_interval=user_data["check_interval"]
-        ),
+        format_subscription_status(user_data),
         reply_markup=get_subscription_keyboard()
     )
 
@@ -300,23 +310,33 @@ async def process_wb_api_key(
     finally:
         await state.clear()
 
+@router.callback_query(F.data == "settings")
+async def process_settings(callback: CallbackQuery):
+    """Handle settings button press."""
+    await callback.message.edit_text(
+        "⚙️ Настройки\n\n"
+        "Выберите интервал проверки акций:",
+        reply_markup=get_settings_keyboard()
+    )
+    await callback.answer()
+
 @router.callback_query(F.data.startswith("interval:"))
-async def process_interval_change(
-    callback: CallbackQuery,
-    db: Database
-) -> None:
-    """Handle check interval change."""
+async def process_interval_change(callback: CallbackQuery, db: Database):
+    """Handle interval change."""
     hours = int(callback.data.split(":")[1])
     
     try:
-        # Update user's check interval
-        await db.update_check_interval(callback.from_user.id, hours * 3600)
+        await db.update_check_interval(callback.from_user.id, hours)
         await callback.message.edit_text(
-            f"✅ Интервал проверки изменен на {hours} час(ов)"
+            f"✅ Интервал проверки обновлен: каждые {hours} {'час' if hours == 1 else 'часа' if 2 <= hours <= 4 else 'часов'}",
+            reply_markup=get_main_menu_keyboard()
         )
     except Exception as e:
-        await callback.message.edit_text(f"❌ Ошибка: {str(e)}")
-        
+        await callback.message.edit_text(
+            "❌ Не удалось обновить интервал проверки. Попробуйте позже.",
+            reply_markup=get_main_menu_keyboard()
+        )
+    
     await callback.answer()
 
 @router.callback_query(F.data == "back_to_main")

@@ -993,3 +993,175 @@ TypeError: format_subscription_status() got an unexpected keyword argument 'stat
 2024-12-08 09:33:19,453 - aiogram.dispatcher - WARNING - Received SIGINT signal
 2024-12-08 09:33:19,453 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
 2024-12-08 09:33:19,454 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 09:38:35,619 - __main__ - INFO - Loading configuration...
+2024-12-08 09:38:35,620 - __main__ - INFO - Initializing bot...
+2024-12-08 09:38:35,634 - __main__ - ERROR - Error in main function: Passing `parse_mode`, `disable_web_page_preview` or `protect_content` to Bot initializer is not supported anymore. These arguments have been removed in 3.7.0 version. Use `default=DefaultBotProperties(parse_mode=<ParseMode.MARKDOWN: 'Markdown'>)` argument instead.
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 48, in main
+    bot = Bot(token=config.telegram.token, parse_mode=ParseMode.MARKDOWN)
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/bot.py", line 310, in __init__
+    raise TypeError(
+    ...<3 lines>...
+    )
+TypeError: Passing `parse_mode`, `disable_web_page_preview` or `protect_content` to Bot initializer is not supported anymore. These arguments have been removed in 3.7.0 version. Use `default=DefaultBotProperties(parse_mode=<ParseMode.MARKDOWN: 'Markdown'>)` argument instead.
+2024-12-08 09:39:20,575 - __main__ - INFO - Loading configuration...
+2024-12-08 09:39:20,575 - __main__ - INFO - Initializing bot...
+2024-12-08 09:39:20,594 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 09:39:20,594 - __main__ - INFO - Starting bot...
+2024-12-08 09:39:20,594 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 09:39:20,595 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:39:21,024 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 09:39:21,158 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: name 'InlineKeyboardBuilder' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 439, in cmd_menu
+    reply_markup=get_main_menu_keyboard()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/keyboards/user.py", line 113, in get_main_menu_keyboard
+    builder = InlineKeyboardBuilder()
+              ^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'InlineKeyboardBuilder' is not defined. Did you mean: 'InlineKeyboardButton'?
+2024-12-08 09:39:21,610 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 09:39:21,610 - aiogram.event - INFO - Update id=20181091 is handled. Duration 454 ms by bot id=7683347152
+2024-12-08 09:40:11,303 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 09:40:11,304 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 09:40:11,304 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 09:46:58,838 - __main__ - INFO - Loading configuration...
+2024-12-08 09:46:58,839 - __main__ - INFO - Initializing bot...
+2024-12-08 09:46:59,476 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 09:46:59,477 - __main__ - INFO - Starting bot...
+2024-12-08 09:46:59,477 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 09:46:59,477 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:46:59,590 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 09:47:09,784 - aiogram.event - INFO - Update id=20181092 is handled. Duration 356 ms by bot id=7683347152
+2024-12-08 09:47:15,821 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: name 'InlineKeyboardBuilder' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 453, in cmd_menu
+    reply_markup=get_main_menu_keyboard()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/keyboards/user.py", line 113, in get_main_menu_keyboard
+    builder = InlineKeyboardBuilder()
+              ^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'InlineKeyboardBuilder' is not defined. Did you mean: 'InlineKeyboardButton'?
+2024-12-08 09:47:15,995 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 09:47:15,995 - aiogram.event - INFO - Update id=20181093 is handled. Duration 176 ms by bot id=7683347152
+2024-12-08 09:47:45,492 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 09:47:45,493 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 09:47:45,493 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 09:55:03,095 - __main__ - INFO - Loading configuration...
+2024-12-08 09:55:03,096 - __main__ - INFO - Initializing bot...
+2024-12-08 09:55:03,845 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 09:55:03,846 - __main__ - INFO - Starting bot...
+2024-12-08 09:55:03,846 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 09:55:03,846 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:55:03,957 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 09:55:19,516 - aiogram.event - INFO - Update id=20181094 is handled. Duration 359 ms by bot id=7683347152
+2024-12-08 09:55:26,474 - aiogram.event - INFO - Update id=20181095 is handled. Duration 130 ms by bot id=7683347152
+2024-12-08 09:55:51,329 - aiogram.event - INFO - Update id=20181096 is handled. Duration 428 ms by bot id=7683347152
+2024-12-08 09:55:55,694 - aiogram.event - INFO - Update id=20181097 is handled. Duration 267 ms by bot id=7683347152
+2024-12-08 09:55:57,835 - aiogram.event - INFO - Update id=20181098 is handled. Duration 146 ms by bot id=7683347152
+2024-12-08 09:56:22,654 - aiogram.event - INFO - Update id=20181099 is handled. Duration 357 ms by bot id=7683347152
+2024-12-08 09:56:24,834 - aiogram.event - INFO - Update id=20181100 is handled. Duration 331 ms by bot id=7683347152
+2024-12-08 09:56:30,124 - aiogram.event - INFO - Update id=20181101 is handled. Duration 208 ms by bot id=7683347152
+2024-12-08 09:56:31,522 - aiogram.event - INFO - Update id=20181102 is handled. Duration 174 ms by bot id=7683347152
+2024-12-08 09:56:33,441 - aiogram.event - INFO - Update id=20181103 is handled. Duration 250 ms by bot id=7683347152
+2024-12-08 09:56:45,755 - aiogram.event - INFO - Update id=20181104 is handled. Duration 173 ms by bot id=7683347152
+2024-12-08 09:56:48,664 - aiogram.event - INFO - Update id=20181105 is handled. Duration 214 ms by bot id=7683347152
+2024-12-08 09:56:50,037 - aiogram.event - INFO - Update id=20181106 is handled. Duration 255 ms by bot id=7683347152
+2024-12-08 09:56:55,632 - aiogram.event - INFO - Update id=20181107 is handled. Duration 163 ms by bot id=7683347152
+2024-12-08 09:56:57,031 - aiogram.event - INFO - Update id=20181108 is handled. Duration 188 ms by bot id=7683347152
+2024-12-08 09:56:58,651 - aiogram.event - INFO - Update id=20181109 is handled. Duration 252 ms by bot id=7683347152
+2024-12-08 09:58:04,908 - aiogram.event - INFO - Update id=20181110 is handled. Duration 482 ms by bot id=7683347152
+2024-12-08 09:58:17,931 - aiogram.event - INFO - Update id=20181111 is handled. Duration 127 ms by bot id=7683347152
+2024-12-08 09:58:25,522 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: format_subscription_status() got an unexpected keyword argument 'status'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 141, in cmd_status
+    format_subscription_status(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        status=user_data["subscription_status"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        end_date=user_data["subscription_end_date"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check_interval=user_data["check_interval"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ),
+    ^
+TypeError: format_subscription_status() got an unexpected keyword argument 'status'
+2024-12-08 09:58:25,649 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 09:58:25,649 - aiogram.event - INFO - Update id=20181112 is handled. Duration 129 ms by bot id=7683347152
+2024-12-08 09:58:33,429 - aiogram.event - INFO - Update id=20181113 is handled. Duration 123 ms by bot id=7683347152
+2024-12-08 10:00:06,787 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 10:00:06,787 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:00:06,788 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 10:00:32,115 - __main__ - INFO - Loading configuration...
+2024-12-08 10:00:32,116 - __main__ - INFO - Initializing bot...
+2024-12-08 10:00:32,863 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 10:00:32,863 - __main__ - INFO - Starting bot...
+2024-12-08 10:00:32,864 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 10:00:32,864 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 10:00:32,975 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:00:34,952 - aiogram.event - INFO - Update id=20181114 is handled. Duration 370 ms by bot id=7683347152
+2024-12-08 10:00:40,403 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: 1 validation error for SendMessage
+text
+  Input should be a valid string [type=string_type, input_value=<coroutine object format_...n_status at 0x10d874c20>, input_type=coroutine]
+    For further information visit https://errors.pydantic.dev/2.9/v/string_type
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 140, in cmd_status
+    await message.answer(
+          ~~~~~~~~~~~~~~^
+        format_subscription_status(user_data),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        reply_markup=get_subscription_keyboard()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/types/message.py", line 2091, in answer
+    return SendMessage(
+           ~~~~~~~~~~~^
+        chat_id=self.chat.id,
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    ).as_(self._bot)
+    ^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/pydantic/main.py", line 212, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for SendMessage
+text
+  Input should be a valid string [type=string_type, input_value=<coroutine object format_...n_status at 0x10d874c20>, input_type=coroutine]
+    For further information visit https://errors.pydantic.dev/2.9/v/string_type
+2024-12-08 10:00:40,536 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 10:00:40,537 - aiogram.event - INFO - Update id=20181115 is handled. Duration 137 ms by bot id=7683347152
+2024-12-08 10:00:51,667 - aiogram.event - INFO - Update id=20181116 is handled. Duration 128 ms by bot id=7683347152
+2024-12-08 10:00:53,497 - aiogram.event - INFO - Update id=20181117 is handled. Duration 480 ms by bot id=7683347152
+2024-12-08 10:00:54,676 - aiogram.event - INFO - Update id=20181118 is handled. Duration 245 ms by bot id=7683347152
+2024-12-08 10:00:58,712 - aiogram.event - INFO - Update id=20181119 is handled. Duration 211 ms by bot id=7683347152
+2024-12-08 10:01:01,133 - aiogram.event - INFO - Update id=20181120 is handled. Duration 134 ms by bot id=7683347152
+2024-12-08 10:01:03,207 - aiogram.event - INFO - Update id=20181121 is handled. Duration 128 ms by bot id=7683347152
+2024-12-08 10:01:04,953 - aiogram.event - INFO - Update id=20181122 is handled. Duration 497 ms by bot id=7683347152
+2024-12-08 10:01:06,333 - aiogram.event - INFO - Update id=20181123 is handled. Duration 254 ms by bot id=7683347152
+2024-12-08 10:01:08,162 - aiogram.event - INFO - Update id=20181124 is handled. Duration 138 ms by bot id=7683347152
+2024-12-08 10:01:09,791 - aiogram.event - INFO - Update id=20181125 is handled. Duration 210 ms by bot id=7683347152
+2024-12-08 10:01:11,471 - aiogram.event - INFO - Update id=20181126 is handled. Duration 374 ms by bot id=7683347152

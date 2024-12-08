@@ -497,3 +497,104 @@ Traceback (most recent call last):
     ^
 TypeError: format_subscription_status() got an unexpected keyword argument 'status'
 2024-12-08 09:32:59,880 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 09:38:35,634 - __main__ - ERROR - Error in main function: Passing `parse_mode`, `disable_web_page_preview` or `protect_content` to Bot initializer is not supported anymore. These arguments have been removed in 3.7.0 version. Use `default=DefaultBotProperties(parse_mode=<ParseMode.MARKDOWN: 'Markdown'>)` argument instead.
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/main.py", line 48, in main
+    bot = Bot(token=config.telegram.token, parse_mode=ParseMode.MARKDOWN)
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/bot.py", line 310, in __init__
+    raise TypeError(
+    ...<3 lines>...
+    )
+TypeError: Passing `parse_mode`, `disable_web_page_preview` or `protect_content` to Bot initializer is not supported anymore. These arguments have been removed in 3.7.0 version. Use `default=DefaultBotProperties(parse_mode=<ParseMode.MARKDOWN: 'Markdown'>)` argument instead.
+2024-12-08 09:39:20,595 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:39:21,158 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: name 'InlineKeyboardBuilder' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 439, in cmd_menu
+    reply_markup=get_main_menu_keyboard()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/keyboards/user.py", line 113, in get_main_menu_keyboard
+    builder = InlineKeyboardBuilder()
+              ^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'InlineKeyboardBuilder' is not defined. Did you mean: 'InlineKeyboardButton'?
+2024-12-08 09:39:21,610 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 09:46:59,477 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:47:15,821 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: name 'InlineKeyboardBuilder' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 453, in cmd_menu
+    reply_markup=get_main_menu_keyboard()
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/keyboards/user.py", line 113, in get_main_menu_keyboard
+    builder = InlineKeyboardBuilder()
+              ^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'InlineKeyboardBuilder' is not defined. Did you mean: 'InlineKeyboardButton'?
+2024-12-08 09:47:15,995 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 09:55:03,846 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:58:25,522 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: format_subscription_status() got an unexpected keyword argument 'status'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 141, in cmd_status
+    format_subscription_status(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        status=user_data["subscription_status"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        end_date=user_data["subscription_end_date"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check_interval=user_data["check_interval"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ),
+    ^
+TypeError: format_subscription_status() got an unexpected keyword argument 'status'
+2024-12-08 09:58:25,649 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 10:00:32,864 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 10:00:40,403 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: 1 validation error for SendMessage
+text
+  Input should be a valid string [type=string_type, input_value=<coroutine object format_...n_status at 0x10d874c20>, input_type=coroutine]
+    For further information visit https://errors.pydantic.dev/2.9/v/string_type
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 140, in cmd_status
+    await message.answer(
+          ~~~~~~~~~~~~~~^
+        format_subscription_status(user_data),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        reply_markup=get_subscription_keyboard()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/types/message.py", line 2091, in answer
+    return SendMessage(
+           ~~~~~~~~~~~^
+        chat_id=self.chat.id,
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    ).as_(self._bot)
+    ^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/pydantic/main.py", line 212, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for SendMessage
+text
+  Input should be a valid string [type=string_type, input_value=<coroutine object format_...n_status at 0x10d874c20>, input_type=coroutine]
+    For further information visit https://errors.pydantic.dev/2.9/v/string_type
+2024-12-08 10:00:40,536 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'

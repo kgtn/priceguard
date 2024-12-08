@@ -361,6 +361,26 @@ class Database:
                 
                 return True
 
+    async def update_check_interval(self, user_id: int, interval_hours: int) -> bool:
+        """Update user check interval in hours."""
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+        
+        try:
+            await self.db.execute(
+                """
+                UPDATE users 
+                SET check_interval = ?
+                WHERE user_id = ?
+                """,
+                (interval_hours * 3600, user_id)  # Convert hours to seconds
+            )
+            await self.db.commit()
+            return True
+        except Exception as e:
+            await self.db.rollback()
+            raise
+
 async def init_db(database_path: str) -> Database:
     """Initialize and return database instance."""
     db = Database(database_path)

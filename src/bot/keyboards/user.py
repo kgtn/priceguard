@@ -9,6 +9,7 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton
 )
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def get_start_keyboard() -> InlineKeyboardMarkup:
     """Get start menu keyboard."""
@@ -31,17 +32,19 @@ def get_start_keyboard() -> InlineKeyboardMarkup:
 def get_settings_keyboard() -> InlineKeyboardMarkup:
     """Get keyboard for settings command."""
     builder = InlineKeyboardBuilder()
+    
     intervals = [
         ("1 час", "interval:1"),
         ("2 часа", "interval:2"),
         ("4 часа", "interval:4"),
-        ("13 часов", "interval:13"),
+        ("12 часов", "interval:12"),
         ("1 раз в сутки", "interval:24")
     ]
     for text, callback_data in intervals:
         builder.button(text=text, callback_data=callback_data)
-    builder.button(text="↩️ Назад", callback_data="back_to_main")
-    builder.adjust(2, 2, 1, 1)
+    
+    builder.button(text="◀️ Назад", callback_data="back_to_main")
+    builder.adjust(2, 2, 1, 1)  # 2 кнопки в ряд для интервалов, 1 для кнопки "Назад"
     return builder.as_markup()
 
 def get_api_key_keyboard() -> InlineKeyboardMarkup:
@@ -93,20 +96,12 @@ def get_subscription_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 def get_confirmation_keyboard() -> InlineKeyboardMarkup:
-    """Get confirmation keyboard with Yes/No buttons."""
-    buttons = [
-        [
-            InlineKeyboardButton(
-                text="✅ Подтвердить",
-                callback_data="confirm"
-            ),
-            InlineKeyboardButton(
-                text="❌ Отменить",
-                callback_data="cancel"
-            )
-        ]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
+    """Get confirmation keyboard."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Подтвердить", callback_data="confirm")
+    builder.button(text="❌ Отменить", callback_data="cancel")
+    builder.adjust(2)
+    return builder.as_markup()
 
 def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     """Get main menu keyboard."""
@@ -115,12 +110,13 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     # Main actions
     builder.button(text="📊 Мои акции", callback_data="my_promotions")
     builder.button(text="⚙️ Настройки", callback_data="settings")
+    
+    # Account management
+    builder.button(text="🔑 API ключи", callback_data="api_keys")
     builder.button(text="💳 Подписка", callback_data="subscription")
     
-    # Settings and info
-    builder.button(text="🔑 API ключи", callback_data="api_keys")
-    builder.button(text="⏰ Интервал проверки", callback_data="check_interval")
+    # Help
     builder.button(text="ℹ️ Помощь", callback_data="help")
     
-    builder.adjust(2, 2, 2)  # 2 кнопки в каждой строке
+    builder.adjust(2, 2, 1)  # 2 кнопки в первых двух рядах, 1 в последнем
     return builder.as_markup()

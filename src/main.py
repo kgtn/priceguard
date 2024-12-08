@@ -61,6 +61,9 @@ async def main():
         dp.include_router(user.router)
         dp.include_router(payment.router)
 
+        # Setup commands
+        await user.setup_bot_commands(bot)
+
         # Start promotion monitor
         await monitor.start()
 
