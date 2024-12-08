@@ -70,24 +70,47 @@ class OzonClient(MarketplaceClient):
             ConnectionError: If connection failed
         """
         try:
-            # Get Hot Sale products
+            # First, get list of available Hot Sales
             response = await self._make_request(
                 method="POST",
-                url=f"{self.base_url}/v1/actions/hotsales/products",
+                url=f"{self.base_url}/v1/actions/hotsales/list",
                 headers=self._get_headers(),
                 json={}
             )
             
-            active_products = len([
-                p for p in response.get("result", {}).get("products", [])
-                if p.get("is_active")
-            ])
+            hotsales = response.get("result", [])
+            if not hotsales:
+                return []
+                
+            promotions = []
+            for hotsale in hotsales:
+                # Проверяем только акции, в которых участвует продавец
+                if not hotsale.get("is_participating"):
+                    continue
+                    
+                # Get products for this Hot Sale
+                products_response = await self._make_request(
+                    method="POST",
+                    url=f"{self.base_url}/v1/actions/hotsales/products",
+                    headers=self._get_headers(),
+                    json={
+                        "hotsale_id": hotsale["hotsale_id"]
+                    }
+                )
+                
+                # Get products list from response
+                products = products_response.get("result", {}).get("products", [])
+                active_products = len([p for p in products if p.get("is_active")])
+                
+                promotions.append({
+                    "id": str(hotsale["hotsale_id"]),
+                    "name": hotsale.get("title", "Hot Sale"),
+                    "products_count": active_products,
+                    "date_start": hotsale.get("date_start"),
+                    "date_end": hotsale.get("date_end")
+                })
             
-            return [{
-                "id": "hotsale",
-                "name": "Hot Sale",
-                "products_count": active_products
-            }]
+            return promotions
             
         except Exception as e:
             logger.error(f"Error getting Ozon Hot Sale products: {e}")

@@ -22,7 +22,7 @@ class PromotionMonitor:
         self,
         db: Database,
         marketplace_factory: MarketplaceFactory,
-        check_interval: int = 3600  # 1 hour
+        check_interval: int = 21600  # 6 hours
     ):
         """Initialize monitor."""
         self.db = db
@@ -126,36 +126,38 @@ class PromotionMonitor:
                     user["ozon_api_key"],
                     user["ozon_client_id"]
                 )
-                current_ozon = await ozon_client.get_hot_sales()
-                cached_ozon = self._cached_promotions.get(user_id, {}).get("ozon", [])
-                
-                changes["ozon"] = self._compare_promotions(
-                    cached_ozon,
-                    current_ozon
-                )
-                
-                # Update cache
-                if not self._cached_promotions.get(user_id):
-                    self._cached_promotions[user_id] = {}
-                self._cached_promotions[user_id]["ozon"] = current_ozon
+                async with ozon_client:
+                    current_ozon = await ozon_client.get_promo_products()
+                    cached_ozon = self._cached_promotions.get(user_id, {}).get("ozon", [])
+                    
+                    changes["ozon"] = self._compare_promotions(
+                        cached_ozon,
+                        current_ozon
+                    )
+                    
+                    # Update cache
+                    if not self._cached_promotions.get(user_id):
+                        self._cached_promotions[user_id] = {}
+                    self._cached_promotions[user_id]["ozon"] = current_ozon
 
             # Check Wildberries promotions
             if user.get("wb_api_key"):
                 wb_client = await self.marketplace_factory.get_wildberries_client(
                     user["wb_api_key"]
                 )
-                current_wb = await wb_client.get_auto_promotions()
-                cached_wb = self._cached_promotions.get(user_id, {}).get("wb", [])
-                
-                changes["wildberries"] = self._compare_promotions(
-                    cached_wb,
-                    current_wb
-                )
-                
-                # Update cache
-                if not self._cached_promotions.get(user_id):
-                    self._cached_promotions[user_id] = {}
-                self._cached_promotions[user_id]["wb"] = current_wb
+                async with wb_client:
+                    current_wb = await wb_client.get_promo_products()
+                    cached_wb = self._cached_promotions.get(user_id, {}).get("wb", [])
+                    
+                    changes["wildberries"] = self._compare_promotions(
+                        cached_wb,
+                        current_wb
+                    )
+                    
+                    # Update cache
+                    if not self._cached_promotions.get(user_id):
+                        self._cached_promotions[user_id] = {}
+                    self._cached_promotions[user_id]["wb"] = current_wb
 
         except Exception as e:
             logger.error(f"Error checking promotions for user {user_id}: {str(e)}")
