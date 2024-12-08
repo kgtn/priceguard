@@ -14,6 +14,7 @@ CREATE_TABLES = [
         user_id INTEGER PRIMARY KEY,
         email TEXT,
         ozon_api_key TEXT,
+        ozon_client_id TEXT,
         wildberries_api_key TEXT,
         subscription_status TEXT CHECK(subscription_status IN ('active', 'inactive', 'trial')) NOT NULL DEFAULT 'trial',
         subscription_end_date TIMESTAMP,
@@ -171,11 +172,12 @@ class Database:
                     "user_id": row[0],
                     "email": row[1],
                     "ozon_api_key": row[2],
-                    "wildberries_api_key": row[3],
-                    "subscription_status": row[4],
-                    "subscription_end_date": row[5],
-                    "created_at": row[6],
-                    "check_interval": row[7]
+                    "ozon_client_id": row[3],
+                    "wildberries_api_key": row[4],
+                    "subscription_status": row[5],
+                    "subscription_end_date": row[6],
+                    "created_at": row[7],
+                    "check_interval": row[8]
                 })
         return users
 

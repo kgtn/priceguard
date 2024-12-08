@@ -1252,3 +1252,18 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: messa
 2024-12-08 10:15:49,967 - aiogram.event - INFO - Update id=20181139 is handled. Duration 482 ms by bot id=7683347152
 2024-12-08 10:15:56,932 - aiogram.event - INFO - Update id=20181140 is handled. Duration 223 ms by bot id=7683347152
 2024-12-08 10:15:59,771 - aiogram.event - INFO - Update id=20181141 is not handled. Duration 4 ms by bot id=7683347152
+2024-12-08 10:16:29,552 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 10:16:29,553 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:16:29,553 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 10:16:40,524 - __main__ - INFO - Loading configuration...
+2024-12-08 10:16:40,525 - __main__ - INFO - Initializing bot...
+2024-12-08 10:16:41,164 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 10:16:41,164 - __main__ - INFO - Starting bot...
+2024-12-08 10:16:41,165 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 10:16:41,277 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:16:41,548 - services.marketplaces.base - ERROR - Validation error: Invalid Client ID
+2024-12-08 10:16:41,548 - services.marketplaces.factory - ERROR - Error creating ozon client: Invalid Client ID
+2024-12-08 10:16:41,548 - services.monitoring.monitor - ERROR - Error checking promotions for user 1879978399: Invalid Client ID
+2024-12-08 10:17:17,015 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 10:17:17,016 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:17:17,016 - aiogram.dispatcher - INFO - Polling stopped

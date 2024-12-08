@@ -199,63 +199,45 @@ async def process_ozon_api_key(
 ) -> None:
     """Process Ozon API key submission."""
     try:
-        # Parse client_id and api_key
-        client_id, api_key = message.text.strip().split(":")
-        
-        await message.answer("🔄 Проверяю API ключ...")
-        
-        # Create client directly for validation
-        async with OzonClient(api_key=api_key, client_id=client_id) as client:
-            is_valid = await client.validate_api_key()
+        api_key = message.text.strip()
+        if not api_key:
+            await message.answer("❌ API ключ не может быть пустым")
+            return
             
-        if is_valid:
-            # Encrypt and save API key only if valid
-            encrypted_key = marketplace_factory.encrypt_api_key(api_key)
-            await db.update_api_keys(
-                message.from_user.id,
-                ozon_key=encrypted_key
+        parts = api_key.split()
+        if len(parts) != 2:
+            await message.answer(
+                "❌ Неверный формат. Отправьте API ключ и Client ID через пробел"
             )
+            return
             
-            await message.answer(
-                "✅ API ключ Ozon успешно добавлен!\n\n"
-                "Теперь вы можете:\n"
-                "1️⃣ Добавить API ключ Wildberries в разделе 🔑 API ключи\n"
-                "2️⃣ Настроить интервал проверки в разделе ⏰ Интервал проверки\n"
-                "3️⃣ Начать отслеживать акции в разделе 📊 Мои акции",
-                reply_markup=get_main_menu_keyboard()
-            )
-        else:
-            await message.answer(
-                "❌ Неверный API ключ или Client ID\n\n"
-                "Убедитесь, что:\n"
-                "1. Вы скопировали Client ID из личного кабинета Ozon\n"
-                "2. API ключ активен и имеет необходимые права\n"
-                "3. Формат строго соответствует: CLIENT_ID:API_KEY\n\n"
-                "Попробуйте снова или обратитесь в поддержку Ozon",
-                reply_markup=get_main_menu_keyboard()
-            )
-    except ValueError:
-        await message.answer(
-            "❌ Неверный формат данных\n\n"
-            "Отправьте в формате: CLIENT_ID:API_KEY\n"
-            "Пример: 12345:a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6\n\n"
-            "Где:\n"
-            "- CLIENT_ID: ID клиента из личного кабинета Ozon\n"
-            "- API_KEY: Ключ API из раздела 'API ключи'",
-            reply_markup=get_main_menu_keyboard()
+        api_key, client_id = parts
+        
+        encrypted_key = marketplace_factory.encrypt_api_key(api_key)
+        client = await marketplace_factory.create_client(
+            'ozon', encrypted_key, client_id=client_id
         )
-    except Exception as e:
-        logger.error(f"Error processing Ozon API key: {str(e)}")
-        await message.answer(
-            "❌ Произошла ошибка при проверке API ключа\n\n"
-            "Пожалуйста, убедитесь что:\n"
-            "1. У вас есть доступ к API Ozon\n"
-            "2. API ключ активен\n"
-            "3. Формат данных верный: CLIENT_ID:API_KEY",
-            reply_markup=get_main_menu_keyboard()
+        
+        await db.update_api_keys(
+            message.from_user.id,
+            ozon_key=encrypted_key
         )
-    finally:
+        
+        async with db.db.execute(
+            "UPDATE users SET ozon_client_id = ? WHERE user_id = ?",
+            (client_id, message.from_user.id)
+        ):
+            await db.db.commit()
+            
+        await message.answer("✅ API ключ Ozon успешно добавлен")
         await state.clear()
+        await show_api_keys(message, db)
+        
+    except ValueError as e:
+        await message.answer(f"❌ Ошибка валидации: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error adding Ozon API key: {str(e)}")
+        await message.answer("❌ Произошла ошибка при добавлении API ключа")
 
 @router.message(UserStates.waiting_for_wb_api)
 async def process_wb_api_key(
@@ -270,12 +252,10 @@ async def process_wb_api_key(
         
         await message.answer("🔄 Проверяю API ключ...")
         
-        # Create client directly for validation
         async with WildberriesClient(api_key=api_key) as client:
             is_valid = await client.validate_api_key()
             
         if is_valid:
-            # Encrypt and save API key only if valid
             encrypted_key = marketplace_factory.encrypt_api_key(api_key)
             await db.update_api_keys(
                 message.from_user.id,
@@ -469,7 +449,6 @@ async def show_promotions(callback: CallbackQuery, db: Database):
         await callback.answer("❌ Сначала добавьте API ключи", show_alert=True)
         return
     
-    # TODO: Implement promotions display
     await callback.message.edit_text(
         "📊 Ваши акции\n\n"
         "🚧 Функция в разработке",

@@ -121,9 +121,10 @@ class PromotionMonitor:
                 return changes
 
             # Check Ozon promotions
-            if user.get("ozon_api_key"):
+            if user.get("ozon_api_key") and user.get("ozon_client_id"):
                 ozon_client = await self.marketplace_factory.get_ozon_client(
-                    user["ozon_api_key"]
+                    user["ozon_api_key"],
+                    user["ozon_client_id"]
                 )
                 current_ozon = await ozon_client.get_hot_sales()
                 cached_ozon = self._cached_promotions.get(user_id, {}).get("ozon", [])

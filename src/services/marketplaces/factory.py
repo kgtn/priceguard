@@ -101,17 +101,18 @@ class MarketplaceFactory:
             logger.error(f"Error creating {marketplace} client: {str(e)}")
             raise
 
-    async def get_ozon_client(self, encrypted_key: str) -> OzonClient:
+    async def get_ozon_client(self, encrypted_key: str, client_id: str) -> OzonClient:
         """
         Get Ozon client instance.
         
         Args:
             encrypted_key: Encrypted API key
+            client_id: Ozon client ID
             
         Returns:
             OzonClient: Ozon client instance
         """
-        return await self.create_client('ozon', encrypted_key, client_id='1')
+        return await self.create_client('ozon', encrypted_key, client_id=client_id)
 
     async def get_wildberries_client(self, encrypted_key: str) -> WildberriesClient:
         """

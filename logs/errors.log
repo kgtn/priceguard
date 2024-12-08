@@ -643,3 +643,6 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: messa
 2024-12-08 10:05:35,835 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
 2024-12-08 10:12:13,769 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
 2024-12-08 10:15:21,207 - services.monitoring.monitor - ERROR - Error checking promotions for user 1879978399: 'MarketplaceFactory' object has no attribute 'get_ozon_client'
+2024-12-08 10:16:41,548 - services.marketplaces.base - ERROR - Validation error: Invalid Client ID
+2024-12-08 10:16:41,548 - services.marketplaces.factory - ERROR - Error creating ozon client: Invalid Client ID
+2024-12-08 10:16:41,548 - services.monitoring.monitor - ERROR - Error checking promotions for user 1879978399: Invalid Client ID
