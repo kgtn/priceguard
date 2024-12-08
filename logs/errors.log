@@ -598,3 +598,48 @@ text
   Input should be a valid string [type=string_type, input_value=<coroutine object format_...n_status at 0x10d874c20>, input_type=coroutine]
     For further information visit https://errors.pydantic.dev/2.9/v/string_type
 2024-12-08 10:00:40,536 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 10:04:30,374 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 10:04:53,507 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: name 'format_api_keys_message' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 512, in show_api_keys
+    await format_api_keys_message(user_data),
+          ^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'format_api_keys_message' is not defined. Did you mean: 'format_help_message'?
+2024-12-08 10:04:53,691 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 10:05:35,673 - bot.middlewares.error - ERROR - Error processing event from user 743731: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/admin.py", line 210, in on_admin_users
+    await callback.message.edit_text(
+    ...<2 lines>...
+    )
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/methods/base.py", line 84, in emit
+    return await bot(self)
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/bot.py", line 494, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/session/base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/session/aiohttp.py", line 189, in make_request
+    response = self.check_response(
+        bot=bot, method=method, status_code=resp.status, content=raw_result
+    )
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/session/base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2024-12-08 10:05:35,835 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 10:12:13,769 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 10:15:21,207 - services.monitoring.monitor - ERROR - Error checking promotions for user 1879978399: 'MarketplaceFactory' object has no attribute 'get_ozon_client'

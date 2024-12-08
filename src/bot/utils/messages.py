@@ -122,27 +122,41 @@ def format_help_message() -> str:
 
 async def format_subscription_status(user_data: Dict) -> str:
     """Format subscription status message."""
-    subscription_active = user_data.get('subscription_active', False)
-    subscription_expires = user_data.get('subscription_expires')
-    check_interval = user_data.get('check_interval', 60)  # default 60 minutes
+    subscription_status = user_data.get('subscription_status', 'inactive')
+    subscription_end_date = user_data.get('subscription_end_date')
+    created_at = user_data.get('created_at')
     
-    if subscription_active and subscription_expires:
-        expires = datetime.fromisoformat(subscription_expires)
-        days_left = (expires - datetime.now()).days
+    if subscription_status == 'active' and subscription_end_date:
         status = "✅ Активна"
-        expires_text = f"Действует до: {expires.strftime('%d.%m.%Y')}\n"
-        days_text = f"Осталось дней: {days_left}\n"
+        try:
+            end_date = datetime.fromisoformat(subscription_end_date)
+            created = datetime.fromisoformat(created_at)
+            days_left = (end_date - datetime.now()).days
+            
+            created_text = f"Дата активации: {created.strftime('%d.%m.%Y %H:%M')}\n"
+            expires_text = f"Действует до: {end_date.strftime('%d.%m.%Y %H:%M')}\n"
+            days_text = f"Осталось дней: {days_left}"
+        except (ValueError, TypeError):
+            created_text = ""
+            expires_text = ""
+            days_text = ""
+    elif subscription_status == 'trial':
+        status = "🎁 Пробный период"
+        created_text = ""
+        expires_text = ""
+        days_text = ""
     else:
         status = "❌ Неактивна"
+        created_text = ""
         expires_text = ""
         days_text = ""
     
     return (
         f"📊 Статус подписки\n\n"
         f"Статус: {status}\n"
+        f"{created_text}"
         f"{expires_text}"
         f"{days_text}"
-        f"Интервал проверки: {check_interval} мин."
     )
 
 def format_promo_update(
@@ -269,4 +283,19 @@ def format_payment_info(payment: Dict) -> str:
         f"├ *Статус:* {status_map.get(payment.get('status'), 'Неизвестно')}\n"
         f"├ *Сумма:* {payment.get('amount')} {payment.get('currency')}\n"
         f"└ *Дата:* {payment.get('created_at')}"
+    )
+
+async def format_api_keys_message(user_data: Dict) -> str:
+    """Format API keys message."""
+    ozon_key = user_data.get('ozon_api_key', '')
+    wb_key = user_data.get('wb_api_key', '')
+    
+    ozon_status = "✅" if ozon_key else "❌"
+    wb_status = "✅" if wb_key else "❌"
+    
+    return (
+        "🔑 Управление API ключами\n\n"
+        f"OZON API: {ozon_status}\n"
+        f"Wildberries API: {wb_status}\n\n"
+        "Выберите маркетплейс для настройки:"
     )

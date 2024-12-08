@@ -15,11 +15,13 @@ from aiogram.types import Message, CallbackQuery, BotCommand, BotCommandScopeDef
 from core.database import Database
 from core.logging import get_logger
 from services.marketplaces.factory import MarketplaceFactory
-from ..utils.messages import (
-    format_start_message,
+from bot.utils.messages import (
     format_help_message,
     format_subscription_status,
-    format_api_instructions,
+    format_api_keys_message
+)
+from ..utils.messages import (
+    format_start_message,
     START_MESSAGE,
     HOW_IT_WORKS_MESSAGE,
     START_SETUP_MESSAGE,
@@ -138,7 +140,7 @@ async def cmd_status(message: Message, db: Database) -> None:
         return
         
     await message.answer(
-        format_subscription_status(user_data),
+        await format_subscription_status(user_data),
         reply_markup=get_subscription_keyboard()
     )
 
@@ -498,11 +500,18 @@ async def show_subscription(callback: CallbackQuery, db: Database):
     )
 
 @router.callback_query(F.data == "api_keys")
-async def show_api_keys(callback: CallbackQuery):
+async def show_api_keys(callback: CallbackQuery, db: Database):
     """Show API keys management."""
+    user_data = await db.get_user(callback.from_user.id)
+    if not user_data:
+        await callback.message.edit_text(
+            "❌ Вы не зарегистрированы. Используйте /start",
+            reply_markup=get_start_keyboard()
+        )
+        return
+        
     await callback.message.edit_text(
-        "🔑 Управление API ключами\n\n"
-        "Выберите маркетплейс для настройки:",
+        await format_api_keys_message(user_data),
         reply_markup=get_api_key_keyboard()
     )
 

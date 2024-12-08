@@ -381,6 +381,30 @@ class Database:
             await self.db.rollback()
             raise
 
+    async def get_active_subscriptions(self) -> List[Dict]:
+        """Get all active subscriptions."""
+        async with self.db.execute(
+            """
+            SELECT s.*, u.check_interval
+            FROM subscriptions s
+            JOIN users u ON s.user_id = u.user_id
+            WHERE u.subscription_status = 'active'
+            AND s.start_date <= CURRENT_TIMESTAMP
+            AND s.end_date > CURRENT_TIMESTAMP
+            """
+        ) as cursor:
+            rows = await cursor.fetchall()
+            return [
+                {
+                    "user_id": row[1],
+                    "payment_id": row[2],
+                    "start_date": row[3],
+                    "end_date": row[4],
+                    "check_interval": row[5]
+                }
+                for row in rows
+            ]
+
 async def init_db(database_path: str) -> Database:
     """Initialize and return database instance."""
     db = Database(database_path)

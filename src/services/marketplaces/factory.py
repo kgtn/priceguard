@@ -100,3 +100,27 @@ class MarketplaceFactory:
         except Exception as e:
             logger.error(f"Error creating {marketplace} client: {str(e)}")
             raise
+
+    async def get_ozon_client(self, encrypted_key: str) -> OzonClient:
+        """
+        Get Ozon client instance.
+        
+        Args:
+            encrypted_key: Encrypted API key
+            
+        Returns:
+            OzonClient: Ozon client instance
+        """
+        return await self.create_client('ozon', encrypted_key, client_id='1')
+
+    async def get_wildberries_client(self, encrypted_key: str) -> WildberriesClient:
+        """
+        Get Wildberries client instance.
+        
+        Args:
+            encrypted_key: Encrypted API key
+            
+        Returns:
+            WildberriesClient: Wildberries client instance
+        """
+        return await self.create_client('wildberries', encrypted_key)

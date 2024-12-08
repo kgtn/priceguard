@@ -1165,3 +1165,90 @@ text
 2024-12-08 10:01:08,162 - aiogram.event - INFO - Update id=20181124 is handled. Duration 138 ms by bot id=7683347152
 2024-12-08 10:01:09,791 - aiogram.event - INFO - Update id=20181125 is handled. Duration 210 ms by bot id=7683347152
 2024-12-08 10:01:11,471 - aiogram.event - INFO - Update id=20181126 is handled. Duration 374 ms by bot id=7683347152
+2024-12-08 10:01:58,868 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 10:01:58,869 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:01:58,869 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 10:04:29,381 - __main__ - INFO - Loading configuration...
+2024-12-08 10:04:29,382 - __main__ - INFO - Initializing bot...
+2024-12-08 10:04:30,373 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 10:04:30,373 - __main__ - INFO - Starting bot...
+2024-12-08 10:04:30,374 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 10:04:30,374 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 10:04:30,483 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:04:37,704 - aiogram.event - INFO - Update id=20181127 is handled. Duration 358 ms by bot id=7683347152
+2024-12-08 10:04:41,563 - aiogram.event - INFO - Update id=20181128 is handled. Duration 127 ms by bot id=7683347152
+2024-12-08 10:04:53,507 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: name 'format_api_keys_message' is not defined
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 512, in show_api_keys
+    await format_api_keys_message(user_data),
+          ^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'format_api_keys_message' is not defined. Did you mean: 'format_help_message'?
+2024-12-08 10:04:53,691 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 10:04:53,691 - aiogram.event - INFO - Update id=20181129 is handled. Duration 189 ms by bot id=7683347152
+2024-12-08 10:05:18,141 - aiogram.event - INFO - Update id=20181130 is handled. Duration 345 ms by bot id=7683347152
+2024-12-08 10:05:35,673 - bot.middlewares.error - ERROR - Error processing event from user 743731: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/admin.py", line 210, in on_admin_users
+    await callback.message.edit_text(
+    ...<2 lines>...
+    )
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/methods/base.py", line 84, in emit
+    return await bot(self)
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/bot.py", line 494, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/session/base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/session/aiohttp.py", line 189, in make_request
+    response = self.check_response(
+        bot=bot, method=method, status_code=resp.status, content=raw_result
+    )
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/client/session/base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2024-12-08 10:05:35,835 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 10:05:35,835 - aiogram.event - INFO - Update id=20181131 is handled. Duration 655 ms by bot id=7683347152
+2024-12-08 10:05:52,524 - aiogram.event - INFO - Update id=20181132 is handled. Duration 346 ms by bot id=7683347152
+2024-12-08 10:06:00,464 - aiogram.event - INFO - Update id=20181133 is handled. Duration 197 ms by bot id=7683347152
+2024-12-08 10:06:02,475 - aiogram.event - INFO - Update id=20181134 is handled. Duration 264 ms by bot id=7683347152
+2024-12-08 10:06:14,631 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 10:06:14,631 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:06:14,632 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 10:12:13,033 - __main__ - INFO - Loading configuration...
+2024-12-08 10:12:13,033 - __main__ - INFO - Initializing bot...
+2024-12-08 10:12:13,768 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 10:12:13,768 - __main__ - INFO - Starting bot...
+2024-12-08 10:12:13,769 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 10:12:13,769 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 10:12:13,893 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:12:28,512 - aiogram.event - INFO - Update id=20181135 is handled. Duration 367 ms by bot id=7683347152
+2024-12-08 10:12:33,279 - aiogram.event - INFO - Update id=20181136 is handled. Duration 162 ms by bot id=7683347152
+2024-12-08 10:12:36,063 - aiogram.event - INFO - Update id=20181137 is handled. Duration 312 ms by bot id=7683347152
+2024-12-08 10:13:40,660 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 10:13:40,661 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:13:40,661 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 10:15:20,820 - __main__ - INFO - Loading configuration...
+2024-12-08 10:15:20,821 - __main__ - INFO - Initializing bot...
+2024-12-08 10:15:21,205 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 10:15:21,205 - __main__ - INFO - Starting bot...
+2024-12-08 10:15:21,205 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 10:15:21,207 - services.monitoring.monitor - ERROR - Error checking promotions for user 1879978399: 'MarketplaceFactory' object has no attribute 'get_ozon_client'
+2024-12-08 10:15:21,317 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 10:15:42,180 - aiogram.event - INFO - Update id=20181138 is handled. Duration 359 ms by bot id=7683347152
+2024-12-08 10:15:49,967 - aiogram.event - INFO - Update id=20181139 is handled. Duration 482 ms by bot id=7683347152
+2024-12-08 10:15:56,932 - aiogram.event - INFO - Update id=20181140 is handled. Duration 223 ms by bot id=7683347152
+2024-12-08 10:15:59,771 - aiogram.event - INFO - Update id=20181141 is not handled. Duration 4 ms by bot id=7683347152
