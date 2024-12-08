@@ -475,3 +475,25 @@ AttributeError: 'Config' object has no attribute 'payment_provider_token'
 2024-12-07 22:36:27,498 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
 2024-12-07 22:38:10,904 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
 2024-12-07 22:42:18,952 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:30:57,153 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:32:59,728 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: format_subscription_status() got an unexpected keyword argument 'status'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 127, in cmd_status
+    format_subscription_status(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        status=user_data["subscription_status"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        end_date=user_data["subscription_end_date"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check_interval=user_data["check_interval"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ),
+    ^
+TypeError: format_subscription_status() got an unexpected keyword argument 'status'
+2024-12-08 09:32:59,880 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'

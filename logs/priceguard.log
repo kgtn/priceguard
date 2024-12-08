@@ -956,3 +956,40 @@ AttributeError: 'Config' object has no attribute 'payment_provider_token'
 2024-12-07 22:46:19,840 - aiogram.dispatcher - WARNING - Received SIGINT signal
 2024-12-07 22:46:19,840 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
 2024-12-07 22:46:19,841 - aiogram.dispatcher - INFO - Polling stopped
+2024-12-08 09:30:57,130 - __main__ - INFO - Loading configuration...
+2024-12-08 09:30:57,131 - __main__ - INFO - Initializing bot...
+2024-12-08 09:30:57,152 - services.monitoring.monitor - INFO - Started promotion monitoring task
+2024-12-08 09:30:57,152 - __main__ - INFO - Starting bot...
+2024-12-08 09:30:57,153 - aiogram.dispatcher - INFO - Start polling
+2024-12-08 09:30:57,153 - services.monitoring.monitor - ERROR - Error in monitoring loop: 'Database' object has no attribute 'get_active_subscriptions'
+2024-12-08 09:30:57,769 - aiogram.dispatcher - INFO - Run polling for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 09:31:03,399 - aiogram.event - INFO - Update id=20181085 is handled. Duration 391 ms by bot id=7683347152
+2024-12-08 09:31:10,632 - aiogram.event - INFO - Update id=20181086 is handled. Duration 352 ms by bot id=7683347152
+2024-12-08 09:31:50,266 - aiogram.event - INFO - Update id=20181087 is handled. Duration 480 ms by bot id=7683347152
+2024-12-08 09:32:47,227 - aiogram.event - INFO - Update id=20181088 is handled. Duration 397 ms by bot id=7683347152
+2024-12-08 09:32:59,728 - bot.middlewares.error - ERROR - Error processing event from user 1879978399: format_subscription_status() got an unexpected keyword argument 'status'
+Traceback (most recent call last):
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/middlewares/error.py", line 21, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/venv/lib/python3.13/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/Users/kagitin/CascadeProjects/priceguard/src/bot/handlers/user.py", line 127, in cmd_status
+    format_subscription_status(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        status=user_data["subscription_status"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        end_date=user_data["subscription_end_date"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check_interval=user_data["check_interval"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ),
+    ^
+TypeError: format_subscription_status() got an unexpected keyword argument 'status'
+2024-12-08 09:32:59,880 - bot.middlewares.error - ERROR - Failed to notify admin about error: 'config'
+2024-12-08 09:32:59,881 - aiogram.event - INFO - Update id=20181089 is handled. Duration 154 ms by bot id=7683347152
+2024-12-08 09:33:13,999 - aiogram.event - INFO - Update id=20181090 is handled. Duration 245 ms by bot id=7683347152
+2024-12-08 09:33:19,453 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2024-12-08 09:33:19,453 - aiogram.dispatcher - INFO - Polling stopped for bot @priceguarddev_bot id=7683347152 - 'priceguarddev'
+2024-12-08 09:33:19,454 - aiogram.dispatcher - INFO - Polling stopped

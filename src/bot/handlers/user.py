@@ -19,7 +19,13 @@ from ..utils.messages import (
     format_start_message,
     format_help_message,
     format_subscription_status,
-    format_api_instructions
+    format_api_instructions,
+    START_MESSAGE,
+    HOW_IT_WORKS_MESSAGE,
+    START_SETUP_MESSAGE,
+    OZON_API_KEY_INSTRUCTION,
+    WILDBERRIES_API_KEY_INSTRUCTION,
+    SETUP_COMPLETE_MESSAGE
 )
 from ..keyboards.user import (
     get_start_keyboard,
@@ -42,27 +48,67 @@ class UserStates(StatesGroup):
     waiting_for_wb_api = State()
     waiting_for_interval = State()
     waiting_for_confirmation = State()
+    waiting_for_ozon_key = State()
+    waiting_for_wb_key = State()
 
 @router.message(Command("start"))
-async def cmd_start(message: Message, db: Database) -> None:
+async def cmd_start(message: Message, db: Database):
     """Handle /start command."""
-    user_data = await db.get_user(message.from_user.id)
-    is_registered = user_data is not None
-    
-    if not is_registered:
+    user = await db.get_user(message.from_user.id)
+    if not user:
         await db.add_user(message.from_user.id)
     
     await message.answer(
-        format_start_message(is_registered),
+        text=format_start_message(is_registered=bool(user)),
         reply_markup=get_start_keyboard()
     )
-    
-    # Show main menu after welcome message
-    await message.answer(
-        "🤖 Главное меню PriceGuard\n\n"
-        "Выберите нужное действие:",
-        reply_markup=get_main_menu_keyboard()
+
+@router.callback_query(F.data == "how_it_works")
+async def process_how_it_works(callback: CallbackQuery):
+    """Handle 'How it works' button press."""
+    await callback.message.edit_text(
+        text=HOW_IT_WORKS_MESSAGE,
+        reply_markup=get_start_keyboard()
     )
+    await callback.answer()
+
+@router.callback_query(F.data == "start_setup")
+async def process_start_setup(callback: CallbackQuery):
+    """Handle 'Start setup' button press."""
+    await callback.message.edit_text(
+        text=START_SETUP_MESSAGE,
+        reply_markup=get_api_key_keyboard()
+    )
+    await callback.answer()
+
+@router.callback_query(F.data == "add_ozon_key")
+async def process_add_ozon_key(callback: CallbackQuery, state: FSMContext):
+    """Handle Ozon API key addition."""
+    await state.set_state(UserStates.waiting_for_ozon_key)
+    await callback.message.edit_text(
+        text=OZON_API_KEY_INSTRUCTION,
+        reply_markup=get_api_key_keyboard()
+    )
+    await callback.answer()
+
+@router.callback_query(F.data == "add_wb_key")
+async def process_add_wb_key(callback: CallbackQuery, state: FSMContext):
+    """Handle Wildberries API key addition."""
+    await state.set_state(UserStates.waiting_for_wb_key)
+    await callback.message.edit_text(
+        text=WILDBERRIES_API_KEY_INSTRUCTION,
+        reply_markup=get_api_key_keyboard()
+    )
+    await callback.answer()
+
+@router.callback_query(F.data == "back_to_main")
+async def process_back_to_main(callback: CallbackQuery):
+    """Handle back to main menu button press."""
+    await callback.message.edit_text(
+        text=START_MESSAGE,
+        reply_markup=get_start_keyboard()
+    )
+    await callback.answer()
 
 @router.message(Command("help"))
 async def cmd_help(message: Message) -> None:

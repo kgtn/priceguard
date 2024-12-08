@@ -1,19 +1,32 @@
 """
-User keyboard markups for the PriceGuard bot.
+Keyboard layouts for the PriceGuard bot.
 File: src/bot/keyboards/user.py
 """
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardMarkup,
+    KeyboardButton
+)
 
 def get_start_keyboard() -> InlineKeyboardMarkup:
-    """Get keyboard for start command."""
-    builder = InlineKeyboardBuilder()
-    builder.button(text="💳 Оформить подписку", callback_data="subscribe")
-    builder.button(text="🔑 Добавить API ключи", callback_data="add_api")
-    builder.button(text="ℹ️ Помощь", callback_data="help")
-    builder.adjust(1)
-    return builder.as_markup()
+    """Get start menu keyboard."""
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                text="🤔 Как это работает?",
+                callback_data="how_it_works"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="🚀 Начать использование",
+                callback_data="start_setup"
+            )
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 def get_settings_keyboard() -> InlineKeyboardMarkup:
     """Get keyboard for settings command."""
@@ -32,13 +45,28 @@ def get_settings_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def get_api_key_keyboard() -> InlineKeyboardMarkup:
-    """Get keyboard for API key management."""
-    builder = InlineKeyboardBuilder()
-    builder.button(text="🔵 Добавить Ozon API", callback_data="add_ozon_api")
-    builder.button(text="⚪️ Добавить Wildberries API", callback_data="add_wb_api")
-    builder.button(text="↩️ Назад", callback_data="back_to_main")
-    builder.adjust(1)
-    return builder.as_markup()
+    """Get API key menu keyboard."""
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                text="🔑 Добавить ключ Ozon",
+                callback_data="add_ozon_key"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="🔑 Добавить ключ Wildberries",
+                callback_data="add_wb_key"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="◀️ Назад",
+                callback_data="back_to_main"
+            )
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 def get_subscription_keyboard() -> InlineKeyboardMarkup:
     """Get subscription management keyboard."""
