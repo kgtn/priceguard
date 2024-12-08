@@ -211,13 +211,7 @@ class PromotionMonitor:
         Returns:
             True if changes found
         """
-        # Fields to compare
-        fields = ["price", "stock", "action_price", "date_start", "date_end"]
-        
-        return any(
-            old_promo.get(field) != new_promo.get(field)
-            for field in fields
-        )
+        return old_promo.get("products_count") != new_promo.get("products_count")
 
     async def _notify_user(self, user_id: int, changes: Dict) -> None:
         """

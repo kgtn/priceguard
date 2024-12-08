@@ -60,17 +60,15 @@ class OzonClient(MarketplaceClient):
             
     async def get_promo_products(self) -> List[Dict]:
         """
-        Get list of products participating in Hot Sale promotions.
+        Get summary of products participating in Hot Sale promotions.
         
         Returns:
-            List[Dict]: List of products with their promotion details
+            List[Dict]: List of promotions with product counts
             
         Raises:
             ValueError: If API key is invalid
             ConnectionError: If connection failed
         """
-        products = []
-        
         try:
             # Get Hot Sale products
             response = await self._make_request(
@@ -80,19 +78,16 @@ class OzonClient(MarketplaceClient):
                 json={}
             )
             
-            for product in response.get("result", {}).get("products", []):
-                if product.get("is_active"):
-                    products.append({
-                        "id": product["id"],
-                        "action_price": product.get("action_price", 0),
-                        "max_action_price": product.get("max_action_price", 0),
-                        "date_promo": product.get("date_day_promo", ""),
-                        "stock": product.get("stock", 0),
-                        "min_stock": product.get("min_stock", 0),
-                        "is_active": product.get("is_active", False)
-                    })
-                    
-            return products
+            active_products = len([
+                p for p in response.get("result", {}).get("products", [])
+                if p.get("is_active")
+            ])
+            
+            return [{
+                "id": "hotsale",
+                "name": "Hot Sale",
+                "products_count": active_products
+            }]
             
         except Exception as e:
             logger.error(f"Error getting Ozon Hot Sale products: {e}")

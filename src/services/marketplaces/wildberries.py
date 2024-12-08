@@ -47,17 +47,15 @@ class WildberriesClient(MarketplaceClient):
             
     async def get_promo_products(self) -> List[Dict]:
         """
-        Get list of products participating in auto promotions.
+        Get summary of products participating in auto promotions.
         
         Returns:
-            List[Dict]: List of promotions with their details
+            List[Dict]: List of auto promotions with product counts
             
         Raises:
             ValueError: If API key is invalid
             ConnectionError: If connection failed
         """
-        promotions = []
-        
         try:
             # Get promotion details
             response = await self._make_request(
@@ -66,23 +64,16 @@ class WildberriesClient(MarketplaceClient):
                 headers=self._get_headers()
             )
             
+            auto_promotions = []
             for promo in response.get("data", {}).get("promotions", []):
-                # Only include auto promotions
                 if promo.get("type") == "auto":
-                    promotions.append({
+                    auto_promotions.append({
                         "id": promo["id"],
                         "name": promo.get("name", ""),
-                        "description": promo.get("description", ""),
-                        "advantages": promo.get("advantages", []),
-                        "start_date": promo.get("startDateTime", ""),
-                        "end_date": promo.get("endDateTime", ""),
-                        "products_in_promo": promo.get("inPromoActionTotal", 0),
-                        "products_with_stock": promo.get("inPromoActionLeftovers", 0),
-                        "participation_percentage": promo.get("participationPercentage", 0),
-                        "excluded_products": promo.get("exceptionProductsCount", 0)
+                        "products_count": promo.get("inPromoActionTotal", 0)
                     })
                     
-            return promotions
+            return auto_promotions
             
         except Exception as e:
             logger.error(f"Error getting Wildberries auto promotions: {e}")

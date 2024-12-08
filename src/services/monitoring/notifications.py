@@ -86,67 +86,56 @@ class NotificationService:
 
     def _format_ozon_changes(self, changes: Dict) -> str:
         """Format Ozon changes message."""
-        message = "🔵 *Изменения в акциях Ozon*\n\n"
+        message = "🔵 *OZON Hot Sale*\n\n"
         
         # New promotions
         if changes["new"]:
-            message += "✨ *Новые акции:*\n"
-            for promo in changes["new"]:
-                message += self._format_ozon_promo(promo) + "\n"
+            promo = changes["new"][0]  # Only one Hot Sale promotion
+            message += f"✨ Ваши товары участвуют в Hot Sale!\n"
+            message += f"📦 Количество товаров: {promo['products_count']}\n"
         
         # Changed promotions
         if changes["changed"]:
-            message += "\n📊 *Изменения в акциях:*\n"
-            for promo in changes["changed"]:
-                message += self._format_ozon_promo(promo) + "\n"
+            promo = changes["changed"][0]
+            message += f"\n📊 Изменения в Hot Sale\n"
+            message += f"📦 Количество товаров: {promo['products_count']}\n"
         
         # Ended promotions
         if changes["ended"]:
-            message += "\n❌ *Завершенные акции:*\n"
-            for promo in changes["ended"]:
-                message += f"• {promo.get('name', 'Без названия')}\n"
+            message += "\n❌ Hot Sale завершена"
         
         return message.strip()
 
     def _format_wb_changes(self, changes: Dict) -> str:
         """Format Wildberries changes message."""
-        message = "⚪️ *Изменения в акциях Wildberries*\n\n"
+        message = "⚪️ *Автоакции Wildberries*\n\n"
         
         # New promotions
         if changes["new"]:
-            message += "✨ *Новые акции:*\n"
+            message += "✨ *Новые автоакции:*\n"
             for promo in changes["new"]:
-                message += self._format_wb_promo(promo) + "\n"
+                message += f"• {promo['name']}\n"
+                message += f"  📦 Товаров: {promo['products_count']}\n"
         
         # Changed promotions
         if changes["changed"]:
-            message += "\n📊 *Изменения в акциях:*\n"
+            message += "\n📊 *Изменения в автоакциях:*\n"
             for promo in changes["changed"]:
-                message += self._format_wb_promo(promo) + "\n"
+                message += f"• {promo['name']}\n"
+                message += f"  📦 Товаров: {promo['products_count']}\n"
         
         # Ended promotions
         if changes["ended"]:
-            message += "\n❌ *Завершенные акции:*\n"
+            message += "\n❌ *Завершенные автоакции:*\n"
             for promo in changes["ended"]:
-                message += f"• {promo.get('name', 'Без названия')}\n"
+                message += f"• {promo['name']}\n"
         
         return message.strip()
 
     def _format_ozon_promo(self, promo: Dict) -> str:
         """Format single Ozon promotion."""
-        return (
-            f"• *{promo.get('name', 'Без названия')}*\n"
-            f"  💰 Цена: {promo.get('price')} ₽\n"
-            f"  🏷 Цена по акции: {promo.get('action_price')} ₽\n"
-            f"  📦 Остаток: {promo.get('stock')} шт.\n"
-            f"  📅 {promo.get('date_start')} - {promo.get('date_end')}"
-        )
+        return f"📦 Количество товаров: {promo['products_count']}"
 
     def _format_wb_promo(self, promo: Dict) -> str:
         """Format single Wildberries promotion."""
-        return (
-            f"• *{promo.get('name', 'Без названия')}*\n"
-            f"  💰 Скидка: {promo.get('discount')}%\n"
-            f"  📦 Товаров: {promo.get('products_count')} шт.\n"
-            f"  📅 {promo.get('date_start')} - {promo.get('date_end')}"
-        )
+        return f"• {promo['name']}\n  📦 Товаров: {promo['products_count']}"
