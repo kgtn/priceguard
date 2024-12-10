@@ -31,7 +31,7 @@ class Settings:
     def __init__(self):
         """Initialize settings from environment variables."""
         self.bot_token = os.getenv("BOT_TOKEN")
-        self.admin_user_id = os.getenv("ADMIN_USER_ID")
+        self.admin_user_id = int(os.getenv("ADMIN_USER_ID"))
         self.database_path = os.getenv("DATABASE_PATH", "bot.db")
         self.encryption_key = os.getenv("ENCRYPTION_KEY")
         
@@ -56,7 +56,7 @@ def load_config() -> Config:
         ),
         telegram=TelegramConfig(
             token=settings.bot_token,
-            admin_user_id=int(settings.admin_user_id),
+            admin_user_id=settings.admin_user_id,
             payment_provider_token=settings.payment_provider_token
         ),
         encryption_key=settings.encryption_key,

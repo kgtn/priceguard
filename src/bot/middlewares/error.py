@@ -45,12 +45,15 @@ class ErrorMiddleware(BaseMiddleware):
 
             # Notify admin if critical error
             try:
-                admin_id = data["config"].telegram.admin_user_id
-                bot = data["bot"]
-                await bot.send_message(
-                    admin_id,
-                    f"❗️ Critical Error:\nUser: {user_id}\nError: {str(e)}"
-                )
+                settings = data.get("settings")  
+                if settings and hasattr(settings, "telegram"):
+                    admin_id = settings.telegram.admin_user_id
+                    bot = data.get("bot")
+                    if bot and admin_id:
+                        await bot.send_message(
+                            admin_id,
+                            f"❗️ Critical Error:\nUser: {user_id}\nError: {str(e)}"
+                        )
             except Exception as admin_notify_error:
                 logger.error(
                     f"Failed to notify admin about error: {admin_notify_error}"

@@ -29,7 +29,6 @@ class AdminStates(StatesGroup):
 
 async def is_admin(user_id: int, settings: Settings) -> bool:
     """Check if user is admin."""
-    print(f"Checking admin access: user_id={user_id} ({type(user_id)}), admin_id={settings.telegram.admin_user_id} ({type(settings.telegram.admin_user_id)})")
     return str(user_id) == str(settings.telegram.admin_user_id)
 
 @router.message(Command("admin"))
@@ -93,21 +92,22 @@ async def cmd_subscriptions(
 @router.message(Command("logs"))
 async def cmd_logs(message: types.Message, settings: Settings):
     """Send bot logs."""
-    if not await is_admin(message.from_user.id, settings):
-        await message.answer("❌ У вас нет прав администратора")
-        return
-
     try:
-        with open("bot.log", "r") as f:
-            logs = f.read()[-4000:]  # Last 4000 chars
-        await message.answer_document(
-            types.BufferedInputFile(
-                logs.encode(),
-                filename=f"bot_logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-            )
-        )
+        # Отправляем оба файла логов
+        for log_file in ["logs/errors.log", "logs/priceguard.log"]:
+            try:
+                with open(log_file, "r") as f:
+                    logs = f.read()[-4000:]  # Last 4000 chars
+                await message.answer_document(
+                    types.BufferedInputFile(
+                        logs.encode(),
+                        filename=f"{log_file.split('/')[-1]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+                    )
+                )
+            except Exception as e:
+                await message.answer(f"❌ Ошибка при чтении {log_file}: {str(e)}")
     except Exception as e:
-        await message.answer(f"❌ Ошибка при чтении логов: {str(e)}")
+        await message.answer("❌ Произошла общая ошибка при обработке логов")
 
 @router.message(Command("broadcast"))
 async def cmd_broadcast(message: types.Message, state: FSMContext, settings: Settings):
@@ -149,20 +149,36 @@ async def process_broadcast(
     users = await db.get_all_users()
     sent_count = 0
     failed_count = 0
+    error_details = []
 
     for user in users:
         try:
-            await message.copy_to(user.id)
+            # Проверяем, что у пользователя есть валидный ID в словаре
+            user_id = user.get('user_id')  # Используем 'user_id' вместо 'id'
+            if not user_id:
+                raise ValueError(f"Missing user_id in user data: {user}")
+                
+            # Пробуем отправить сообщение
+            await message.copy_to(chat_id=user_id)
             sent_count += 1
-        except Exception:
+            
+        except Exception as e:
             failed_count += 1
+            error_details.append(f"User {user.get('user_id', 'Unknown')}: {str(e)}")
+            print(f"Broadcast error for user {user.get('user_id', 'Unknown')}: {str(e)}")  # Для отладки
+
+    # Формируем детальный отчет
+    report = f"📢 Рассылка завершена\n✅ Успешно: {sent_count}\n❌ Ошибок: {failed_count}"
+    
+    # Если были ошибки, добавляем детали в отдельном сообщении
+    if error_details:
+        error_report = "Детали ошибок:\n" + "\n".join(error_details[:10])  # Первые 10 ошибок
+        if len(error_details) > 10:
+            error_report += f"\n... и еще {len(error_details) - 10} ошибок"
+        await message.answer(error_report)
 
     await state.clear()
-    await message.answer(
-        f"📢 Рассылка завершена\n"
-        f"✅ Успешно: {sent_count}\n"
-        f"❌ Ошибок: {failed_count}"
-    )
+    await message.answer(report)
 
 @router.message(AdminStates.waiting_for_force_check)
 async def process_force_check(
