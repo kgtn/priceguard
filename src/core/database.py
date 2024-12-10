@@ -19,10 +19,10 @@ CREATE_TABLES = [
         ozon_api_key TEXT,
         ozon_client_id TEXT,
         wildberries_api_key TEXT,
-        subscription_status TEXT CHECK(subscription_status IN ('active', 'inactive', 'trial')) NOT NULL DEFAULT 'trial',
+        subscription_status TEXT CHECK(subscription_status IN ('active', 'inactive', 'trial')) NOT NULL DEFAULT 'inactive',
         subscription_end_date TIMESTAMP,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        check_interval INTEGER NOT NULL DEFAULT 3600
+        check_interval INTEGER NOT NULL DEFAULT 14400
     )
     """,
     """

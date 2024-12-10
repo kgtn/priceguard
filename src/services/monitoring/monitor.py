@@ -22,7 +22,7 @@ class PromotionMonitor:
         self,
         db: Database,
         marketplace_factory: MarketplaceFactory,
-        check_interval: int = 21600  # 6 hours
+        check_interval: int = 14400  # 4 hours
     ):
         """Initialize monitor."""
         self.db = db
