@@ -207,10 +207,6 @@ async def process_force_check(
 @router.callback_query(F.data == "admin_users")
 async def on_admin_users(callback: types.CallbackQuery, db: Database, settings: Settings):
     """Handle admin_users callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
-
     users = await db.get_all_users()
     if not users:
         await callback.message.edit_text(
@@ -232,9 +228,6 @@ async def on_admin_users(callback: types.CallbackQuery, db: Database, settings: 
 @router.callback_query(F.data == "admin_subscriptions")
 async def on_admin_subscriptions(callback: types.CallbackQuery, settings: Settings):
     """Handle admin_subscriptions callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
     await callback.message.edit_text(
         "💳 Управление подписками",
         reply_markup=get_subscriptions_keyboard()
@@ -243,9 +236,6 @@ async def on_admin_subscriptions(callback: types.CallbackQuery, settings: Settin
 @router.callback_query(F.data == "admin_broadcast")
 async def on_admin_broadcast(callback: types.CallbackQuery, state: FSMContext, settings: Settings):
     """Handle admin_broadcast callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
     await state.set_state(AdminStates.waiting_for_broadcast)
     await callback.message.edit_text(
         "📢 Введите текст для рассылки:",
@@ -255,27 +245,18 @@ async def on_admin_broadcast(callback: types.CallbackQuery, state: FSMContext, s
 @router.callback_query(F.data == "admin_stats")
 async def on_admin_stats(callback: types.CallbackQuery, db: Database, settings: Settings):
     """Handle admin_stats callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
     # TODO: Implement statistics gathering
     await callback.answer("🚧 Функция в разработке", show_alert=True)
 
 @router.callback_query(F.data == "admin_logs")
 async def on_admin_logs(callback: types.CallbackQuery, settings: Settings):
     """Handle admin_logs callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
     await callback.message.delete()
     await cmd_logs(callback.message, settings)
 
 @router.callback_query(F.data == "admin_force_check")
 async def on_admin_force_check(callback: types.CallbackQuery, state: FSMContext, settings: Settings):
     """Handle admin_force_check callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
     await state.set_state(AdminStates.waiting_for_force_check)
     await callback.message.edit_text(
         "🔄 Введите ID пользователя для проверки акций:",
@@ -285,10 +266,6 @@ async def on_admin_force_check(callback: types.CallbackQuery, state: FSMContext,
 @router.callback_query(F.data == "admin_active_subs")
 async def on_admin_active_subs(callback: types.CallbackQuery, db: Database, settings: Settings):
     """Handle admin_active_subs callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
-
     subscriptions = await db.get_active_subscriptions()
     if not subscriptions:
         text = "❌ Активных подписок не найдено"
@@ -310,10 +287,6 @@ async def on_admin_active_subs(callback: types.CallbackQuery, db: Database, sett
 @router.callback_query(F.data == "admin_inactive_subs")
 async def on_admin_inactive_subs(callback: types.CallbackQuery, db: Database, settings: Settings):
     """Handle admin_inactive_subs callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
-
     async with db.db.execute(
         """
         SELECT s.*, u.check_interval
@@ -355,10 +328,6 @@ async def on_admin_inactive_subs(callback: types.CallbackQuery, db: Database, se
 @router.callback_query(F.data == "admin_back")
 async def on_admin_back(callback: types.CallbackQuery, settings: Settings):
     """Handle admin_back callback."""
-    if not await is_admin(callback.from_user.id, settings):
-        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
-        return
-    
     await callback.message.edit_text(
         "🤖 Панель администратора",
         reply_markup=get_admin_keyboard()

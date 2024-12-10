@@ -7,6 +7,7 @@ from aiogram import Dispatcher
 from core.config import Config
 from .auth import AuthMiddleware
 from .error import ErrorMiddleware
+from .admin import AdminMiddleware
 
 def setup_middlewares(dp: Dispatcher, config: Config) -> None:
     """
@@ -19,6 +20,10 @@ def setup_middlewares(dp: Dispatcher, config: Config) -> None:
     # Add authentication middleware
     dp.message.middleware(AuthMiddleware(config.telegram.admin_user_id))
     dp.callback_query.middleware(AuthMiddleware(config.telegram.admin_user_id))
+
+    # Add admin middleware
+    dp.message.middleware(AdminMiddleware())
+    dp.callback_query.middleware(AdminMiddleware())
 
     # Add error handling middleware
     dp.message.middleware(ErrorMiddleware())
