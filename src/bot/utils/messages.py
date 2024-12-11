@@ -231,10 +231,20 @@ def format_user_info(user: Dict) -> str:
         end_date = "Нет"
     
     interval = user.get("check_interval", 14400)
-    interval_min = interval // 360
+    interval_min = interval // 60  # Converting seconds to minutes
+    
+    user_id = user.get('user_id')
+    username = user.get('username')
+    full_name = user.get('full_name')
+    
+    user_info = f"👤 ID: `{user_id}`"
+    if username:
+        user_info += f"\n├ Username: @{username}"
+    if full_name:
+        user_info += f"\n├ Имя: {full_name}"
     
     return (
-        f"👤 ID: `{user.get('user_id')}`\n"
+        f"{user_info}\n"
         f"├ API Ozon: {ozon_key}\n"
         f"├ API WB: {wb_key}\n"
         f"├ Подписка: {status}\n"

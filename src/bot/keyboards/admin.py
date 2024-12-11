@@ -63,6 +63,37 @@ def get_users_keyboard() -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
+def get_users_pagination_keyboard(current_page: int, total_pages: int) -> InlineKeyboardMarkup:
+    """Get pagination keyboard for users list."""
+    keyboard = []
+    
+    # Navigation buttons row
+    nav_row = []
+    
+    # Previous page button
+    if current_page > 1:
+        nav_row.append(InlineKeyboardButton(
+            text="◀️",
+            callback_data=f"users_page:{current_page - 1}"
+        ))
+    
+    # Current page indicator
+    nav_row.append(InlineKeyboardButton(
+        text=f"{current_page}/{total_pages}",
+        callback_data="ignore"
+    ))
+    
+    # Next page button
+    if current_page < total_pages:
+        nav_row.append(InlineKeyboardButton(
+            text="▶️",
+            callback_data=f"users_page:{current_page + 1}"
+        ))
+    
+    keyboard.append(nav_row)
+    
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
 def get_subscriptions_keyboard() -> InlineKeyboardMarkup:
     """Get subscriptions management keyboard."""
     buttons = [

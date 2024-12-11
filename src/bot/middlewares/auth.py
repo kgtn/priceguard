@@ -39,8 +39,16 @@ class AuthMiddleware(BaseMiddleware):
         if not user_data:
             # Add new user if not exists
             try:
-                await db.add_user(user.id)
-                logger.info(f"New user registered: {user.id}")
+                full_name = user.first_name
+                if user.last_name:
+                    full_name += f" {user.last_name}"
+                    
+                await db.add_user(
+                    user_id=user.id,
+                    username=user.username,
+                    full_name=full_name
+                )
+                logger.info(f"New user registered: {user.id} (@{user.username})")
             except Exception as e:
                 logger.error(f"Failed to register new user {user.id}: {e}")
                 return

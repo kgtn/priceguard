@@ -4,7 +4,7 @@ File: src/core/database.py
 """
 
 import aiosqlite
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 import json
 from core.logging import get_logger
@@ -15,6 +15,8 @@ CREATE_TABLES = [
     """
     CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER PRIMARY KEY,
+        username TEXT,
+        full_name TEXT,
         email TEXT,
         ozon_api_key TEXT,
         ozon_client_id TEXT,
@@ -94,21 +96,25 @@ class Database:
             await self.db.close()
             self.db = None
 
-    async def add_user(self, user_id: int, email: Optional[str] = None) -> bool:
+    async def add_user(
+        self, 
+        user_id: int, 
+        username: Optional[str] = None,
+        full_name: Optional[str] = None,
+        email: Optional[str] = None
+    ):
         """Add new user to the database."""
-        if not self.db:
-            raise RuntimeError("Database not initialized")
-        
-        try:
-            await self.db.execute(
-                "INSERT OR IGNORE INTO users (user_id, email) VALUES (?, ?)",
-                (user_id, email)
-            )
+        async with self.db.execute(
+            """
+            INSERT INTO users (
+                user_id, username, full_name, email, 
+                subscription_status, created_at
+            ) VALUES (?, ?, ?, ?, 'trial', CURRENT_TIMESTAMP)
+            """,
+            (user_id, username, full_name, email)
+        ):
             await self.db.commit()
             return True
-        except Exception as e:
-            await self.db.rollback()
-            raise
 
     async def update_api_keys(self, user_id: int, ozon_key: Optional[str] = None, 
                             wildberries_key: Optional[str] = None) -> bool:
@@ -176,8 +182,8 @@ class Database:
             columns = [description[0] for description in cursor.description]
             return dict(zip(columns, row))
 
-    async def get_all_users(self) -> List[Dict]:
-        """Get all users from database."""
+    async def get_all_users(self, page: int = 1, per_page: int = 10) -> Dict[str, Any]:
+        """Get all users from database with pagination."""
         if not self.db:
             raise RuntimeError("Database not initialized")
         
@@ -185,8 +191,19 @@ class Database:
         async with self.db.execute("PRAGMA table_info(users)") as cursor:
             columns = [row[1] async for row in cursor]
         
+        # Get total count of users
+        async with self.db.execute("SELECT COUNT(*) FROM users") as cursor:
+            total_users = (await cursor.fetchone())[0]
+        
+        # Calculate total pages
+        total_pages = (total_users + per_page - 1) // per_page
+        
+        # Ensure page is within bounds
+        page = max(1, min(page, total_pages))
+        offset = (page - 1) * per_page
+        
         # Build query based on existing columns
-        select_columns = ["user_id", "email", "ozon_api_key"]
+        select_columns = ["user_id", "username", "full_name", "email", "ozon_api_key"]
         if "ozon_client_id" in columns:
             select_columns.append("ozon_client_id")
         select_columns.extend([
@@ -194,16 +211,18 @@ class Database:
             "subscription_end_date", "created_at", "check_interval"
         ])
         
-        query = f"SELECT {', '.join(select_columns)} FROM users"
+        query = f"SELECT {', '.join(select_columns)} FROM users LIMIT ? OFFSET ?"
         users = []
-        async with self.db.execute(query) as cursor:
+        async with self.db.execute(query, (per_page, offset)) as cursor:
             async for row in cursor:
                 user_dict = {
                     "user_id": row[0],
-                    "email": row[1],
-                    "ozon_api_key": row[2],
+                    "username": row[1],
+                    "full_name": row[2],
+                    "email": row[3],
+                    "ozon_api_key": row[4],
                 }
-                current_idx = 3
+                current_idx = 5
                 if "ozon_client_id" in columns:
                     user_dict["ozon_client_id"] = row[current_idx]
                     current_idx += 1
@@ -215,7 +234,14 @@ class Database:
                     "check_interval": row[current_idx + 4]
                 })
                 users.append(user_dict)
-        return users
+        
+        return {
+            "users": users,
+            "total_users": total_users,
+            "current_page": page,
+            "total_pages": total_pages,
+            "per_page": per_page
+        }
 
     async def update_promo_check(self, user_id: int, marketplace: str,
                                base_count: int, current_count: int) -> bool:

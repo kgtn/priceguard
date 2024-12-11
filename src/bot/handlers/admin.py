@@ -16,7 +16,8 @@ from core.database import Database
 from bot.keyboards.admin import (
     get_admin_keyboard,
     get_users_keyboard,
-    get_subscriptions_keyboard
+    get_subscriptions_keyboard,
+    get_users_pagination_keyboard
 )
 from bot.utils.messages import format_user_info, format_subscription_info
 
@@ -43,25 +44,74 @@ async def cmd_admin(message: types.Message, settings: Settings):
         reply_markup=get_admin_keyboard()
     )
 
+@router.callback_query(F.data == "admin_users")
+async def on_admin_users(callback: types.CallbackQuery, db: Database, settings: Settings):
+    """Handle admin_users callback."""
+    users_data = await db.get_all_users(page=1)
+    users = users_data["users"]
+    
+    message = "👥 Список пользователей:\n\n"
+    message += "\n\n".join([format_user_info(user) for user in users])
+    message += f"\n\nВсего пользователей: {users_data['total_users']}"
+    
+    keyboard = get_users_pagination_keyboard(
+        current_page=users_data["current_page"],
+        total_pages=users_data["total_pages"]
+    )
+    
+    await callback.message.edit_text(
+        text=message,
+        reply_markup=keyboard,
+        parse_mode="Markdown"
+    )
+    await callback.answer()
+
+@router.callback_query(F.data.startswith("users_page:"))
+async def handle_users_page(callback: types.CallbackQuery, db: Database):
+    """Handle users page navigation."""
+    page = int(callback.data.split(":")[1])
+    
+    users_data = await db.get_all_users(page=page)
+    users = users_data["users"]
+    
+    message = "👥 Список пользователей:\n\n"
+    message += "\n\n".join([format_user_info(user) for user in users])
+    message += f"\n\nВсего пользователей: {users_data['total_users']}"
+    
+    keyboard = get_users_pagination_keyboard(
+        current_page=users_data["current_page"],
+        total_pages=users_data["total_pages"]
+    )
+    
+    await callback.message.edit_text(
+        text=message,
+        reply_markup=keyboard,
+        parse_mode="Markdown"
+    )
+    await callback.answer()
+
 @router.message(Command("users"))
 async def cmd_users(message: types.Message, db: Database, settings: Settings):
-    """Users list handler."""
+    """Show list of users."""
     if not await is_admin(message.from_user.id, settings):
         await message.answer("❌ У вас нет прав администратора")
         return
 
-    users = await db.get_all_users()
-    if not users:
-        await message.answer("👥 Пользователей пока нет")
-        return
-
-    text = "👥 Список пользователей:\n\n"
-    for user in users:
-        text += format_user_info(user) + "\n"
-
+    users_data = await db.get_all_users(page=1)
+    users = users_data["users"]
+    
+    message_text = "👥 Список пользователей:\n\n"
+    message_text += "\n\n".join([format_user_info(user) for user in users])
+    message_text += f"\n\nВсего пользователей: {users_data['total_users']}"
+    
+    keyboard = get_users_pagination_keyboard(
+        current_page=users_data["current_page"],
+        total_pages=users_data["total_pages"]
+    )
+    
     await message.answer(
-        text,
-        reply_markup=get_users_keyboard(),
+        text=message_text,
+        reply_markup=keyboard,
         parse_mode="Markdown"
     )
 
@@ -206,28 +256,6 @@ async def process_force_check(
         await state.clear()
 
 # Callback handlers
-@router.callback_query(F.data == "admin_users")
-async def on_admin_users(callback: types.CallbackQuery, db: Database, settings: Settings):
-    """Handle admin_users callback."""
-    users = await db.get_all_users()
-    if not users:
-        await callback.message.edit_text(
-            "👥 Пользователей пока нет",
-            reply_markup=get_admin_keyboard()
-        )
-        return
-
-    text = "👥 Список пользователей:\n\n"
-    for user in users:
-        text += format_user_info(user) + "\n"
-
-    await callback.message.edit_text(
-        text,
-        reply_markup=get_admin_keyboard(),
-        parse_mode="Markdown"
-    )
-    await callback.answer()
-
 @router.callback_query(F.data == "admin_subscriptions")
 async def on_admin_subscriptions(callback: types.CallbackQuery, settings: Settings):
     """Handle admin_subscriptions callback."""

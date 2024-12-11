@@ -44,7 +44,7 @@ def get_settings_keyboard() -> InlineKeyboardMarkup:
         builder.button(text=text, callback_data=callback_data)
     
     builder.button(text="◀️ Назад", callback_data="back_to_main")
-    builder.adjust(2, 2, 1, 1)  # 2 кнопки в ряд для интервалов, 1 для кнопки "Назад"
+    builder.adjust(2, 2, 1)  # 2 кнопки в ряд для интервалов, 1 для кнопки "Назад"
     return builder.as_markup()
 
 def get_api_key_keyboard() -> InlineKeyboardMarkup:
