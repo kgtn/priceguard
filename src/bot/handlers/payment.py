@@ -109,8 +109,19 @@ async def process_successful_payment(
         payload = message.successful_payment.invoice_payload
         months = int(payload.split("_")[1])
         
+        # Get current subscription if exists
+        current_subscription = await db.get_subscription(message.from_user.id)
+        
         # Calculate subscription dates
         start_date = datetime.now()
+        if current_subscription and current_subscription.get("is_active"):
+            # If user has active subscription, extend it
+            current_end = datetime.fromisoformat(current_subscription.get("end_date"))
+            if current_end > start_date:
+                # If current subscription hasn't expired, start from its end date
+                start_date = current_end
+        
+        # Add new period to start date
         end_date = start_date + timedelta(days=30 * months)
         
         # Create payment record first
@@ -121,7 +132,7 @@ async def process_successful_payment(
             "amount": float(message.successful_payment.total_amount) / 100,  # Convert from kopeks to rubles
             "status": "completed",
             "months": months,
-            "created_at": start_date.isoformat()
+            "created_at": datetime.now().isoformat()
         })
 
         # Create subscription
@@ -143,7 +154,8 @@ async def process_successful_payment(
         subscription = await db.get_subscription(message.from_user.id)
         await message.answer(
             "✅ Оплата прошла успешно!\n\n"
-            f"{format_subscription_info(subscription)}"
+            f"{format_subscription_info(subscription)}",
+            parse_mode="Markdown"
         )
     except Exception as e:
         await message.answer(

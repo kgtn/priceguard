@@ -61,7 +61,8 @@ async def cmd_users(message: types.Message, db: Database, settings: Settings):
 
     await message.answer(
         text,
-        reply_markup=get_users_keyboard()
+        reply_markup=get_users_keyboard(),
+        parse_mode="Markdown"
     )
 
 @router.message(Command("subscriptions"))
@@ -86,7 +87,8 @@ async def cmd_subscriptions(
 
     await message.answer(
         text,
-        reply_markup=get_subscriptions_keyboard()
+        reply_markup=get_subscriptions_keyboard(),
+        parse_mode="Markdown"
     )
 
 @router.message(Command("logs"))
@@ -221,7 +223,8 @@ async def on_admin_users(callback: types.CallbackQuery, db: Database, settings: 
 
     await callback.message.edit_text(
         text,
-        reply_markup=get_admin_keyboard()
+        reply_markup=get_admin_keyboard(),
+        parse_mode="Markdown"
     )
     await callback.answer()
 
@@ -280,7 +283,8 @@ async def on_admin_active_subs(callback: types.CallbackQuery, db: Database, sett
 
     await callback.message.edit_text(
         text,
-        reply_markup=get_subscriptions_keyboard()
+        reply_markup=get_subscriptions_keyboard(),
+        parse_mode="Markdown"
     )
     await callback.answer()
 
@@ -321,7 +325,8 @@ async def on_admin_inactive_subs(callback: types.CallbackQuery, db: Database, se
 
     await callback.message.edit_text(
         text,
-        reply_markup=get_subscriptions_keyboard()
+        reply_markup=get_subscriptions_keyboard(),
+        parse_mode="Markdown"
     )
     await callback.answer()
 

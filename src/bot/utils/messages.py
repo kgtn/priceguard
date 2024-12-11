@@ -267,11 +267,11 @@ def format_subscription_info(sub: Dict) -> str:
     tariff = tariff_names.get(months, f"Подписка на {months} мес.")
     
     return (
-        "💳 *Оплата:*\n"
-        f"*Тариф:* {tariff}\n"
-        f"*Статус:* {status}\n"
-        f"*Начало:* {start_date}\n"
-        f"*Окончание:* {end_date}"
+        "💳 Подписка\n\n"
+        f"`Тариф:` {tariff}\n"
+        f"`Статус:` {status}\n"
+        f"`Начало:` {start_date}\n"
+        f"`Окончание:` {end_date}"
     )
 
 def format_payment_info(payment: Dict) -> str:
