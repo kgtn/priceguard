@@ -38,6 +38,9 @@ class Settings:
         # Payment settings
         self.payment_provider_token = os.getenv("PAYMENT_PROVIDER_TOKEN")
         self.subscription_price = int(os.getenv("SUBSCRIPTION_PRICE", "100"))  # Default 100 RUB
+        
+        # Trial settings
+        self.trial_period_days = int(os.getenv("TRIAL_PERIOD_DAYS", "14"))  # Default 14 days
 
 def load_config() -> Config:
     """Load configuration from environment variables."""
@@ -73,3 +76,4 @@ DATABASE_PATH = config.database.path
 ENCRYPTION_KEY = config.encryption_key
 SUBSCRIPTION_PRICE = config.subscription_price
 PAYMENT_PROVIDER_TOKEN = config.telegram.payment_provider_token
+TRIAL_PERIOD_DAYS = 14  # Default 14 days

@@ -8,8 +8,17 @@ from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
 from core.database import Database
 from core.logging import get_logger
+from bot.utils.messages import SUBSCRIPTION_REQUIRED
 
 logger = get_logger(__name__)
+
+# Commands allowed without active subscription
+ALLOWED_COMMANDS = {
+    '/start',
+    '/help',
+    '/status',
+    '/support'
+}
 
 class AuthMiddleware(BaseMiddleware):
     def __init__(self, admin_id: int):
@@ -56,6 +65,28 @@ class AuthMiddleware(BaseMiddleware):
         # Add user info to handler data
         data["user"] = user_data
         data["is_admin"] = user.id == self.admin_id
+
+        # Check subscription status for non-admin users
+        if not data["is_admin"]:
+            status = user_data.get("subscription_status", "inactive")
+            if status not in ["active", "trial"]:
+                # Allow only specific commands for users without active subscription
+                if isinstance(event, Message) and event.text:
+                    command = event.text.split()[0].lower()
+                    if command not in ALLOWED_COMMANDS:
+                        await event.answer(
+                            SUBSCRIPTION_REQUIRED,
+                            parse_mode="HTML"
+                        )
+                        return
+                elif isinstance(event, CallbackQuery):
+                    # Block callback queries for inactive users except specific ones
+                    if not any(cmd in event.data for cmd in ["subscribe", "support", "help"]):
+                        await event.answer(
+                            "Требуется активная подписка",
+                            show_alert=True
+                        )
+                        return
 
         # Continue processing
         return await handler(event, data)

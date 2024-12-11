@@ -5,7 +5,7 @@ File: src/core/database.py
 
 import aiosqlite
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from core.logging import get_logger
 
@@ -104,14 +104,20 @@ class Database:
         email: Optional[str] = None
     ):
         """Add new user to the database."""
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+            
+        # Calculate trial end date
+        trial_end = datetime.now() + timedelta(days=14)  # 14 days trial
+        
         async with self.db.execute(
             """
             INSERT INTO users (
                 user_id, username, full_name, email, 
-                subscription_status, created_at
-            ) VALUES (?, ?, ?, ?, 'trial', CURRENT_TIMESTAMP)
+                subscription_status, subscription_end_date, created_at
+            ) VALUES (?, ?, ?, ?, 'trial', ?, CURRENT_TIMESTAMP)
             """,
-            (user_id, username, full_name, email)
+            (user_id, username, full_name, email, trial_end.isoformat())
         ):
             await self.db.commit()
             return True

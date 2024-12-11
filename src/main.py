@@ -21,6 +21,8 @@ from services.marketplaces.factory import MarketplaceFactory
 from bot.handlers import admin, user, payment
 from bot.middlewares import setup_middlewares
 from bot.routers import admin_router, user_router, payment_router
+from services.payments.trial_checker import start_trial_checker
+from services.payments.subscription_checker import start_subscription_checker
 
 # Initialize logging
 setup_logging()
@@ -66,6 +68,12 @@ async def main():
 
         # Start promotion monitor
         await monitor.start()
+
+        # Start trial checker
+        asyncio.create_task(start_trial_checker(bot, dp["db"], config))
+
+        # Start subscription checker
+        asyncio.create_task(start_subscription_checker(bot, dp["db"], config))
 
         # Start polling
         logger.info("Starting bot...")
