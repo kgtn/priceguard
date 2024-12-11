@@ -20,10 +20,12 @@ async def handle_help(message: Message):
 Available commands:
 /start - Start the bot
 /help - Show this help message
-/add_marketplace - Add a marketplace (Ozon or Wildberries)
-/list_marketplaces - List your connected marketplaces
-/add_product - Add a product to monitor
-/list_products - List your monitored products
-/remove_product - Remove a product from monitoring
+/menu - Open main menu
+/settings - Configure check interval and other settings
+/status - Check your subscription status
+/subscribe - Get or manage subscription
+/unsubscribe - Cancel your subscription
+/add_api - Add marketplace API key
+/delete_data - Delete all saved API keys
 """
     await message.answer(help_text)

@@ -118,7 +118,7 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     
     # Main actions
-    builder.button(text="📊 Мои акции", callback_data="my_promotions")
+    builder.button(text="📊 Акции", callback_data="my_promotions")
     builder.button(text="⚙️ Настройки", callback_data="settings")
     
     # Account management

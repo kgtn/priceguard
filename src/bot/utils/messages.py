@@ -15,7 +15,7 @@ OZON_API_KEY_INSTRUCTION = """
 🔑 Добавление API ключа Ozon
 
 Для получения API ключа:
-1. Нажмите 123/ в правом верхнем углу личного кабинета
+1. Нажмите 👤 в правом верхнем углу личного кабинета
 2. Выберите Настройки
 3. Перейдите в раздел Seller API (https://seller.ozon.ru/app/settings/api-keys)
 4. Нажмите "Сгенерировать ключ"
@@ -115,11 +115,12 @@ def format_help_message() -> str:
     return (
         "ℹ️ Доступные команды:\n\n"
         "/start - Запустить бота\n"
-        "/menu - Открыть главное меню\n"
         "/help - Показать эту справку\n"
+        "/menu - Открыть главное меню\n"
+        "/settings - Настройки бота\n"
         "/status - Проверить статус подписки\n"
         "/add_api - Добавить API ключи\n"
-        "/interval - Изменить интервал проверки\n\n"
+        "/delete_data - Удалить все API ключи\n\n"
         "По всем вопросам обращайтесь к @kagitin"
     )
 
@@ -229,8 +230,8 @@ def format_user_info(user: Dict) -> str:
     else:
         end_date = "Нет"
     
-    interval = user.get("check_interval", 3600)
-    interval_min = interval // 60
+    interval = user.get("check_interval", 14400)
+    interval_min = interval // 360
     
     return (
         f"👤 ID: `{user.get('user_id')}`\n"
@@ -267,10 +268,10 @@ def format_subscription_info(sub: Dict) -> str:
     
     return (
         "💳 *Оплата:*\n"
-        f"├ *Тариф:* {tariff}\n"
-        f"├ *Статус:* {status}\n"
-        f"├ *Начало:* {start_date}\n"
-        f"└ *Окончание:* {end_date}"
+        f"*Тариф:* {tariff}\n"
+        f"*Статус:* {status}\n"
+        f"*Начало:* {start_date}\n"
+        f"*Окончание:* {end_date}"
     )
 
 def format_payment_info(payment: Dict) -> str:
@@ -284,9 +285,9 @@ def format_payment_info(payment: Dict) -> str:
     
     return (
         f"💳 *Платеж #{payment.get('id')}*\n"
-        f"├ *Статус:* {status_map.get(payment.get('status'), 'Неизвестно')}\n"
-        f"├ *Сумма:* {payment.get('amount')} {payment.get('currency')}\n"
-        f"└ *Дата:* {payment.get('created_at')}"
+        f"*Статус:* {status_map.get(payment.get('status'), 'Неизвестно')}\n"
+        f"*Сумма:* {payment.get('amount')} {payment.get('currency')}\n"
+        f"*Дата:* {payment.get('created_at')}"
     )
 
 async def validate_marketplace_keys(user_data: Dict, marketplace_factory: MarketplaceFactory) -> Dict[str, bool]:

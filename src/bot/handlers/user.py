@@ -57,9 +57,10 @@ async def setup_bot_commands(bot: Bot):
     """Setup bot commands."""
     commands = [
         BotCommand(command="menu", description="Открыть главное меню"),
-        BotCommand(command="help", description="Показать справку"),
         BotCommand(command="status", description="Проверить статус подписки"),
-        BotCommand(command="add_api", description="Добавить API ключи")
+        BotCommand(command="settings", description="Настройки бота"),
+        BotCommand(command="add_api", description="Добавить API ключи"),
+        BotCommand(command="help", description="Показать справку")
     ]
     await bot.set_my_commands(commands)
 
