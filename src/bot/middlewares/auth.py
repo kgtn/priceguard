@@ -66,6 +66,11 @@ class AuthMiddleware(BaseMiddleware):
         data["user"] = user_data
         data["is_admin"] = user.id == self.admin_id
 
+        # Get fresh user data if it was just created
+        if not user_data:
+            user_data = await db.get_user(user.id)
+            data["user"] = user_data
+
         # Check subscription status for non-admin users
         if not data["is_admin"]:
             status = user_data.get("subscription_status", "inactive")
