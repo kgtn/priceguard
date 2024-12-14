@@ -5,9 +5,10 @@ Main entry point for the PriceGuard bot.
 import asyncio
 import logging
 import os
+import signal
 from typing import Dict, Optional
 
-from aiogram import Bot, Dispatcher, Dispatcher
+from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from dotenv import load_dotenv
@@ -28,8 +29,38 @@ from services.payments.subscription_checker import start_subscription_checker
 setup_logging()
 logger = get_logger(__name__)
 
+# Global variables for cleanup
+monitor: Optional[PromotionMonitor] = None
+dp: Optional[Dispatcher] = None
+bot: Optional[Bot] = None
+
+async def shutdown(signal_type=None):
+    """Cleanup resources on shutdown."""
+    global monitor, dp, bot
+    
+    logger.info(f"Received signal: {signal_type}. Starting graceful shutdown...")
+    
+    # Stop the monitor if it's running
+    if monitor:
+        logger.info("Stopping promotion monitor...")
+        await monitor.stop()
+    
+    # Close bot session
+    if bot:
+        logger.info("Closing bot session...")
+        await bot.session.close()
+    
+    # Close dispatcher and storage
+    if dp:
+        logger.info("Closing dispatcher...")
+        await dp.storage.close()
+    
+    logger.info("Shutdown complete.")
+
 async def main():
     """Main function."""
+    global monitor, dp, bot
+    
     try:
         # Load configuration
         logger.info("Loading configuration...")
@@ -75,6 +106,11 @@ async def main():
         # Start subscription checker
         asyncio.create_task(start_subscription_checker(bot, dp["db"], config))
 
+        # Setup signal handlers
+        loop = asyncio.get_event_loop()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, lambda s=sig: asyncio.create_task(shutdown(s)))
+
         # Start polling
         logger.info("Starting bot...")
         await dp.start_polling(bot)
@@ -82,6 +118,8 @@ async def main():
     except Exception as e:
         logger.exception("Error in main function: %s", str(e))
         raise
+    finally:
+        await shutdown()
 
 if __name__ == "__main__":
     try:
