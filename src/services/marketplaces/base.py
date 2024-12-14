@@ -7,14 +7,25 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Optional
 import aiohttp
 from core.logging import get_logger
+from .queue import QueueManager
 
 logger = get_logger(__name__)
 
 class MarketplaceClient(ABC):
-    def __init__(self, api_key: str):
+    """Base class for marketplace clients."""
+    
+    def __init__(self, api_key: str, marketplace: str):
+        """
+        Initialize marketplace client.
+        
+        Args:
+            api_key: API key for marketplace
+            marketplace: Marketplace name for queue selection
+        """
         self.api_key = api_key
         self.session: Optional[aiohttp.ClientSession] = None
-        
+        self.queue = QueueManager.get_queue(marketplace)
+    
     async def __aenter__(self):
         self.session = aiohttp.ClientSession()
         return self
@@ -22,17 +33,17 @@ class MarketplaceClient(ABC):
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self.session:
             await self.session.close()
-            
+    
     @abstractmethod
     async def validate_api_key(self) -> bool:
         """Validate the API key."""
         pass
-        
+    
     @abstractmethod
     async def get_promo_products(self) -> List[Dict]:
         """Get list of products in promotions."""
         pass
-        
+    
     async def _make_request(
         self,
         method: str,
@@ -61,8 +72,8 @@ class MarketplaceClient(ABC):
         """
         if not self.session:
             raise RuntimeError("Client session not initialized")
-            
-        try:
+        
+        async def _do_request():
             logger.info(f"Making {method} request to {url}")
             logger.info("Request headers:")
             for key, value in (headers or {}).items():
@@ -113,13 +124,5 @@ class MarketplaceClient(ABC):
                     raise Exception(f"Request error: {error_msg}")
                     
                 return response_data
-                
-        except aiohttp.ClientError as e:
-            logger.error(f"Connection error: {str(e)}")
-            raise ConnectionError(f"Failed to connect to marketplace API: {str(e)}")
-        except ValueError as e:
-            logger.error(f"Validation error: {str(e)}")
-            raise
-        except Exception as e:
-            logger.error(f"Request error: {str(e)}")
-            raise
+        
+        return await self.queue.execute(_do_request)

@@ -1,17 +1,19 @@
 """
 Promotion monitoring service for the PriceGuard bot.
-File: src/services/monitoring/monitor.py
 """
 
 import asyncio
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set
+from collections import defaultdict
 
 from core.database import Database
 from services.marketplaces.ozon import OzonClient
 from services.marketplaces.wildberries import WildberriesClient
 from services.marketplaces.factory import MarketplaceFactory
+from services.marketplaces.queue import QueueManager
+from services.monitoring.notifications import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -22,31 +24,56 @@ class PromotionMonitor:
         self,
         db: Database,
         marketplace_factory: MarketplaceFactory,
+        notification_service: NotificationService,  # Add notification_service to __init__
         check_interval: int = 14400  # 4 hours
     ):
         """Initialize monitor."""
         self.db = db
         self.marketplace_factory = marketplace_factory
+        self.notification_service = notification_service  # Assign notification_service
         self.check_interval = check_interval
         self._task: Optional[asyncio.Task] = None
         self._last_check: Dict[int, datetime] = {}
         self._cached_promotions: Dict[int, Dict] = {}
+        self._check_queue: Dict[str, asyncio.Queue] = {
+            'ozon': asyncio.Queue(),
+            'wildberries': asyncio.Queue()
+        }
+        self._processing_tasks: Dict[str, asyncio.Task] = {}
 
     async def start(self) -> None:
         """Start monitoring task."""
         if self._task is None or self._task.done():
+            # Start queue processors
+            for marketplace in self._check_queue:
+                self._processing_tasks[marketplace] = asyncio.create_task(
+                    self._process_queue(marketplace)
+                )
+            
+            # Start main monitoring task
             self._task = asyncio.create_task(self._monitor_loop())
             logger.info("Started promotion monitoring task")
 
     async def stop(self) -> None:
         """Stop monitoring task."""
+        # Stop main monitoring task
         if self._task and not self._task.done():
             self._task.cancel()
             try:
                 await self._task
             except asyncio.CancelledError:
                 pass
-            logger.info("Stopped promotion monitoring task")
+        
+        # Stop queue processors
+        for task in self._processing_tasks.values():
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+        
+        logger.info("Stopped promotion monitoring task")
 
     async def force_check(self, user_id: int) -> Dict:
         """
@@ -58,49 +85,26 @@ class PromotionMonitor:
         Returns:
             Dict with changes found
         """
-        return await self._check_user_promotions(user_id)
-
-    async def _monitor_loop(self) -> None:
-        """Main monitoring loop."""
-        while True:
-            try:
-                # Get all active subscriptions
-                subscriptions = await self.db.get_active_subscriptions()
-                
-                for sub in subscriptions:
-                    user_id = sub["user_id"]
-                    
-                    # Skip if checked recently
-                    last_check = self._last_check.get(user_id)
-                    if last_check and (datetime.now() - last_check).seconds < self.check_interval:
-                        continue
-
-                    # Check promotions
-                    changes = await self._check_user_promotions(user_id)
-                    
-                    # Update last check time
-                    self._last_check[user_id] = datetime.now()
-                    
-                    # Send notifications if changes found
-                    if changes:
-                        await self._notify_user(user_id, changes)
-
-            except Exception as e:
-                logger.error(f"Error in monitoring loop: {str(e)}")
-
-            await asyncio.sleep(self.check_interval)
-
-    async def _check_user_promotions(self, user_id: int) -> Dict:
-        """
-        Check promotions for specific user.
+        # Add high-priority check to queues
+        user = await self.db.get_user(user_id)
+        if not user:
+            logger.warning(f"User {user_id} not found")
+            return self._empty_changes()
         
-        Args:
-            user_id: User ID to check
-            
-        Returns:
-            Dict with changes found
-        """
-        changes = {
+        changes = {}
+        if user.get("ozon_api_key"):
+            await self._check_queue['ozon'].put((user_id, True))
+            changes['ozon'] = await self._check_ozon_promotions(user_id, user)
+        
+        if user.get("wb_api_key"):
+            await self._check_queue['wildberries'].put((user_id, True))
+            changes['wildberries'] = await self._check_wb_promotions(user_id, user)
+        
+        return changes
+
+    def _empty_changes(self) -> Dict:
+        """Get empty changes structure."""
+        return {
             "ozon": {
                 "new": [],
                 "ended": [],
@@ -113,56 +117,119 @@ class PromotionMonitor:
             }
         }
 
+    async def _process_queue(self, marketplace: str) -> None:
+        """
+        Process marketplace check queue.
+        
+        Args:
+            marketplace: Marketplace name
+        """
+        while True:
+            try:
+                user_id, is_priority = await self._check_queue[marketplace].get()
+                
+                try:
+                    # Skip if checked recently and not priority
+                    if not is_priority:
+                        last_check = self._last_check.get(user_id)
+                        if last_check and (datetime.now() - last_check).seconds < self.check_interval:
+                            continue
+                    
+                    # Get user data
+                    user = await self.db.get_user(user_id)
+                    if not user:
+                        logger.warning(f"User {user_id} not found")
+                        continue
+                    
+                    # Check promotions
+                    changes = {}
+                    if marketplace == 'ozon' and user.get("ozon_api_key"):
+                        changes = await self._check_ozon_promotions(user_id, user)
+                    elif marketplace == 'wildberries' and user.get("wb_api_key"):
+                        changes = await self._check_wb_promotions(user_id, user)
+                    
+                    # Update last check time
+                    self._last_check[user_id] = datetime.now()
+                    
+                    # Send notifications if changes found
+                    if changes and any(changes.values()):
+                        marketplace_changes = {marketplace: changes}
+                        await self._notify_user(user_id, marketplace_changes)
+                
+                finally:
+                    # Mark task as done only if not cancelled
+                    self._check_queue[marketplace].task_done()
+                
+            except asyncio.CancelledError:
+                # Don't mark cancelled tasks as done
+                break
+            except Exception as e:
+                logger.error(f"Error processing {marketplace} queue: {str(e)}")
+
+    async def _monitor_loop(self) -> None:
+        """Main monitoring loop."""
+        while True:
+            try:
+                # Get all active subscriptions
+                subscriptions = await self.db.get_active_subscriptions()
+                
+                # Add checks to queues
+                for sub in subscriptions:
+                    user_id = sub["user_id"]
+                    await self._check_queue['ozon'].put((user_id, False))
+                    await self._check_queue['wildberries'].put((user_id, False))
+
+            except Exception as e:
+                logger.error(f"Error in monitoring loop: {str(e)}")
+
+            await asyncio.sleep(self.check_interval)
+
+    async def _check_ozon_promotions(self, user_id: int, user: Dict) -> Dict:
+        """Check Ozon promotions for user."""
         try:
-            # Get user API keys
-            user = await self.db.get_user(user_id)
-            if not user:
-                logger.warning(f"User {user_id} not found")
+            ozon_client = await self.marketplace_factory.get_ozon_client(
+                user["ozon_api_key"],
+                user["ozon_client_id"]
+            )
+            async with ozon_client:
+                current_ozon = await ozon_client.get_promo_products()
+                cached_ozon = self._cached_promotions.get(user_id, {}).get("ozon", [])
+                
+                changes = self._compare_promotions(cached_ozon, current_ozon)
+                
+                # Update cache
+                if not self._cached_promotions.get(user_id):
+                    self._cached_promotions[user_id] = {}
+                self._cached_promotions[user_id]["ozon"] = current_ozon
+                
                 return changes
-
-            # Check Ozon promotions
-            if user.get("ozon_api_key") and user.get("ozon_client_id"):
-                ozon_client = await self.marketplace_factory.get_ozon_client(
-                    user["ozon_api_key"],
-                    user["ozon_client_id"]
-                )
-                async with ozon_client:
-                    current_ozon = await ozon_client.get_promo_products()
-                    cached_ozon = self._cached_promotions.get(user_id, {}).get("ozon", [])
-                    
-                    changes["ozon"] = self._compare_promotions(
-                        cached_ozon,
-                        current_ozon
-                    )
-                    
-                    # Update cache
-                    if not self._cached_promotions.get(user_id):
-                        self._cached_promotions[user_id] = {}
-                    self._cached_promotions[user_id]["ozon"] = current_ozon
-
-            # Check Wildberries promotions
-            if user.get("wb_api_key"):
-                wb_client = await self.marketplace_factory.get_wildberries_client(
-                    user["wb_api_key"]
-                )
-                async with wb_client:
-                    current_wb = await wb_client.get_promo_products()
-                    cached_wb = self._cached_promotions.get(user_id, {}).get("wb", [])
-                    
-                    changes["wildberries"] = self._compare_promotions(
-                        cached_wb,
-                        current_wb
-                    )
-                    
-                    # Update cache
-                    if not self._cached_promotions.get(user_id):
-                        self._cached_promotions[user_id] = {}
-                    self._cached_promotions[user_id]["wb"] = current_wb
-
+                
         except Exception as e:
-            logger.error(f"Error checking promotions for user {user_id}: {str(e)}")
+            logger.error(f"Error checking Ozon promotions for user {user_id}: {str(e)}")
+            return {"new": [], "ended": [], "changed": []}
 
-        return changes
+    async def _check_wb_promotions(self, user_id: int, user: Dict) -> Dict:
+        """Check Wildberries promotions for user."""
+        try:
+            wb_client = await self.marketplace_factory.get_wildberries_client(
+                user["wb_api_key"]
+            )
+            async with wb_client:
+                current_wb = await wb_client.get_promo_products()
+                cached_wb = self._cached_promotions.get(user_id, {}).get("wb", [])
+                
+                changes = self._compare_promotions(cached_wb, current_wb)
+                
+                # Update cache
+                if not self._cached_promotions.get(user_id):
+                    self._cached_promotions[user_id] = {}
+                self._cached_promotions[user_id]["wb"] = current_wb
+                
+                return changes
+                
+        except Exception as e:
+            logger.error(f"Error checking Wildberries promotions for user {user_id}: {str(e)}")
+            return {"new": [], "ended": [], "changed": []}
 
     def _compare_promotions(
         self,
@@ -213,7 +280,11 @@ class PromotionMonitor:
         Returns:
             True if changes found
         """
-        return old_promo.get("products_count") != new_promo.get("products_count")
+        significant_fields = ["products_count", "date_end"]
+        return any(
+            old_promo.get(field) != new_promo.get(field)
+            for field in significant_fields
+        )
 
     async def _notify_user(self, user_id: int, changes: Dict) -> None:
         """
@@ -221,7 +292,9 @@ class PromotionMonitor:
         
         Args:
             user_id: User to notify
-            changes: Changes found
+            changes: Changes found in promotions for each marketplace
         """
-        # This will be implemented in the notification service
-        pass
+        try:
+            await self.notification_service.notify_promotion_changes(user_id, changes)
+        except Exception as e:
+            logger.error(f"Failed to notify user {user_id} about changes: {str(e)}")

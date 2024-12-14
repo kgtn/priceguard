@@ -56,3 +56,6 @@ src/core/__pycache__/database.cpython-313.pyc
 src/bot/utils/__pycache__/messages.cpython-313.pyc
 logs/errors.log
 logs/priceguard.log
+
+# windsurf rules
+.windsurfrules

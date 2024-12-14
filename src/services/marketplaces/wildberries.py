@@ -1,6 +1,5 @@
 """
 Wildberries marketplace integration service.
-File: src/services/marketplaces/wildberries.py
 """
 
 from typing import List, Dict, Optional
@@ -8,19 +7,27 @@ from datetime import datetime
 from .base import MarketplaceClient, logger
 
 class WildberriesClient(MarketplaceClient):
+    """Client for Wildberries API."""
+    
     def __init__(self, api_key: str):
-        super().__init__(api_key)
+        """
+        Initialize Wildberries client.
+        
+        Args:
+            api_key: Wildberries API key
+        """
+        super().__init__(api_key, marketplace='wildberries')
         self.base_url = "https://discounts-prices-api-sandbox.wildberries.ru"
         self.calendar_url = "https://dp-calendar-api.wildberries.ru"
         self.common_url = "https://common-api.wildberries.ru"
-        
+    
     def _get_headers(self) -> Dict[str, str]:
         """Get headers for Wildberries API requests."""
         return {
             "Authorization": self.api_key,
             "Content-Type": "application/json"
         }
-        
+    
     async def validate_api_key(self) -> bool:
         """
         Validate Wildberries API key by making a test request to /ping endpoint.
@@ -44,7 +51,7 @@ class WildberriesClient(MarketplaceClient):
         except Exception as e:
             logger.error(f"Validation error: {str(e)}")
             return False
-            
+    
     async def get_promo_products(self) -> List[Dict]:
         """
         Get summary of products participating in auto promotions.
@@ -70,7 +77,9 @@ class WildberriesClient(MarketplaceClient):
                     auto_promotions.append({
                         "id": promo["id"],
                         "name": promo.get("name", ""),
-                        "products_count": promo.get("inPromoActionTotal", 0)
+                        "products_count": promo.get("inPromoActionTotal", 0),
+                        "date_start": promo.get("dateStart"),
+                        "date_end": promo.get("dateEnd")
                     })
                     
             return auto_promotions

@@ -2,64 +2,202 @@
 
 ## Marketplaces API
 
+### Base Client Interface
+
+#### `async def validate_api_key() -> bool`
+Проверяет валидность API ключа.
+
+**Возвращает:**
+```python
+bool  # True если ключ валидный
+```
+
+**Исключения:**
+- `ValueError`: Если API ключ невалидный
+- `ConnectionError`: При ошибке соединения
+
 ### Ozon Client
 
-#### `get_hot_sales()`
-Получает список активных акций на Ozon.
+#### `__init__(api_key: str, client_id: str)`
+Инициализация клиента Ozon.
 
 **Параметры:**
-- Нет
+- `api_key`: API ключ продавца
+- `client_id`: ID клиента в Ozon
+
+#### `async def get_promo_products() -> List[Dict]`
+Получает список активных акций Hot Sale на Ozon.
 
 **Возвращает:**
 ```python
 List[Dict[str, Any]]
 ```
-Пример:
+
+**Пример ответа:**
 ```python
 [
     {
         "id": "123456",
-        "name": "Product Name",
-        "price": 1000,
-        "action_price": 800,
-        "stock": 10,
-        "start_date": "2024-01-01T00:00:00Z",
-        "end_date": "2024-01-31T23:59:59Z"
+        "name": "Hot Sale",
+        "products_count": 10,
+        "date_start": "2024-01-01T00:00:00Z",
+        "date_end": "2024-01-31T23:59:59Z"
     }
 ]
 ```
 
+**Исключения:**
+- `ValueError`: Если API ключ или Client ID невалидны
+- `ConnectionError`: При ошибке соединения
+
 ### Wildberries Client
 
-#### `get_auto_promotions()`
-Получает список автоматических акций на Wildberries.
+#### `__init__(api_key: str)`
+Инициализация клиента Wildberries.
 
 **Параметры:**
-- Нет
+- `api_key`: API ключ продавца
+
+#### `async def get_promo_products() -> List[Dict]`
+Получает список автоматических акций на Wildberries.
 
 **Возвращает:**
 ```python
 List[Dict[str, Any]]
 ```
-Пример:
+
+**Пример ответа:**
 ```python
 [
     {
         "id": "789012",
         "name": "Auto Promotion",
-        "discount": 20,
         "products_count": 5,
-        "start_date": "2024-01-01T00:00:00Z",
-        "end_date": "2024-01-31T23:59:59Z"
+        "date_start": "2024-01-01T00:00:00Z",
+        "date_end": "2024-01-31T23:59:59Z"
     }
 ]
+```
+
+**Исключения:**
+- `ValueError`: Если API ключ невалидный
+- `ConnectionError`: При ошибке соединения
+
+## MarketplaceFactory
+
+### `__init__(encryption_key: str)`
+Инициализация фабрики клиентов маркетплейсов.
+
+**Параметры:**
+- `encryption_key`: Ключ для шифрования/дешифрования API ключей
+
+### `async def create_client(marketplace: str, api_key: str, client_id: Optional[str] = None, is_encrypted: bool = False) -> Union[OzonClient, WildberriesClient]`
+Создает и валидирует клиент маркетплейса.
+
+**Параметры:**
+- `marketplace`: Название маркетплейса ('ozon' или 'wildberries')
+- `api_key`: API ключ (зашифрованный или нет)
+- `client_id`: ID клиента Ozon (обязателен для Ozon)
+- `is_encrypted`: Флаг, указывающий зашифрован ли API ключ
+
+**Возвращает:**
+```python
+Union[OzonClient, WildberriesClient]  # Экземпляр клиента маркетплейса
+```
+
+### `def encrypt_api_key(api_key: str) -> str`
+Шифрует API ключ для хранения.
+
+**Параметры:**
+- `api_key`: API ключ для шифрования
+
+**Возвращает:**
+```python
+str  # Зашифрованный API ключ
+```
+
+### `def decrypt_api_key(encrypted_key: str) -> str`
+Расшифровывает хранимый API ключ.
+
+**Параметры:**
+- `encrypted_key`: Зашифрованный API ключ
+
+**Возвращает:**
+```python
+str  # Расшифрованный API ключ
+```
+
+## Queue Management
+
+### QueueManager
+
+#### `__init__()`
+Инициализация менеджера очередей.
+
+#### `async def add_request(marketplace: str, request: Callable, priority: int = 0) -> Any`
+Добавляет запрос в очередь соответствующего маркетплейса.
+
+**Параметры:**
+- `marketplace`: Название маркетплейса ('ozon' или 'wildberries')
+- `request`: Асинхронная функция для выполнения запроса
+- `priority`: Приоритет запроса (больше = выше приоритет)
+
+**Возвращает:**
+```python
+Any  # Результат выполнения запроса
+```
+
+### RateLimiter
+
+#### `__init__(requests_per_minute: int = 30, min_interval: float = 2.0)`
+Инициализация ограничителя частоты запросов.
+
+**Параметры:**
+- `requests_per_minute`: Максимальное количество запросов в минуту
+- `min_interval`: Минимальный интервал между запросами в секундах
+
+#### `async def acquire()`
+Ожидает возможности выполнить запрос.
+
+## Notification Service
+
+### NotificationService
+
+#### `__init__(bot: Bot, db: Database)`
+Инициализация сервиса уведомлений.
+
+**Параметры:**
+- `bot`: Экземпляр Telegram бота
+- `db`: Экземпляр базы данных
+
+#### `async def notify_promotion_changes(user_id: int, changes: Dict) -> None`
+Отправляет уведомление о изменениях в акциях.
+
+**Параметры:**
+- `user_id`: ID пользователя в Telegram
+- `changes`: Словарь с изменениями в акциях
+
+**Формат changes:**
+```python
+{
+    "ozon": {
+        "new": List[Dict],      # Новые акции
+        "changed": List[Dict],  # Измененные акции
+        "ended": List[Dict]     # Завершенные акции
+    },
+    "wildberries": {
+        "new": List[Dict],
+        "changed": List[Dict],
+        "ended": List[Dict]
+    }
+}
 ```
 
 ## Payment API
 
 ### Telegram Payment Service
 
-#### `create_invoice(chat_id: int, plan: SubscriptionPlan, title: str, description: str)`
+#### `create_invoice(chat_id: int, plan: SubscriptionPlan, title: str, description: str) -> Dict[str, Any]`
 Создает счет для оплаты подписки.
 
 **Параметры:**
@@ -72,7 +210,8 @@ List[Dict[str, Any]]
 ```python
 Dict[str, Any]
 ```
-Пример:
+
+**Пример ответа:**
 ```python
 {
     "invoice_id": "inv_123456",
@@ -85,43 +224,29 @@ Dict[str, Any]
 
 ### Promotion Monitor
 
-#### `check_promotions()`
+#### `async def check_promotions() -> List[PromotionChange]`
 Проверяет изменения в акциях для всех активных пользователей.
-
-**Параметры:**
-- Нет
 
 **Возвращает:**
 ```python
 List[PromotionChange]
 ```
-Пример:
+
+**Пример ответа:**
 ```python
 [
     {
+        "user_id": 123456789,
         "marketplace": "ozon",
-        "user_id": 123456,
-        "changes": {
-            "new": [...],
-            "changed": [...],
-            "ended": [...]
+        "promotion_id": "789012",
+        "change_type": "new",
+        "old_value": None,
+        "new_value": {
+            "products_count": 5,
+            "name": "Hot Sale"
         }
     }
 ]
-```
-
-### Notification Service
-
-#### `notify_user(user_id: int, message: str)`
-Отправляет уведомление пользователю.
-
-**Параметры:**
-- `user_id`: ID пользователя
-- `message`: Текст уведомления
-
-**Возвращает:**
-```python
-bool
 ```
 
 ## Database API

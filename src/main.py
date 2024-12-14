@@ -83,7 +83,8 @@ async def main():
         # Initialize promotion monitor
         monitor = PromotionMonitor(
             db=dp["db"],
-            marketplace_factory=dp["marketplace_factory"]
+            marketplace_factory=dp["marketplace_factory"],
+            notification_service=notification_service
         )
 
         # Setup middlewares

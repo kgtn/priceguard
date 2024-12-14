@@ -1,6 +1,5 @@
 """
 Ozon marketplace integration service.
-File: src/services/marketplaces/ozon.py
 """
 
 from typing import List, Dict, Optional
@@ -8,11 +7,20 @@ from datetime import datetime
 from .base import MarketplaceClient, logger
 
 class OzonClient(MarketplaceClient):
+    """Client for Ozon API."""
+    
     def __init__(self, api_key: str, client_id: str):
-        super().__init__(api_key)
+        """
+        Initialize Ozon client.
+        
+        Args:
+            api_key: Ozon API key
+            client_id: Ozon client ID
+        """
+        super().__init__(api_key, marketplace='ozon')
         self.client_id = client_id
         self.base_url = "https://api-seller.ozon.ru"
-        
+    
     def _get_headers(self) -> Dict[str, str]:
         """Get headers for Ozon API requests."""
         return {
@@ -20,7 +28,7 @@ class OzonClient(MarketplaceClient):
             "Api-Key": self.api_key,
             "Content-Type": "application/json"
         }
-        
+    
     async def validate_api_key(self) -> bool:
         """
         Validate Ozon API key by making a test request.
@@ -49,16 +57,16 @@ class OzonClient(MarketplaceClient):
                 headers=headers,
                 json={
                     "filter": {
-                            "offer_id": [
-                                "136834"
-                            ],
-                            "product_id": [
-                                "214887921"
-                            ],
-                            "visibility": "ALL"
-                        },
-                        "last_id": "",
-                        "limit": 100
+                        "offer_id": [
+                            "136834"
+                        ],
+                        "product_id": [
+                            "214887921"
+                        ],
+                        "visibility": "ALL"
+                    },
+                    "last_id": "",
+                    "limit": 100
                 }
             )
             logger.info("API key validation successful")
@@ -69,7 +77,7 @@ class OzonClient(MarketplaceClient):
         except Exception as e:
             logger.error(f"API key validation failed with error: {str(e)}")
             return False
-            
+    
     async def get_promo_products(self) -> List[Dict]:
         """
         Get summary of products participating in Hot Sale promotions.
