@@ -213,31 +213,39 @@ async def process_ozon_api_key(
             return
             
         client_id, api_key = parts
+        logger.info(f"Parsed API key - Client ID: {client_id}, Key length: {len(api_key)}")
         
         await message.answer("🔄 Проверяю API ключ...")
         
         # Создаем клиента с незашифрованным ключом для проверки
+        logger.info("Creating Ozon client for validation")
         client = await marketplace_factory.create_client(
             'ozon', api_key, client_id=client_id, is_encrypted=False
         )
         
         # Проверяем валидность ключа
+        logger.info("Starting API key validation")
         async with client:
             is_valid = await client.validate_api_key()
+            logger.info(f"API key validation result: {is_valid}")
             if not is_valid:
                 await message.answer("❌ Неверный API ключ")
                 return
         
         # Если ключ валидный, шифруем и сохраняем
+        logger.info("Encrypting API key")
         encrypted_key = marketplace_factory.encrypt_api_key(api_key)
-        await db.update_api_keys(
-            message.from_user.id,
-            ozon_key=encrypted_key
-        )
         
+        # Сохраняем API ключ и client_id в одной транзакции
+        logger.info("Saving API credentials to database")
         async with db.db.execute(
-            "UPDATE users SET ozon_client_id = ? WHERE user_id = ?",
-            (client_id, message.from_user.id)
+            """
+            UPDATE users 
+            SET ozon_api_key = ?,
+                ozon_client_id = ?
+            WHERE user_id = ?
+            """,
+            (encrypted_key, client_id, message.from_user.id)
         ):
             await db.db.commit()
             

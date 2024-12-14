@@ -63,6 +63,19 @@ class MarketplaceClient(ABC):
             raise RuntimeError("Client session not initialized")
             
         try:
+            logger.info(f"Making {method} request to {url}")
+            logger.info("Request headers:")
+            for key, value in (headers or {}).items():
+                if key.lower() in ['api-key', 'client-id']:
+                    logger.info(f"{key}: {'*' * len(value)}")
+                else:
+                    logger.info(f"{key}: {value}")
+            
+            if json:
+                logger.info(f"Request body: {json}")
+            if params:
+                logger.info(f"Request params: {params}")
+            
             async with self.session.request(
                 method=method,
                 url=url,
@@ -70,21 +83,29 @@ class MarketplaceClient(ABC):
                 json=json,
                 params=params
             ) as response:
+                logger.info(f"Response status: {response.status}")
                 content_type = response.headers.get('content-type', '')
+                logger.info(f"Response content-type: {content_type}")
+                
                 if not content_type.startswith('application/json'):
                     text = await response.text()
                     logger.error(f"Unexpected response type: {content_type}, body: {text}")
                     raise ValueError("Invalid API key or Client ID")
                 
                 response_data = await response.json()
+                logger.info("Response data received")
                 
                 if response.status == 401:
+                    logger.error("Authentication failed: Invalid API key")
                     raise ValueError("Invalid API key")
                 elif response.status == 403:
+                    logger.error("Authorization failed: Invalid Client ID")
                     raise ValueError("Invalid Client ID")
                 elif response.status == 404:
+                    logger.error("Not found: Invalid API endpoint or Client ID")
                     raise ValueError("Invalid API endpoint or Client ID")
                 elif response.status >= 500:
+                    logger.error(f"Server error: {response.status}")
                     raise ConnectionError(f"Marketplace API error: {response.status}")
                 elif response.status >= 400:
                     error_msg = response_data.get('message', 'Unknown error')
