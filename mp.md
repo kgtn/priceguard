@@ -218,6 +218,85 @@ exceptionProductsCount (integer <uint>)
 Использование
 С помощью данного метода можно получить информацию о том, сколько товаров клиента участвуют в автоакциях Wildberries ("type": "auto").
 
+## Детальная информация по акциям WB
+
+get
+https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/details
+
+### Authorizations
+
+#### HeaderApiKey
+- **API Key:** `HeaderApiKey`  
+- **Header parameter name:** `Authorization`  
+
+---
+
+### Query Parameters
+
+#### `promotionIDs` (required)
+- **Type:** `string` `[ 1 .. 100 ] items unique`  
+- **Example:** `promotionIDs=1&promotionIDs=3&promotionIDs=64`  
+- **Description:** ID акций, по которым нужно вернуть информацию.  
+
+---
+
+### Ответы
+
+#### `200` Успешно
+
+##### Response Schema: `application/json`
+- **`data`**: `object`  
+  - **`promotions`**: `Array of objects`  
+    Список акций  
+
+###### Array of Objects:
+- **`id`**: `integer`  
+  ID акции  
+
+- **`name`**: `string`  
+  Название акции  
+
+- **`description`**: `string`  
+  Описание акции  
+
+- **`advantages`**: `Array of strings`  
+  Преимущества акции  
+
+- **`startDateTime`**: `string`  
+  Начало акции  
+
+- **`endDateTime`**: `string`  
+  Конец акции  
+
+- **`inPromoActionLeftovers`**: `integer`  
+  Количество товаров с остатками, участвующих в акции  
+
+- **`inPromoActionTotal`**: `integer`  
+  Общее количество товаров, участвующих в акции  
+
+- **`notInPromoActionLeftovers`**: `integer`  
+  Количество товаров с остатками, не участвующих в акции  
+
+- **`notInPromoActionTotal`**: `integer`  
+  Общее количество товаров, не участвующих в акции  
+
+- **`participationPercentage`**: `integer`  
+  Уже участвующие в акции товары, %. Рассчитывается по товарам в акции и с остатком  
+
+- **`type`**: `string`  
+  Тип акции:  
+  - Enum: `"regular"` `"auto"`  
+  - `regular` — акция  
+  - `auto` — автоакция  
+
+- **`exceptionProductsCount`**: `integer <uint>`  
+  Количество товаров, исключенных из автоакции до её старта.  
+  - Только при `"type": "auto"`.  
+  - В момент старта акции эти товары автоматически будут без скидки.  
+
+- **`ranging`**: `Array of objects`  
+  Ранжирование (если подключено).  
+
 
 ## Метод валидации ключа WB
 ```python

@@ -121,14 +121,18 @@ class WildberriesClient(MarketplaceClient):
                 url=f"{self.calendar_url}/api/v1/calendar/promotions/details",
                 headers=self._get_headers(),
                 params={
-                    "id": promo_id
+                    "promotionIDs": [promo_id]  # Передаем ID как элемент массива
                 }
             )
             
-            products_count = len(response.get("data", {}).get("products", []))
-            return {
-                "products_count": products_count
-            }
+            # Получаем информацию о первой акции из списка
+            if promotions := response.get("data", {}).get("promotions", []):
+                promo = promotions[0]
+                return {
+                    "products_count": promo.get("inPromoActionLeftovers", 0)  # Используем количество товаров с остатками
+                }
+            
+            return {"products_count": 0}
             
         except Exception as e:
             logger.error(f"Error getting promotion details: {str(e)}")
