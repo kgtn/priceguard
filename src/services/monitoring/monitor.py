@@ -95,7 +95,7 @@ class PromotionMonitor:
             await self._check_queue['ozon'].put((user_id, True))
             changes['ozon'] = await self._check_ozon_promotions(user_id, user)
         
-        if user.get("wb_api_key"):
+        if user.get("wildberries_api_key"):
             await self._check_queue['wildberries'].put((user_id, True))
             changes['wildberries'] = await self._check_wb_promotions(user_id, user)
         
@@ -131,31 +131,33 @@ class PromotionMonitor:
                 logger.info(f"Processing {marketplace} check for user {user_id} (priority: {is_priority})")
                 
                 try:
+                    # Get user data and check interval
+                    user = await self.db.get_user(user_id)
+                    if not user:
+                        logger.warning(f"User {user_id} not found")
+                        continue
+                    
+                    user_interval = user.get("check_interval", self.check_interval)
+                    
                     # Skip if checked recently and not priority
                     if not is_priority:
                         last_check = self._last_check.get(user_id)
                         if last_check:
                             time_since_last_check = (datetime.now() - last_check).seconds
-                            if time_since_last_check < self.check_interval:
+                            if time_since_last_check < user_interval:  
                                 logger.info(
                                     f"Skipping {marketplace} check for user {user_id}: "
                                     f"last check was {time_since_last_check} seconds ago "
-                                    f"(interval: {self.check_interval} seconds)"
+                                    f"(interval: {user_interval} seconds)"
                                 )
                                 continue
-                    
-                    # Get user data
-                    user = await self.db.get_user(user_id)
-                    if not user:
-                        logger.warning(f"User {user_id} not found")
-                        continue
                     
                     # Check promotions
                     changes = {}
                     if marketplace == 'ozon' and user.get("ozon_api_key"):
                         logger.info(f"Checking Ozon promotions for user {user_id}")
                         changes = await self._check_ozon_promotions(user_id, user)
-                    elif marketplace == 'wildberries' and user.get("wb_api_key"):
+                    elif marketplace == 'wildberries' and user.get("wildberries_api_key"):
                         logger.info(f"Checking Wildberries promotions for user {user_id}")
                         changes = await self._check_wb_promotions(user_id, user)
                     
@@ -200,15 +202,38 @@ class PromotionMonitor:
                 logger.info(f"Found {len(subscriptions)} active subscriptions")
                 
                 # Add checks to queues
+                processed_users = set()  
                 for sub in subscriptions:
                     user_id = sub["user_id"]
-                    user_interval = sub.get("check_interval", self.check_interval)
+                    
+                    # Пропускаем повторные подписки одного пользователя
+                    if user_id in processed_users:
+                        logger.debug(f"Skipping duplicate subscription for user {user_id}")
+                        continue
+                    processed_users.add(user_id)
+                    
+                    # Получаем данные пользователя для проверки ключей
+                    user = await self.db.get_user(user_id)
+                    if not user:
+                        logger.warning(f"User {user_id} not found despite having active subscription")
+                        continue
+                        
+                    # Проверяем наличие ключей перед добавлением в очередь
+                    user_interval = user.get("check_interval", self.check_interval)
                     logger.info(
                         f"Adding checks for user {user_id} "
                         f"(interval: {user_interval} seconds)"
                     )
-                    await self._check_queue['ozon'].put((user_id, False))
-                    await self._check_queue['wildberries'].put((user_id, False))
+                    
+                    if user.get("ozon_api_key"):
+                        await self._check_queue['ozon'].put((user_id, False))
+                    else:
+                        logger.debug(f"Skipping Ozon check for user {user_id}: no API key")
+                        
+                    if user.get("wildberries_api_key"):
+                        await self._check_queue['wildberries'].put((user_id, False))
+                    else:
+                        logger.debug(f"Skipping Wildberries check for user {user_id}: no API key")
 
             except Exception as e:
                 logger.error(f"Error in monitoring loop: {str(e)}")
@@ -244,7 +269,7 @@ class PromotionMonitor:
         """Check Wildberries promotions for user."""
         try:
             wb_client = await self.marketplace_factory.get_wildberries_client(
-                user["wb_api_key"]
+                user["wildberries_api_key"]
             )
             async with wb_client:
                 current_wb = await wb_client.get_promo_products()

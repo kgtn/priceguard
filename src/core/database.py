@@ -446,22 +446,22 @@ class Database:
         """Get all active subscriptions."""
         async with self.db.execute(
             """
-            SELECT s.*, u.check_interval
-            FROM subscriptions s
-            JOIN users u ON s.user_id = u.user_id
-            WHERE u.subscription_status = 'active'
-            AND s.start_date <= CURRENT_TIMESTAMP
-            AND s.end_date > CURRENT_TIMESTAMP
+            SELECT u.user_id, u.check_interval, u.subscription_status, u.subscription_end_date,
+                   u.ozon_api_key, u.wildberries_api_key
+            FROM users u
+            WHERE (u.subscription_status IN ('active', 'trial')
+            AND u.subscription_end_date > CURRENT_TIMESTAMP)
             """
         ) as cursor:
             rows = await cursor.fetchall()
             return [
                 {
-                    "user_id": row[1],
-                    "payment_id": row[2],
-                    "start_date": row[3],
-                    "end_date": row[4],
-                    "check_interval": row[5]
+                    "user_id": row[0],
+                    "check_interval": row[1],
+                    "subscription_status": row[2],
+                    "subscription_end_date": row[3],
+                    "ozon_api_key": row[4],
+                    "wildberries_api_key": row[5]
                 }
                 for row in rows
             ]
