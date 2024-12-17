@@ -90,7 +90,8 @@ class PromotionMonitor:
             logger.warning(f"User {user_id} not found")
             return self._empty_changes()
         
-        changes = {}
+        changes = self._empty_changes()  # Initialize with empty structure for both marketplaces
+        
         if user.get("ozon_api_key"):
             await self._check_queue['ozon'].put((user_id, True))
             changes['ozon'] = await self._check_ozon_promotions(user_id, user)

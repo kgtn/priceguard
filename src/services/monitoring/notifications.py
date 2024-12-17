@@ -59,11 +59,11 @@ class NotificationService:
             messages = []
             
             # Ozon changes
-            if any(changes["ozon"].values()):
+            if "ozon" in changes and any(changes["ozon"].values()):
                 messages.append(self._format_ozon_changes(changes["ozon"]))
             
             # Wildberries changes
-            if any(changes["wildberries"].values()):
+            if "wildberries" in changes and any(changes["wildberries"].values()):
                 messages.append(self._format_wb_changes(changes["wildberries"]))
             
             # Send messages
