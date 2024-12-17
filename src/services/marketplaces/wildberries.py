@@ -88,10 +88,13 @@ class WildberriesClient(MarketplaceClient):
             auto_promotions = []
             for promo in response.get("data", {}).get("promotions", []):
                 if promo.get("type") == "auto":
+                    # Получаем детальную информацию о товарах в акции
+                    promo_details = await self._get_promo_details(promo["id"])
+                    
                     auto_promotions.append({
                         "id": promo["id"],
                         "name": promo.get("name", ""),
-                        "products_count": promo.get("inPromoActionTotal", 0),
+                        "products_count": promo_details.get("products_count", 0),
                         "date_start": promo.get("startDateTime"),
                         "date_end": promo.get("endDateTime")
                     })
@@ -99,5 +102,34 @@ class WildberriesClient(MarketplaceClient):
             return auto_promotions
             
         except Exception as e:
-            logger.error(f"Error getting Wildberries auto promotions: {e}")
+            logger.error(f"Error getting promotions: {str(e)}")
             raise
+
+    async def _get_promo_details(self, promo_id: str) -> Dict:
+        """
+        Get detailed information about products in promotion.
+        
+        Args:
+            promo_id: Promotion ID
+            
+        Returns:
+            Dict with promotion details including products count
+        """
+        try:
+            response = await self._make_request(
+                method="GET",
+                url=f"{self.calendar_url}/api/v1/calendar/promotions/details",
+                headers=self._get_headers(),
+                params={
+                    "id": promo_id
+                }
+            )
+            
+            products_count = len(response.get("data", {}).get("products", []))
+            return {
+                "products_count": products_count
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting promotion details: {str(e)}")
+            return {"products_count": 0}
