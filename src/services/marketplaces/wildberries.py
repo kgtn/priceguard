@@ -17,7 +17,7 @@ class WildberriesClient(MarketplaceClient):
             api_key: Wildberries API key
         """
         super().__init__(api_key, marketplace='wildberries')
-        self.base_url = "https://discounts-prices-api-sandbox.wildberries.ru"
+        self.base_url = "https://suppliers-api.wildberries.ru"
         self.calendar_url = "https://dp-calendar-api.wildberries.ru"
         self.common_url = "https://common-api.wildberries.ru"
     
@@ -67,7 +67,7 @@ class WildberriesClient(MarketplaceClient):
             # Get promotion details
             response = await self._make_request(
                 method="GET",
-                url=f"{self.calendar_url}/api/v1/calendar/promotions/details",
+                url=f"{self.calendar_url}/api/v1/calendar/promotions",
                 headers=self._get_headers()
             )
             

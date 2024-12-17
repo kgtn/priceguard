@@ -119,9 +119,14 @@ class MarketplaceClient(ABC):
                     logger.error(f"Server error: {response.status}")
                     raise ConnectionError(f"Marketplace API error: {response.status}")
                 elif response.status >= 400:
-                    error_msg = response_data.get('message', 'Unknown error')
-                    logger.error(f"API error: {error_msg}")
-                    raise Exception(f"Request error: {error_msg}")
+                    error_data = await response.json()
+                    logger.error(f"API error response: {error_data}")
+                    raise ValueError(error_data.get("message", "Unknown error"))
+                elif response.status >= 200 and response.status < 300:
+                    return response_data
+                else:
+                    logger.error(f"Unknown response status: {response.status}")
+                    raise Exception(f"Unknown response status: {response.status}")
                     
                 return response_data
         
