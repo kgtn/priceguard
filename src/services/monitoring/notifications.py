@@ -5,6 +5,7 @@ File: src/services/monitoring/notifications.py
 
 import logging
 from typing import Dict, List
+from datetime import datetime
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError
@@ -110,19 +111,39 @@ class NotificationService:
         """Format Wildberries changes message."""
         message = "⚪️ *Автоакции Wildberries*\n\n"
         
+        # Функция для форматирования даты
+        def format_date(date_str: str) -> str:
+            if not date_str:
+                return "не указана"
+            try:
+                date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                return date.strftime("%d.%m.%Y")
+            except:
+                return "не указана"
+        
         # New promotions
         if changes["new"]:
-            message += "✨ *Новые автоакции:*\n"
-            for promo in changes["new"]:
-                message += f"• {promo['name']}\n"
-                message += f"  📦 Товаров: {promo['products_count']}\n"
+            active_promos = [p for p in changes["new"] if p.get('products_count', 0) > 0]
+            if active_promos:
+                message += "✨ *Новые автоакции:*\n"
+                for promo in active_promos:
+                    message += (
+                        f"🔸 *{promo['name']}*\n"
+                        f"   └ 📦 Товаров: {promo['products_count']}\n"
+                        f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
+                    )
         
         # Changed promotions
         if changes["changed"]:
-            message += "\n📊 *Изменения в автоакциях:*\n"
-            for promo in changes["changed"]:
-                message += f"• {promo['name']}\n"
-                message += f"  📦 Товаров: {promo['products_count']}\n"
+            active_promos = [p for p in changes["changed"] if p.get('products_count', 0) > 0]
+            if active_promos:
+                message += "\n📊 *Изменения в автоакциях:*\n"
+                for promo in active_promos:
+                    message += (
+                        f"🔸 *{promo['name']}*\n"
+                        f"   └ 📦 Товаров: {promo['products_count']}\n"
+                        f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
+                    )
         
         # Ended promotions
         if changes["ended"]:

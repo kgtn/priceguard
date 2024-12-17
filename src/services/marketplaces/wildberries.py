@@ -121,9 +121,11 @@ class WildberriesClient(MarketplaceClient):
                 url=f"{self.calendar_url}/api/v1/calendar/promotions/details",
                 headers=self._get_headers(),
                 params={
-                    "promotionIDs": [promo_id]  # Передаем ID как элемент массива
+                    "promotionIDs": [promo_id]
                 }
             )
+            
+            logger.info(f"Promotion details response for ID {promo_id}: {response}")
             
             # Получаем информацию о первой акции из списка
             if promotions := response.get("data", {}).get("promotions", []):
