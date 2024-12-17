@@ -218,23 +218,29 @@ class PromotionMonitor:
                     if not user:
                         logger.warning(f"User {user_id} not found despite having active subscription")
                         continue
+
+                    # Проверяем наличие хотя бы одного ключа API
+                    has_ozon = bool(user.get("ozon_api_key") and user.get("ozon_client_id"))
+                    has_wb = bool(user.get("wildberries_api_key"))
+                    
+                    if not (has_ozon or has_wb):
+                        logger.debug(f"Skipping user {user_id}: no API keys configured")
+                        continue
                         
-                    # Проверяем наличие ключей перед добавлением в очередь
+                    # Получаем интервал проверки
                     user_interval = user.get("check_interval", self.check_interval)
                     logger.info(
                         f"Adding checks for user {user_id} "
-                        f"(interval: {user_interval} seconds)"
+                        f"(interval: {user_interval} seconds, "
+                        f"APIs: {'Ozon ' if has_ozon else ''}{'WB' if has_wb else ''})"
                     )
                     
-                    if user.get("ozon_api_key"):
+                    # Добавляем в очереди только если есть соответствующие ключи
+                    if has_ozon:
                         await self._check_queue['ozon'].put((user_id, False))
-                    else:
-                        logger.debug(f"Skipping Ozon check for user {user_id}: no API key")
-                        
-                    if user.get("wildberries_api_key"):
+                    
+                    if has_wb:
                         await self._check_queue['wildberries'].put((user_id, False))
-                    else:
-                        logger.debug(f"Skipping Wildberries check for user {user_id}: no API key")
 
             except Exception as e:
                 logger.error(f"Error in monitoring loop: {str(e)}")
