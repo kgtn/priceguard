@@ -495,16 +495,45 @@ async def cmd_menu(message: Message, db: Database):
 @router.callback_query(F.data == "my_promotions")
 async def show_promotions(callback: CallbackQuery, db: Database):
     """Show user's promotions."""
+    # Сначала отправляем ответ на callback, чтобы убрать состояние загрузки
+    await callback.answer()
+    
+    # Проверяем наличие API ключей
     user_data = await db.get_user(callback.from_user.id)
     if not user_data:
         await callback.answer("❌ Сначала добавьте API ключи", show_alert=True)
         return
+
+    # Формируем сообщение в зависимости от наличия ключей
+    has_wb = bool(user_data.get("wildberries_api_key"))
+    has_ozon = bool(user_data.get("ozon_api_key") and user_data.get("ozon_client_id"))
     
-    await callback.message.edit_text(
-        "📊 Ваши акции\n\n"
-        "🚧 Функция в разработке",
-        reply_markup=get_main_menu_keyboard()
-    )
+    if not (has_wb or has_ozon):
+        text = (
+            "📊 *Ваши акции*\n\n"
+            "❌ У вас не добавлены API ключи маркетплейсов\n\n"
+            "Добавьте ключи в разделе настроек, чтобы отслеживать акции"
+        )
+    else:
+        text = "📊 *Ваши акции*\n\n"
+        
+        if has_wb:
+            text += "⚪️ *Wildberries*\n"
+            text += "└ Бот проверяет акции каждые 4 часа\n"
+            text += "└ Вы получите уведомление при изменениях\n\n"
+            
+        if has_ozon:
+            text += "🔵 *OZON*\n"
+            text += "└ Бот проверяет акции каждые 4 часа\n"
+            text += "└ Вы получите уведомление при изменениях\n"
+
+    # Обновляем сообщение только если текст изменился
+    if callback.message.text != text:
+        await callback.message.edit_text(
+            text,
+            reply_markup=get_main_menu_keyboard(),
+            parse_mode="Markdown"
+        )
 
 @router.callback_query(F.data == "settings")
 async def show_settings(callback: CallbackQuery):
