@@ -6,7 +6,6 @@ import asyncio
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set
-from collections import defaultdict
 
 from core.database import Database
 from services.marketplaces.ozon import OzonClient
@@ -24,13 +23,13 @@ class PromotionMonitor:
         self,
         db: Database,
         marketplace_factory: MarketplaceFactory,
-        notification_service: NotificationService,  # Add notification_service to __init__
+        notification_service: NotificationService,
         check_interval: int = 14400  # 4 hours
     ):
         """Initialize monitor."""
         self.db = db
         self.marketplace_factory = marketplace_factory
-        self.notification_service = notification_service  # Assign notification_service
+        self.notification_service = notification_service
         self.check_interval = check_interval
         self._task: Optional[asyncio.Task] = None
         self._last_check: Dict[int, datetime] = {}
@@ -124,16 +123,26 @@ class PromotionMonitor:
         Args:
             marketplace: Marketplace name
         """
+        logger.info(f"Started {marketplace} queue processor")
+        
         while True:
             try:
                 user_id, is_priority = await self._check_queue[marketplace].get()
+                logger.info(f"Processing {marketplace} check for user {user_id} (priority: {is_priority})")
                 
                 try:
                     # Skip if checked recently and not priority
                     if not is_priority:
                         last_check = self._last_check.get(user_id)
-                        if last_check and (datetime.now() - last_check).seconds < self.check_interval:
-                            continue
+                        if last_check:
+                            time_since_last_check = (datetime.now() - last_check).seconds
+                            if time_since_last_check < self.check_interval:
+                                logger.info(
+                                    f"Skipping {marketplace} check for user {user_id}: "
+                                    f"last check was {time_since_last_check} seconds ago "
+                                    f"(interval: {self.check_interval} seconds)"
+                                )
+                                continue
                     
                     # Get user data
                     user = await self.db.get_user(user_id)
@@ -144,44 +153,67 @@ class PromotionMonitor:
                     # Check promotions
                     changes = {}
                     if marketplace == 'ozon' and user.get("ozon_api_key"):
+                        logger.info(f"Checking Ozon promotions for user {user_id}")
                         changes = await self._check_ozon_promotions(user_id, user)
                     elif marketplace == 'wildberries' and user.get("wb_api_key"):
+                        logger.info(f"Checking Wildberries promotions for user {user_id}")
                         changes = await self._check_wb_promotions(user_id, user)
                     
                     # Update last check time
                     self._last_check[user_id] = datetime.now()
                     
+                    # Log check results
+                    if changes:
+                        total_changes = sum(len(items) for items in changes.values())
+                        logger.info(
+                            f"Found {total_changes} changes in {marketplace} "
+                            f"promotions for user {user_id}"
+                        )
+                    else:
+                        logger.info(f"No changes found in {marketplace} promotions for user {user_id}")
+                    
                     # Send notifications if changes found
                     if changes and any(changes.values()):
                         marketplace_changes = {marketplace: changes}
                         await self._notify_user(user_id, marketplace_changes)
+                        logger.info(f"Sent notification about {marketplace} changes to user {user_id}")
                 
                 finally:
                     # Mark task as done only if not cancelled
                     self._check_queue[marketplace].task_done()
+                    logger.debug(f"Finished processing {marketplace} check for user {user_id}")
                 
             except asyncio.CancelledError:
-                # Don't mark cancelled tasks as done
+                logger.info(f"Stopping {marketplace} queue processor")
                 break
             except Exception as e:
-                logger.error(f"Error processing {marketplace} queue: {str(e)}")
+                logger.error(f"Error processing {marketplace} queue for user {user_id}: {str(e)}")
 
     async def _monitor_loop(self) -> None:
         """Main monitoring loop."""
+        logger.info("Started main monitoring loop")
+        
         while True:
             try:
                 # Get all active subscriptions
                 subscriptions = await self.db.get_active_subscriptions()
+                logger.info(f"Found {len(subscriptions)} active subscriptions")
                 
                 # Add checks to queues
                 for sub in subscriptions:
                     user_id = sub["user_id"]
+                    user_interval = sub.get("check_interval", self.check_interval)
+                    logger.info(
+                        f"Adding checks for user {user_id} "
+                        f"(interval: {user_interval} seconds)"
+                    )
                     await self._check_queue['ozon'].put((user_id, False))
                     await self._check_queue['wildberries'].put((user_id, False))
 
             except Exception as e:
                 logger.error(f"Error in monitoring loop: {str(e)}")
 
+            logger.debug(f"Monitoring loop sleeping for {self.check_interval} seconds")
             await asyncio.sleep(self.check_interval)
 
     async def _check_ozon_promotions(self, user_id: int, user: Dict) -> Dict:
