@@ -7,6 +7,8 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set
 
+from aiogram.exceptions import TelegramForbiddenError, TelegramBadRequest
+
 from core.database import Database
 from services.marketplaces.ozon import OzonClient
 from services.marketplaces.wildberries import WildberriesClient
@@ -155,31 +157,45 @@ class PromotionMonitor:
                     
                     # Check promotions
                     changes = {}
-                    if marketplace == 'ozon' and user.get("ozon_api_key"):
-                        logger.info(f"Checking Ozon promotions for user {user_id}")
-                        changes = await self._check_ozon_promotions(user_id, user)
-                    elif marketplace == 'wildberries' and user.get("wildberries_api_key"):
-                        logger.info(f"Checking Wildberries promotions for user {user_id}")
-                        changes = await self._check_wb_promotions(user_id, user)
-                    
-                    # Update last check time
-                    self._last_check[user_id] = datetime.now()
-                    
-                    # Log check results
-                    if changes:
-                        total_changes = sum(len(items) for items in changes.values())
-                        logger.info(
-                            f"Found {total_changes} changes in {marketplace} "
-                            f"promotions for user {user_id}"
-                        )
-                    else:
-                        logger.info(f"No changes found in {marketplace} promotions for user {user_id}")
-                    
-                    # Send notifications if changes found
-                    if changes and any(changes.values()):
-                        marketplace_changes = {marketplace: changes}
-                        await self._notify_user(user_id, marketplace_changes)
-                        logger.info(f"Sent notification about {marketplace} changes to user {user_id}")
+                    try:
+                        # Проверяем, можем ли отправлять сообщения пользователю
+                        await self.notification_service.bot.get_chat(user_id)
+                        
+                        if marketplace == 'ozon' and user.get("ozon_api_key"):
+                            logger.info(f"Checking Ozon promotions for user {user_id}")
+                            changes = await self._check_ozon_promotions(user_id, user)
+                        elif marketplace == 'wildberries' and user.get("wildberries_api_key"):
+                            logger.info(f"Checking Wildberries promotions for user {user_id}")
+                            changes = await self._check_wb_promotions(user_id, user)
+                        
+                        # Update last check time
+                        self._last_check[user_id] = datetime.now()
+                        
+                        # Log check results
+                        if changes:
+                            total_changes = sum(len(items) for items in changes.values())
+                            logger.info(
+                                f"Found {total_changes} changes in {marketplace} "
+                                f"promotions for user {user_id}"
+                            )
+                        else:
+                            logger.info(f"No changes found in {marketplace} promotions for user {user_id}")
+                        
+                        # Send notifications if changes found
+                        if changes and any(changes.values()):
+                            marketplace_changes = {marketplace: changes}
+                            await self._notify_user(user_id, marketplace_changes)
+                            logger.info(f"Sent notification about {marketplace} changes to user {user_id}")
+                            
+                    except (TelegramForbiddenError, TelegramBadRequest) as e:
+                        # Бот заблокирован или удален пользователем
+                        logger.warning(f"Can't send messages to user {user_id}, skipping checks: {str(e)}")
+                        # Очищаем кэш для этого пользователя
+                        if user_id in self._cached_promotions:
+                            del self._cached_promotions[user_id]
+                        if user_id in self._last_check:
+                            del self._last_check[user_id]
+                        continue
                 
                 finally:
                     # Mark task as done only if not cancelled
