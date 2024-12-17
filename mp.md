@@ -102,7 +102,36 @@ async def validate_api_key(self) -> bool:
 
 ## Endpoint
 **GET**  
-`https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/details`
+`https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions`
+
+### Query Parameters
+
+#### `startDateTime` (required)
+- **Type:** `string <RFC3339>`  
+- **Example:** `startDateTime=2023-09-01T00:00:00Z`  
+- **Description:** Начало периода, формат `YYYY-MM-DDTHH:MM:SSZ`.
+
+#### `endDateTime` (required)
+- **Type:** `string <RFC3339>`  
+- **Example:** `endDateTime=2024-08-01T23:59:59Z`  
+- **Description:** Конец периода, формат `YYYY-MM-DDTHH:MM:SSZ`.
+
+#### `allPromo` (required)
+- **Type:** `boolean`  
+- **Default:** `false`  
+- **Description:** Показать акции:  
+  - `false` — доступные для участия  
+  - `true` — все акции  
+
+#### `limit` 
+- **Type:** `integer <uint>` `[ 1 .. 1000 ]`  
+- **Example:** `limit=10`  
+- **Description:** Количество запрашиваемых акций.  
+
+#### `offset` 
+- **Type:** `integer <uint>` `>= 0`  
+- **Example:** `offset=0`  
+- **Description:** После какого элемента выдавать данные.  
 
 ---
 
@@ -188,6 +217,7 @@ exceptionProductsCount (integer <uint>)
 
 Использование
 С помощью данного метода можно получить информацию о том, сколько товаров клиента участвуют в автоакциях Wildberries ("type": "auto").
+
 
 ## Метод валидации ключа WB
 ```python

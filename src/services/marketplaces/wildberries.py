@@ -3,7 +3,7 @@ Wildberries marketplace integration service.
 """
 
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from .base import MarketplaceClient, logger
 
 class WildberriesClient(MarketplaceClient):
@@ -64,11 +64,25 @@ class WildberriesClient(MarketplaceClient):
             ConnectionError: If connection failed
         """
         try:
+            # Get current time in UTC
+            now = datetime.utcnow()
+            # Set start time to 1 month ago
+            start_time = (now - timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            # Set end time to 1 year in future
+            end_time = (now + timedelta(days=365)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            
             # Get promotion details
             response = await self._make_request(
                 method="GET",
                 url=f"{self.calendar_url}/api/v1/calendar/promotions",
-                headers=self._get_headers()
+                headers=self._get_headers(),
+                params={
+                    "startDateTime": start_time,
+                    "endDateTime": end_time,
+                    "allPromo": "true",
+                    "limit": 1000,
+                    "offset": 0
+                }
             )
             
             auto_promotions = []
@@ -78,8 +92,8 @@ class WildberriesClient(MarketplaceClient):
                         "id": promo["id"],
                         "name": promo.get("name", ""),
                         "products_count": promo.get("inPromoActionTotal", 0),
-                        "date_start": promo.get("dateStart"),
-                        "date_end": promo.get("dateEnd")
+                        "date_start": promo.get("startDateTime"),
+                        "date_end": promo.get("endDateTime")
                     })
                     
             return auto_promotions
