@@ -77,8 +77,8 @@ class MarketplaceClient(ABC):
             logger.info(f"Making {method} request to {url}")
             logger.info("Request headers:")
             for key, value in (headers or {}).items():
-                if key.lower() in ['api-key', 'client-id']:
-                    logger.info(f"{key}: {'*' * len(value)}")
+                if key.lower() in ['api-key', 'client-id', 'authorization']:
+                    logger.info(f"{key}: {'*' * 8}")
                 else:
                     logger.info(f"{key}: {value}")
             
