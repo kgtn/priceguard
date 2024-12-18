@@ -534,6 +534,9 @@ async def show_promotions(callback: CallbackQuery, db: Database):
             reply_markup=get_main_menu_keyboard(),
             parse_mode="Markdown"
         )
+    else:
+        # Если текст не изменился, просто отвечаем на callback
+        await callback.answer()
 
 @router.callback_query(F.data == "settings")
 async def show_settings(callback: CallbackQuery):
