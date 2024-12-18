@@ -20,6 +20,7 @@ from bot.keyboards.admin import (
     get_users_pagination_keyboard
 )
 from bot.utils.messages import format_user_info, format_subscription_info
+from bot.promotion_monitor import PromotionMonitor  # noqa: F401
 
 router = Router()
 
@@ -236,7 +237,8 @@ async def process_broadcast(
 async def process_force_check(
     message: types.Message,
     state: FSMContext,
-    db: Database
+    db: Database,
+    monitor: PromotionMonitor
 ):
     """Process force check request."""
     try:
@@ -246,12 +248,18 @@ async def process_force_check(
             await message.answer("❌ Пользователь не найден")
             return
 
-        # TODO: Implement force check logic
-        await message.answer(
-            f"✅ Запущена проверка акций для пользователя {user_id}"
-        )
+        await message.answer(f"🔄 Запускаю проверку акций для пользователя {user_id}")
+        changes = await monitor.force_check(user_id)
+        
+        if changes:
+            await message.answer("✅ Проверка завершена. Найдены изменения в акциях.")
+        else:
+            await message.answer("✅ Проверка завершена. Изменений в акциях не найдено.")
+            
     except ValueError:
         await message.answer("❌ Некорректный ID пользователя")
+    except Exception as e:
+        await message.answer(f"❌ Ошибка при проверке акций: {str(e)}")
     finally:
         await state.clear()
 
