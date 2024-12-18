@@ -7,6 +7,7 @@ from typing import Any, Awaitable, Callable, Dict
 from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery, ErrorEvent
 from core.logging import get_logger
+from datetime import datetime
 
 logger = get_logger(__name__)
 
@@ -20,10 +21,30 @@ class ErrorMiddleware(BaseMiddleware):
         try:
             return await handler(event, data)
         except Exception as e:
-            # Log the error
+            # Get user info
             user_id = event.from_user.id if hasattr(event, 'from_user') else 'Unknown'
+            username = f"@{event.from_user.username}" if hasattr(event, 'from_user') and event.from_user.username else "нет username"
+            
+            # Get context info
+            context = "неизвестный контекст"
+            if isinstance(event, Message):
+                context = f"команда: {event.text}" if event.text else "сообщение без текста"
+            elif isinstance(event, CallbackQuery):
+                context = f"кнопка: {event.data}" if event.data else "callback без данных"
+            
+            # Format error message
+            error_text = (
+                f"❗️ Ошибка в боте:\n\n"
+                f"👤 Пользователь: {username}\n"
+                f"ID: {user_id}\n\n"
+                f"📝 Контекст: {context}\n\n"
+                f"⚠️ Ошибка: {str(e)}\n"
+                f"Время: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
+            
+            # Log the error
             logger.error(
-                f"Error processing event from user {user_id}: {str(e)}",
+                f"Error processing event from user {user_id} ({username}): {str(e)}",
                 exc_info=True
             )
 
@@ -43,7 +64,7 @@ class ErrorMiddleware(BaseMiddleware):
                         f"Failed to send error notification to user {user_id}: {notify_error}"
                     )
 
-            # Notify admin if critical error
+            # Notify admin
             try:
                 settings = data.get("settings")  
                 if settings and hasattr(settings, "telegram"):
@@ -52,7 +73,8 @@ class ErrorMiddleware(BaseMiddleware):
                     if bot and admin_id:
                         await bot.send_message(
                             admin_id,
-                            f"❗️ Critical Error:\nUser: {user_id}\nError: {str(e)}"
+                            error_text,
+                            parse_mode="HTML"
                         )
             except Exception as admin_notify_error:
                 logger.error(
