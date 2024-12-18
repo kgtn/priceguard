@@ -74,18 +74,21 @@ class MarketplaceClient(ABC):
             raise RuntimeError("Client session not initialized")
         
         async def _do_request():
-            logger.info(f"Making {method} request to {url}")
-            logger.info("Request headers:")
-            for key, value in (headers or {}).items():
-                if key.lower() in ['api-key', 'client-id', 'authorization']:
-                    logger.info(f"{key}: {'*' * 8}")
-                else:
-                    logger.info(f"{key}: {value}")
+            logger.info(f"Making {method} request to:\n{url}")
             
+            # Log headers
+            headers_str = "\n".join(
+                f"    {key}: {'*' * 8 if key.lower() in ['api-key', 'client-id', 'authorization'] else value}"
+                for key, value in (headers or {}).items()
+            )
+            if headers_str:
+                logger.info(f"Request headers:\n{headers_str}")
+            
+            # Log request body/params
             if json:
-                logger.info(f"Request body: {json}")
+                logger.info(f"Request body:\n{json}")
             if params:
-                logger.info(f"Request params: {params}")
+                logger.info(f"Request params:\n{params}")
             
             async with self.session.request(
                 method=method,
@@ -94,13 +97,13 @@ class MarketplaceClient(ABC):
                 json=json,
                 params=params
             ) as response:
-                logger.info(f"Response status: {response.status}")
+                # Log response info
                 content_type = response.headers.get('content-type', '')
-                logger.info(f"Response content-type: {content_type}")
+                logger.info(f"Response status: {response.status}\nContent-Type: {content_type}")
                 
                 if not content_type.startswith('application/json'):
                     text = await response.text()
-                    logger.error(f"Unexpected response type: {content_type}, body: {text}")
+                    logger.error(f"Unexpected response type: {content_type}\nBody: {text}")
                     raise ValueError("Invalid API key or Client ID")
                 
                 response_data = await response.json()
@@ -120,7 +123,7 @@ class MarketplaceClient(ABC):
                     raise ConnectionError(f"Marketplace API error: {response.status}")
                 elif response.status >= 400:
                     error_data = await response.json()
-                    logger.error(f"API error response: {error_data}")
+                    logger.error(f"API error response:\n{error_data}")
                     raise ValueError(error_data.get("message", "Unknown error"))
                 elif response.status >= 200 and response.status < 300:
                     return response_data

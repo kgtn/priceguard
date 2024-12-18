@@ -131,7 +131,10 @@ class PromotionMonitor:
         while True:
             try:
                 user_id, is_priority = await self._check_queue[marketplace].get()
-                logger.info(f"Processing {marketplace} check for user {user_id} (priority: {is_priority})")
+                logger.info(
+                    f"Processing {marketplace} check for user {user_id}\n"
+                    f"Priority: {is_priority}"
+                )
                 
                 try:
                     # Get user data and check interval
@@ -149,9 +152,9 @@ class PromotionMonitor:
                             time_since_last_check = (datetime.now() - last_check).seconds
                             if time_since_last_check < user_interval:  
                                 logger.info(
-                                    f"Skipping {marketplace} check for user {user_id}: "
-                                    f"last check was {time_since_last_check} seconds ago "
-                                    f"(interval: {user_interval} seconds)"
+                                    f"Skipping {marketplace} check for user {user_id}:\n"
+                                    f"Last check: {time_since_last_check} seconds ago\n"
+                                    f"Check interval: {user_interval} seconds"
                                 )
                                 continue
                     
@@ -175,8 +178,8 @@ class PromotionMonitor:
                         if changes:
                             total_changes = sum(len(items) for items in changes.values())
                             logger.info(
-                                f"Found {total_changes} changes in {marketplace} "
-                                f"promotions for user {user_id}"
+                                f"Found {total_changes} changes in {marketplace} promotions\n"
+                                f"User: {user_id}"
                             )
                         else:
                             logger.info(f"No changes found in {marketplace} promotions for user {user_id}")
@@ -189,7 +192,10 @@ class PromotionMonitor:
                             
                     except (TelegramForbiddenError, TelegramBadRequest) as e:
                         # Бот заблокирован или удален пользователем
-                        logger.warning(f"Can't send messages to user {user_id}, skipping checks: {str(e)}")
+                        logger.warning(
+                            f"Can't send messages to user {user_id}, skipping checks:\n"
+                            f"Error: {str(e)}"
+                        )
                         # Очищаем кэш для этого пользователя
                         if user_id in self._cached_promotions:
                             del self._cached_promotions[user_id]
@@ -206,7 +212,10 @@ class PromotionMonitor:
                 logger.info(f"Stopping {marketplace} queue processor")
                 break
             except Exception as e:
-                logger.error(f"Error processing {marketplace} queue for user {user_id}: {str(e)}")
+                logger.error(
+                    f"Error processing {marketplace} queue for user {user_id}:\n"
+                    f"Error: {str(e)}"
+                )
 
     async def _monitor_loop(self) -> None:
         """Main monitoring loop."""
