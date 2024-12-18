@@ -86,6 +86,7 @@ async def main():
             marketplace_factory=dp["marketplace_factory"],
             notification_service=notification_service
         )
+        dp["monitor"] = monitor
 
         # Setup middlewares
         setup_middlewares(dp, config)

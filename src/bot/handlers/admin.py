@@ -238,7 +238,7 @@ async def process_force_check(
     message: types.Message,
     state: FSMContext,
     db: Database,
-    monitor: PromotionMonitor
+    monitor: PromotionMonitor = None
 ):
     """Process force check request."""
     try:
