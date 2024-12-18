@@ -20,7 +20,7 @@ from bot.keyboards.admin import (
     get_users_pagination_keyboard
 )
 from bot.utils.messages import format_user_info, format_subscription_info
-from bot.promotion_monitor import PromotionMonitor  # noqa: F401
+from services.monitoring.monitor import PromotionMonitor  # noqa: F401
 
 router = Router()
 
