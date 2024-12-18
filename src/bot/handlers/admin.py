@@ -251,7 +251,14 @@ async def process_force_check(
         await message.answer(f"🔄 Запускаю проверку акций для пользователя {user_id}")
         changes = await monitor.force_check(user_id)
         
-        if changes:
+        # Проверяем есть ли реальные изменения
+        has_changes = False
+        for marketplace, marketplace_changes in changes.items():
+            if any(marketplace_changes.values()):  # Проверяем есть ли что-то в new, ended или changed
+                has_changes = True
+                break
+        
+        if has_changes:
             await message.answer("✅ Проверка завершена. Найдены изменения в акциях.")
         else:
             await message.answer("✅ Проверка завершена. Изменений в акциях не найдено.")
