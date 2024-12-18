@@ -90,6 +90,7 @@ class OzonClient(MarketplaceClient):
             ConnectionError: If connection failed
         """
         try:
+            logger.info("Getting list of available Ozon Hot Sales")
             # First, get list of available Hot Sales
             response = await self._make_request(
                 method="POST",
@@ -99,15 +100,20 @@ class OzonClient(MarketplaceClient):
             )
             
             hotsales = response.get("result", [])
+            logger.info(f"Found {len(hotsales)} Hot Sales")
+            
             if not hotsales:
+                logger.info("No Hot Sales found")
                 return []
                 
             promotions = []
             for hotsale in hotsales:
                 # Проверяем только акции, в которых участвует продавец
                 if not hotsale.get("is_participating"):
+                    logger.info(f"Skipping Hot Sale {hotsale.get('hotsale_id')}: not participating")
                     continue
-                    
+                
+                logger.info(f"Getting products for Hot Sale {hotsale.get('hotsale_id')}")
                 # Get products for this Hot Sale
                 products_response = await self._make_request(
                     method="POST",
@@ -121,6 +127,7 @@ class OzonClient(MarketplaceClient):
                 # Get products list from response
                 products = products_response.get("result", {}).get("products", [])
                 active_products = len([p for p in products if p.get("is_active")])
+                logger.info(f"Found {active_products} active products in Hot Sale {hotsale.get('hotsale_id')}")
                 
                 promotions.append({
                     "id": str(hotsale["hotsale_id"]),
