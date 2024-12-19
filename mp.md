@@ -1,12 +1,151 @@
-# Ozon API: Список товаров, которые участвуют в акции Hot Sale
+# Метода API Ozon 
 
-## Endpoint
+## Ozon API:  Список акций
+
+### **Описание**
+Метод для получения списка акций, в которых можуг участвовать товары клиента
+
+### **GET** `/v1/actions`
+---
+
+### Ответы
+
+#### **200** Список акций  
+**Response Schema:** `application/json`  
+
+- **`result`**: `Array of objects`  
+  Результаты запроса.  
+
+##### **Array of Objects:**
+- **`id`**: `number <double>`  
+  Идентификатор акции.  
+
+- **`title`**: `string`  
+  Название акции.  
+
+- **`action_type`**: `string`  
+  Тип акции.  
+
+- **`description`**: `string`  
+  Описание акции.  
+
+- **`date_start`**: `string`  
+  Дата начала акции.  
+
+- **`date_end`**: `string`  
+  Дата окончания акции.  
+
+- **`freeze_date`**: `string`  
+  Дата приостановки акции.  
+  - Если поле заполнено, продавец **не может** повышать цены, изменять список товаров и уменьшать количество единиц товаров в акции.  
+  - Продавец **может** понижать цены и увеличивать количество единиц товара в акции.  
+
+- **`potential_products_count`**: `number <double>`  
+  Количество товаров, доступных для акции.  
+
+- **`participating_products_count`**: `number <double>`  
+  Количество товаров, которые участвуют в акции.  
+
+- **`is_participating`**: `boolean`  
+  Участвуете вы в этой акции или нет.  
+
+- **`is_voucher_action`**: `boolean`  
+  Признак, что для участия в акции покупателям нужен промокод.  
+
+- **`banned_products_count`**: `number <double>`  
+  Количество заблокированных товаров.  
+
+- **`with_targeting`**: `boolean`  
+  Признак, что акция с целевой аудиторией.  
+
+- **`order_amount`**: `number <double>`  
+  Сумма заказа.  
+
+- **`discount_type`**: `string`  
+  Тип скидки.  
+
+- **`discount_value`**: `number <double>`  
+  Размер скидки.  
+---
+
+## Список участвующих в акции товаров
+
+Метод для получения списка товаров, участвующих в акции, по её идентификатору.
+
+### **POST** `/v1/actions/products`
+
+
+#### **200** Список товаров  
+**Response Schema:** `application/json`  
+
+- **`result`**: `object`  
+  Результаты запроса.  
+
+  - **`products`**: `Array of objects`  
+    Список товаров.  
+
+##### **Array of Objects:**
+- **`id`**: `number <double>`  
+  Идентификатор товара.  
+
+- **`price`**: `number <double>`  
+  Текущая цена товара без скидки.  
+
+- **`action_price`**: `number <double>`  
+  Цена товара по акции.  
+
+- **`max_action_price`**: `number <double>`  
+  Максимально возможная цена товара по акции.  
+
+- **`add_mode`**: `string`  
+  Тип добавления товара в акцию:  
+  - автоматически  
+  - вручную продавцом  
+
+- **`min_stock`**: `number <double>`  
+  Минимальное число единиц товара в акции типа «Скидка на сток».  
+
+- **`stock`**: `number <double>`  
+  Число единиц товара в акции типа «Скидка на сток».  
+
+- **`total`**: `number <double>`  
+  Общее количество товаров, которое доступно для акции.  
+##### Пример
+```
+{
+  "result": {
+    "products": [
+      {
+        "id": 1383,
+        "price": 5503,
+        "action_price": 621,
+        "max_action_price": 3712.1,
+        "add_mode": "AUTO",
+        "stock": 0,
+        "min_stock": 0
+      }
+    ],
+    "total": 1
+  }
+}
+```
+## Список доступных акций Hot Sale
+
+### Endpoint
+**POST** `/v1/actions/hotsales/list`
+
+Метод для получения списка доступных акций Hot Sale.
+
+
+## Список товаров, которые участвуют в акции Hot Sale
+
+### Endpoint
 **POST**  
 `/v1/actions/hotsales/products`
 
 ---
 
-## Пример ответа
+#### Пример ответа
 ```json
 {
   "result": {
@@ -56,7 +195,7 @@ stock (number <double>)
 total (number <double>)
 Общее количество товаров, которое доступно для акции.
 
-## метода валидации ключа ozon (рабочий):
+### метода валидации ключа ozon (рабочий):
 ```python
 async def validate_api_key(self) -> bool:
         """
@@ -98,9 +237,10 @@ async def validate_api_key(self) -> bool:
 
 *******
 
-## Метод Wildberries API: Детали акций, чтобы узнать какие товары в акциях
+# Метод Wildberries API:
+## Детали акций, чтобы узнать какие товары в акциях
 
-## Endpoint
+### Endpoint
 **GET**  
 `https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions`
 
@@ -135,7 +275,7 @@ async def validate_api_key(self) -> bool:
 
 ---
 
-## Пример ответа
+#### Пример ответа
 ```json
 {
   "data": {

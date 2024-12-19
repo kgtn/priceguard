@@ -335,28 +335,68 @@ class PromotionMonitor:
         Returns:
             Dict with changes found
         """
-        old_ids = {p["id"] for p in old_promotions}
-        new_ids = {p["id"] for p in new_promotions}
+        old_by_type = {}
+        new_by_type = {}
         
-        # Find new and ended promotions
-        new_promos = [p for p in new_promotions if p["id"] not in old_ids]
-        ended_promos = [p for p in old_promotions if p["id"] not in new_ids]
+        # Группируем акции по типам
+        for promo in old_promotions:
+            promo_type = promo.get("type", "unknown")
+            if promo_type not in old_by_type:
+                old_by_type[promo_type] = []
+            old_by_type[promo_type].append(promo)
+            
+        for promo in new_promotions:
+            promo_type = promo.get("type", "unknown")
+            if promo_type not in new_by_type:
+                new_by_type[promo_type] = []
+            new_by_type[promo_type].append(promo)
         
-        # Find changed promotions
-        changed_promos = []
-        for old_promo in old_promotions:
-            if old_promo["id"] in new_ids:
-                new_promo = next(
-                    p for p in new_promotions if p["id"] == old_promo["id"]
-                )
-                if self._has_changes(old_promo, new_promo):
-                    changed_promos.append(new_promo)
-        
-        return {
-            "new": new_promos,
-            "ended": ended_promos,
-            "changed": changed_promos
+        all_types = set(old_by_type.keys()) | set(new_by_type.keys())
+        changes = {
+            "new": [],
+            "ended": [],
+            "changed": []
         }
+        
+        # Сравниваем акции по каждому типу
+        for promo_type in all_types:
+            old_promos = old_by_type.get(promo_type, [])
+            new_promos = new_by_type.get(promo_type, [])
+            
+            old_ids = {str(p["id"]) for p in old_promos}
+            new_ids = {str(p["id"]) for p in new_promos}
+            
+            # Новые акции
+            changes["new"].extend([
+                p for p in new_promos 
+                if str(p["id"]) not in old_ids
+            ])
+            
+            # Завершенные акции
+            changes["ended"].extend([
+                p for p in old_promos 
+                if str(p["id"]) not in new_ids
+            ])
+            
+            # Измененные акции
+            for old_promo in old_promos:
+                old_id = str(old_promo["id"])
+                if old_id in new_ids:
+                    new_promo = next(
+                        p for p in new_promos 
+                        if str(p["id"]) == old_id
+                    )
+                    if self._has_changes(old_promo, new_promo):
+                        changes["changed"].append(new_promo)
+        
+        logger.info(
+            f"Found changes in promotions:\n"
+            f"New: {len(changes['new'])}\n"
+            f"Ended: {len(changes['ended'])}\n"
+            f"Changed: {len(changes['changed'])}"
+        )
+        
+        return changes
 
     def _has_changes(self, old_promo: Dict, new_promo: Dict) -> bool:
         """
@@ -369,11 +409,31 @@ class PromotionMonitor:
         Returns:
             True if changes found
         """
-        significant_fields = ["products_count", "date_end"]
-        return any(
-            old_promo.get(field) != new_promo.get(field)
-            for field in significant_fields
-        )
+        # Основные поля для сравнения
+        base_fields = ["title", "type", "products_count"]
+        if any(old_promo.get(field) != new_promo.get(field) for field in base_fields):
+            return True
+            
+        # Проверяем даты, если они есть
+        date_fields = ["date_start", "date_end", "start_date", "end_date"]
+        old_dates = {
+            field: old_promo.get(field) 
+            for field in date_fields 
+            if old_promo.get(field)
+        }
+        new_dates = {
+            field: new_promo.get(field) 
+            for field in date_fields 
+            if new_promo.get(field)
+        }
+        if old_dates != new_dates:
+            return True
+            
+        # Проверяем только количество товаров
+        old_products = old_promo.get("products", [])
+        new_products = new_promo.get("products", [])
+        
+        return len(old_products) != len(new_products)
 
     async def _notify_user(self, user_id: int, changes: Dict) -> None:
         """
