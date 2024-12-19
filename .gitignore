@@ -60,3 +60,4 @@ logs/priceguard.log
 # windsurf rules
 .windsurfrules
 logs.md
+priceguard-log.yaml

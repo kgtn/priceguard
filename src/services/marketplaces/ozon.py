@@ -95,7 +95,9 @@ class OzonClient(MarketplaceClient):
             json={"action_id": action_id}
         )
         
-        return response.get("result", {}).get("products", [])
+        products = response.get("result", {}).get("products", [])
+        logger.info(f"Found {len(products)} products in action {action_id}")
+        return products
 
     async def _get_hotsale_products(self) -> List[Dict]:
         """
@@ -158,6 +160,7 @@ class OzonClient(MarketplaceClient):
             ConnectionError: If connection failed
         """
         all_promotions = []
+        total_products = 0
         
         try:
             # 1. Получаем список всех акций
@@ -180,37 +183,41 @@ class OzonClient(MarketplaceClient):
                 logger.info(f"Getting products for action {action_title} (ID: {action_id}, Type: {action_type})")
                 
                 products = await self._get_action_products(action_id)
+                products_count = len(products)
+                total_products += products_count
                 
                 if products:
-                    all_promotions.append({
+                    promotion = {
                         "id": action_id,
                         "title": action_title,
                         "type": action_type,
                         "start_date": action["date_start"],
                         "end_date": action["date_end"],
                         "products": products,
-                        "products_count": len(products)
-                    })
+                        "products_count": products_count
+                    }
+                    all_promotions.append(promotion)
+                    logger.info(f"Promotion: {action_title} ({action_type})")
+                    logger.info(f"Products: {products_count}")
             
             # 3. Получаем товары из Hot Sale акций
             logger.info("Getting Hot Sale products")
             hot_sale_products = await self._get_hotsale_products()
             
             if hot_sale_products:
+                hot_sale_count = len(hot_sale_products)
+                total_products += hot_sale_count
                 all_promotions.append({
                     "id": "hot_sale",
                     "title": "Hot Sale",
-                    "type": "hot_sale",
+                    "type": "HOT_SALE",
                     "products": hot_sale_products,
-                    "products_count": len(hot_sale_products)
+                    "products_count": hot_sale_count
                 })
+                logger.info(f"Hot Sale products: {hot_sale_count}")
             
             logger.info(f"Total promotions found: {len(all_promotions)}")
-            for promo in all_promotions:
-                logger.info(
-                    f"Promotion: {promo['title']} ({promo['type']})\n"
-                    f"Products: {promo['products_count']}"
-                )
+            logger.info(f"Total products in promotions: {total_products}")
             
             return all_promotions
             

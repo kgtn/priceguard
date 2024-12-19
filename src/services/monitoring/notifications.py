@@ -87,7 +87,7 @@ class NotificationService:
 
     def _format_ozon_changes(self, changes: Dict) -> str:
         """Format Ozon changes message."""
-        message = "🔵 *OZON Hot Sale*\n\n"
+        message = "🔵 *Автоакции OZON*\n\n"
         
         # Функция для форматирования даты
         def format_date(date_str: str) -> str:
@@ -103,7 +103,7 @@ class NotificationService:
         if changes["new"]:
             active_promos = [p for p in changes["new"] if p.get('products_count', 0) > 0]
             if active_promos:
-                message += "✨ *Новые акции Hot Sale:*\n"
+                message += "✨ *Новые акции:*\n"
                 for promo in active_promos:
                     title = promo.get('title', promo.get('name', 'Hot Sale'))  # используем title или name
                     message += (
@@ -116,7 +116,7 @@ class NotificationService:
         if changes["changed"]:
             active_promos = [p for p in changes["changed"] if p.get('products_count', 0) > 0]
             if active_promos:
-                message += "\n📊 *Изменения в акциях Hot Sale:*\n"
+                message += "\n📊 *Изменения в акциях:*\n"
                 for promo in active_promos:
                     title = promo.get('title', promo.get('name', 'Hot Sale'))  # используем title или name
                     message += (
@@ -124,13 +124,6 @@ class NotificationService:
                         f"   └ 📦 Товаров: {promo['products_count']}\n"
                         f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
                     )
-
-        # Ended promotions
-        if changes["ended"]:
-            message += "\n❌ *Завершенные акции Hot Sale:*\n"
-            for promo in changes["ended"]:
-                title = promo.get('title', promo.get('name', 'Hot Sale'))  # используем title или name
-                message += f"• {title}\n"
 
         return message.strip()
 
@@ -171,12 +164,6 @@ class NotificationService:
                         f"   └ 📦 Товаров: {promo['products_count']}\n"
                         f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
                     )
-        
-        # Ended promotions
-        if changes["ended"]:
-            message += "\n❌ *Завершенные автоакции:*\n"
-            for promo in changes["ended"]:
-                message += f"• {promo['name']}\n"
         
         return message.strip()
 
