@@ -112,9 +112,11 @@ class OzonClient(MarketplaceClient):
             json={}
         )
         
+        logger.info(f"Hot Sales response: {response}")
+        
         # Get products for each Hot Sale
         products = []
-        hot_sales = response if isinstance(response, list) else response.get("result", {}).get("actions", [])
+        hot_sales = response.get("result", [])
         logger.info(f"Found {len(hot_sales)} Hot Sales")
         
         for hot_sale in hot_sales:
@@ -128,12 +130,17 @@ class OzonClient(MarketplaceClient):
                 method="POST",
                 url=f"{self.base_url}/v1/actions/hotsales/products",
                 headers=self._get_headers(),
-                json={"action_id": hot_sale_id}
+                json={
+                    "hotsale_id": hot_sale_id,
+                    "limit": 1000,  # Получаем максимум товаров
+                    "offset": 0
+                }
             )
             
             # Извлекаем товары из структуры ответа
             products_list = hot_sale_products.get("result", {}).get("products", [])
-            logger.info(f"Found {len(products_list)} products in Hot Sale {hot_sale_id}")
+            total_products = hot_sale_products.get("result", {}).get("total", 0)
+            logger.info(f"Found {len(products_list)} products in Hot Sale {hot_sale_id} (Total: {total_products})")
             products.extend(products_list)
         
         logger.info(f"Total Hot Sale products found: {len(products)}")
