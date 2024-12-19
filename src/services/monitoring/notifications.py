@@ -141,9 +141,14 @@ class NotificationService:
             if not date_str:
                 return "не указана"
             try:
-                date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                # Проверяем формат даты и преобразуем соответственно
+                if 'T' in date_str:  # ISO format with timezone
+                    date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                else:  # Simple date format
+                    date = datetime.strptime(date_str, "%Y-%m-%d")
                 return date.strftime("%d.%m.%Y")
-            except:
+            except Exception as e:
+                logger.error(f"Error formatting date {date_str}: {str(e)}")
                 return "не указана"
         
         # New promotions
