@@ -121,6 +121,9 @@ class OzonClient(MarketplaceClient):
         hot_sales = response.get("result", [])
         logger.info(f"Found {len(hot_sales)} Hot Sales")
         
+        # Инициализируем переменную для даты акции
+        promo_date = None
+        
         for hot_sale in hot_sales:
             hot_sale_id = hot_sale.get("id")
             if not hot_sale_id:
@@ -144,9 +147,8 @@ class OzonClient(MarketplaceClient):
             total_products = hot_sale_products.get("result", {}).get("total", 0)
             logger.info(f"Found {len(products_list)} products in Hot Sale {hot_sale_id} (Total: {total_products})")
             
-            # Получаем дату участия в акции из первого товара
-            promo_date = None
-            if products_list:
+            # Получаем дату участия в акции из первого товара, если еще не получили
+            if not promo_date and products_list:
                 promo_date = products_list[0].get("date_day_promo")
                 logger.info(f"Hot Sale promo date: {promo_date}")
             
