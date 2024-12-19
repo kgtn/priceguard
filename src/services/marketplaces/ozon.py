@@ -114,18 +114,29 @@ class OzonClient(MarketplaceClient):
         
         # Get products for each Hot Sale
         products = []
-        hot_sales = response.get("result", {}).get("actions", [])
+        hot_sales = response if isinstance(response, list) else response.get("result", {}).get("actions", [])
         logger.info(f"Found {len(hot_sales)} Hot Sales")
         
         for hot_sale in hot_sales:
+            hot_sale_id = hot_sale.get("id")
+            if not hot_sale_id:
+                logger.warning(f"Hot Sale without ID: {hot_sale}")
+                continue
+                
+            logger.info(f"Getting products for Hot Sale ID: {hot_sale_id}")
             hot_sale_products = await self._make_request(
                 method="POST",
                 url=f"{self.base_url}/v1/actions/hotsales/products",
                 headers=self._get_headers(),
-                json={"action_id": hot_sale["id"]}
+                json={"action_id": hot_sale_id}
             )
-            products.extend(hot_sale_products.get("result", {}).get("products", []))
+            
+            # Извлекаем товары из структуры ответа
+            products_list = hot_sale_products.get("result", {}).get("products", [])
+            logger.info(f"Found {len(products_list)} products in Hot Sale {hot_sale_id}")
+            products.extend(products_list)
         
+        logger.info(f"Total Hot Sale products found: {len(products)}")
         return products
     
     async def get_promo_products(self) -> List[Dict]:
