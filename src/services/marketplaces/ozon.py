@@ -190,18 +190,24 @@ class OzonClient(MarketplaceClient):
                 action_type = action["action_type"]
                 
                 logger.info(f"Getting products for action {action_title} (ID: {action_id}, Type: {action_type})")
+                logger.info(f"Action dates: start={action.get('date_start', 'not set')}, end={action.get('date_end', 'not set')}")
                 
                 products = await self._get_action_products(action_id)
                 products_count = len(products)
                 total_products += products_count
                 
                 if products:
+                    # Извлекаем даты с безопасной проверкой
+                    start_date = action.get("date_start")
+                    end_date = action.get("date_end")
+                    logger.info(f"Adding promotion with dates: start={start_date}, end={end_date}")
+                    
                     promotion = {
                         "id": action_id,
                         "title": action_title,
                         "type": action_type,
-                        "start_date": action["date_start"],
-                        "end_date": action["date_end"],
+                        "start_date": start_date,
+                        "end_date": end_date,
                         "products": products,
                         "products_count": products_count
                     }
@@ -216,6 +222,7 @@ class OzonClient(MarketplaceClient):
             if hot_sale_products:
                 hot_sale_count = len(hot_sale_products)
                 total_products += hot_sale_count
+                logger.info(f"Adding Hot Sale promotion with date: {promo_date}")
                 all_promotions.append({
                     "id": "hot_sale",
                     "title": "Hot Sale",
