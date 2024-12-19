@@ -143,11 +143,18 @@ class OzonClient(MarketplaceClient):
             products_list = hot_sale_products.get("result", {}).get("products", [])
             total_products = hot_sale_products.get("result", {}).get("total", 0)
             logger.info(f"Found {len(products_list)} products in Hot Sale {hot_sale_id} (Total: {total_products})")
+            
+            # Получаем дату участия в акции из первого товара
+            promo_date = None
+            if products_list:
+                promo_date = products_list[0].get("date_day_promo")
+                logger.info(f"Hot Sale promo date: {promo_date}")
+            
             products.extend(products_list)
         
         logger.info(f"Total Hot Sale products found: {len(products)}")
-        return products
-    
+        return products, promo_date
+
     async def get_promo_products(self) -> List[Dict]:
         """
         Get summary of all products participating in promotions.
@@ -202,7 +209,7 @@ class OzonClient(MarketplaceClient):
             
             # 3. Получаем товары из Hot Sale акций
             logger.info("Getting Hot Sale products")
-            hot_sale_products = await self._get_hotsale_products()
+            hot_sale_products, promo_date = await self._get_hotsale_products()
             
             if hot_sale_products:
                 hot_sale_count = len(hot_sale_products)
@@ -211,6 +218,8 @@ class OzonClient(MarketplaceClient):
                     "id": "hot_sale",
                     "title": "Hot Sale",
                     "type": "HOT_SALE",
+                    "start_date": promo_date,  # Используем дату участия в акции
+                    "end_date": promo_date,    # Для Hot Sale начало и конец в один день
                     "products": hot_sale_products,
                     "products_count": hot_sale_count
                 })
