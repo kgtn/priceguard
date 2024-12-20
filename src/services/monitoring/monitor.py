@@ -126,96 +126,58 @@ class PromotionMonitor:
         Args:
             marketplace: Marketplace name
         """
-        logger.info(f"Started {marketplace} queue processor")
-        
         while True:
             try:
-                user_id, is_priority = await self._check_queue[marketplace].get()
+                # Get next check from queue
+                user_id, priority = await self._check_queue[marketplace].get()
+                
+                # Get user data
+                user = await self.db.get_user(user_id)
+                if not user:
+                    logger.warning(f"User {user_id} not found")
+                    continue
+                
                 logger.info(
                     f"Processing {marketplace} check for user {user_id}\n"
-                    f"Priority: {is_priority}"
+                    f"Priority: {priority}"
                 )
                 
-                try:
-                    # Get user data and check interval
-                    user = await self.db.get_user(user_id)
-                    if not user:
-                        logger.warning(f"User {user_id} not found")
-                        continue
+                # Skip if checked recently
+                last_check = self._last_check.get(user_id)
+                check_interval = user.get('check_interval', self.check_interval)
+                
+                if not priority and last_check:
+                    seconds_since_check = (datetime.now() - last_check).total_seconds()
+                    time_left = check_interval - seconds_since_check
                     
-                    user_interval = user.get("check_interval", self.check_interval)
-                    
-                    # Skip if checked recently and not priority
-                    if not is_priority:
-                        last_check = self._last_check.get(user_id)
-                        if last_check:
-                            time_since_last_check = (datetime.now() - last_check).seconds
-                            if time_since_last_check < user_interval:  
-                                logger.info(
-                                    f"Skipping {marketplace} check for user {user_id}:\n"
-                                    f"Last check: {time_since_last_check} seconds ago\n"
-                                    f"Check interval: {user_interval} seconds"
-                                )
-                                continue
-                    
-                    # Check promotions
-                    changes = {}
-                    try:
-                        # Проверяем, можем ли отправлять сообщения пользователю
-                        await self.notification_service.bot.get_chat(user_id)
-                        
-                        if marketplace == 'ozon' and user.get("ozon_api_key"):
-                            logger.info(f"Checking Ozon promotions for user {user_id}")
-                            changes = await self._check_ozon_promotions(user_id, user)
-                        elif marketplace == 'wildberries' and user.get("wildberries_api_key"):
-                            logger.info(f"Checking Wildberries promotions for user {user_id}")
-                            changes = await self._check_wb_promotions(user_id, user)
-                        
-                        # Update last check time
-                        self._last_check[user_id] = datetime.now()
-                        
-                        # Log check results
-                        if changes:
-                            total_changes = sum(len(items) for items in changes.values())
-                            logger.info(
-                                f"Found {total_changes} changes in {marketplace} promotions\n"
-                                f"User: {user_id}"
-                            )
-                        else:
-                            logger.info(f"No changes found in {marketplace} promotions for user {user_id}")
-                        
-                        # Send notifications if changes found
-                        if changes and any(changes.values()):
-                            marketplace_changes = {marketplace: changes}
-                            await self._notify_user(user_id, marketplace_changes)
-                            logger.info(f"Sent notification about {marketplace} changes to user {user_id}")
-                            
-                    except (TelegramForbiddenError, TelegramBadRequest) as e:
-                        # Бот заблокирован или удален пользователем
-                        logger.warning(
-                            f"Can't send messages to user {user_id}, skipping checks:\n"
-                            f"Error: {str(e)}"
+                    if time_left > 0:
+                        logger.info(
+                            f"Skipping {marketplace} check for user {user_id}:\n"
+                            f"Last check: {int(seconds_since_check)} seconds ago\n"
+                            f"Check interval: {check_interval} seconds\n"
+                            f"Next check in: {int(time_left)} seconds"
                         )
-                        # Очищаем кэш для этого пользователя
-                        if user_id in self._cached_promotions:
-                            del self._cached_promotions[user_id]
-                        if user_id in self._last_check:
-                            del self._last_check[user_id]
                         continue
                 
-                finally:
-                    # Mark task as done only if not cancelled
-                    self._check_queue[marketplace].task_done()
-                    logger.debug(f"Finished processing {marketplace} check for user {user_id}")
+                # Perform check
+                if marketplace == 'ozon':
+                    changes = await self._check_ozon_promotions(user_id, user)
+                    if changes:
+                        await self._notify_user(user_id, {'ozon': changes, 'wildberries': self._empty_changes()})
+                else:
+                    changes = await self._check_wb_promotions(user_id, user)
+                    if changes:
+                        await self._notify_user(user_id, {'ozon': self._empty_changes(), 'wildberries': changes})
+                
+                # Update last check time only for successful non-priority checks
+                if not priority:
+                    self._last_check[user_id] = datetime.now()
                 
             except asyncio.CancelledError:
-                logger.info(f"Stopping {marketplace} queue processor")
                 break
             except Exception as e:
-                logger.error(
-                    f"Error processing {marketplace} queue for user {user_id}:\n"
-                    f"Error: {str(e)}"
-                )
+                logger.error(f"Error processing {marketplace} check: {str(e)}")
+                await asyncio.sleep(5)
 
     async def _monitor_loop(self) -> None:
         """Main monitoring loop."""
@@ -225,47 +187,49 @@ class PromotionMonitor:
                 subscriptions = await self.db.get_active_subscriptions()
                 logger.info(f"Found {len(subscriptions)} active subscriptions")
                 
-                # Группируем проверки по интервалам
-                checks_by_interval = {}
+                # Обрабатываем каждую подписку
                 for user in subscriptions:
+                    user_id = user['user_id']
                     interval = user.get('check_interval', self.check_interval)
-                    if interval not in checks_by_interval:
-                        checks_by_interval[interval] = []
-                    checks_by_interval[interval].append(user)
-                
-                # Обрабатываем каждую группу с соответствующей задержкой
-                for interval, users in checks_by_interval.items():
-                    delay_between_users = interval / (len(users) + 1)  # Распределяем проверки равномерно
                     
-                    for user in users:
-                        user_id = user['user_id']
-                        last_check = self._last_check.get(user_id)
+                    # Проверяем время последней проверки
+                    last_check = self._last_check.get(user_id)
+                    current_time = datetime.now()
+                    
+                    # Если нет записи о последней проверке или интервал истек
+                    should_check = (
+                        not last_check or 
+                        (current_time - last_check).total_seconds() >= interval
+                    )
+                    
+                    if should_check:
+                        logger.info(
+                            f"Adding checks for user {user_id} "
+                            f"(interval: {interval} seconds, APIs: "
+                            f"{'Ozon ' if user.get('ozon_api_key') else ''}"
+                            f"{'WB' if user.get('wildberries_api_key') else ''})"
+                        )
                         
-                        if not last_check or (datetime.now() - last_check).total_seconds() >= interval:
-                            logger.info(
-                                f"Adding checks for user {user_id} "
-                                f"(interval: {interval} seconds, APIs: "
-                                f"{'Ozon ' if user.get('ozon_api_key') else ''}"
-                                f"{'WB' if user.get('wildberries_api_key') else ''})"
-                            )
-                            
-                            # Добавляем проверки в очереди
-                            if user.get('ozon_api_key'):
-                                await self._check_queue['ozon'].put((user_id, False))
-                            if user.get('wildberries_api_key'):
-                                await self._check_queue['wildberries'].put((user_id, False))
-                            
-                            self._last_check[user_id] = datetime.now()
-                            
-                            # Ждем перед следующей проверкой
-                            await asyncio.sleep(delay_between_users)
+                        # Добавляем проверки в очереди
+                        if user.get('ozon_api_key'):
+                            await self._check_queue['ozon'].put((user_id, False))
+                        if user.get('wildberries_api_key'):
+                            await self._check_queue['wildberries'].put((user_id, False))
+                    else:
+                        time_left = interval - (current_time - last_check).total_seconds()
+                        logger.info(
+                            f"Skipping checks for user {user_id}:\n"
+                            f"Last check: {int((current_time - last_check).total_seconds())} seconds ago\n"
+                            f"Check interval: {interval} seconds\n"
+                            f"Next check in: {int(time_left)} seconds"
+                        )
                 
-                # Ждем минимальный интервал перед следующим циклом
-                await asyncio.sleep(min(checks_by_interval.keys(), default=self.check_interval))
+                # Ждем 1 минуту перед следующей итерацией
+                await asyncio.sleep(60)
                 
             except Exception as e:
                 logger.error(f"Error in monitoring loop: {str(e)}")
-                await asyncio.sleep(60)  # Ждем минуту перед повторной попыткой
+                await asyncio.sleep(60)
 
     async def _check_ozon_promotions(self, user_id: int, user: Dict) -> Dict:
         """Check Ozon promotions for user."""
