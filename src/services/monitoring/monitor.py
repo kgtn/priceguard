@@ -181,6 +181,8 @@ class PromotionMonitor:
 
     async def _monitor_loop(self) -> None:
         """Main monitoring loop."""
+        MONITOR_INTERVAL = 900  # 15 минут в секундах
+        
         while True:
             try:
                 # Получаем список активных подписок
@@ -224,12 +226,12 @@ class PromotionMonitor:
                             f"Next check in: {int(time_left)} seconds"
                         )
                 
-                # Ждем 1 минуту перед следующей итерацией
-                await asyncio.sleep(60)
+                # Ждем 15 минут перед следующей итерацией
+                await asyncio.sleep(MONITOR_INTERVAL)
                 
             except Exception as e:
                 logger.error(f"Error in monitoring loop: {str(e)}")
-                await asyncio.sleep(60)
+                await asyncio.sleep(MONITOR_INTERVAL)
 
     async def _check_ozon_promotions(self, user_id: int, user: Dict) -> Dict:
         """Check Ozon promotions for user."""
