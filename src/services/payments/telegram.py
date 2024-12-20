@@ -58,7 +58,19 @@ class TelegramPaymentService:
             prices=prices,
             start_parameter=f"sub_{plan.value}",
             need_name=True,
-            need_email=True
+            need_email=True,
+            provider_data={
+                "receipt": {
+                    "items": [
+                        {
+                            "description": title or plan.title,
+                            "quantity": "1.00",
+                            "amount": plan.price,
+                            "vat_code": 1,
+                        }
+                    ]
+                }
+            }
         )
         
         return {
