@@ -163,21 +163,16 @@ class PromotionMonitor:
                 if marketplace == 'ozon':
                     changes = await self._check_ozon_promotions(user_id, user)
                     if any(changes):  # Проверяем, есть ли какие-либо изменения
-                        if marketplace == 'ozon':
-                            marketplace_changes = {'ozon': changes, 'wildberries': []}
-                        elif marketplace == 'wildberries':
-                            marketplace_changes = {'ozon': [], 'wildberries': changes}
-                        else:
-                            logger.warning(f"Unknown marketplace: {marketplace}")
-                            continue
-                        
-                        # Ensure changes has the correct structure
-                        if 'ozon' not in marketplace_changes:
-                            marketplace_changes['ozon'] = []
-                        if 'wildberries' not in marketplace_changes:
-                            marketplace_changes['wildberries'] = []
-                        
+                        marketplace_changes = {'ozon': changes, 'wildberries': []}
                         await self._notify_user(user_id, marketplace_changes)
+                elif marketplace == 'wildberries':
+                    changes = await self._check_wb_promotions(user_id, user)
+                    if any(changes):  # Проверяем, есть ли какие-либо изменения
+                        marketplace_changes = {'ozon': [], 'wildberries': changes}
+                        await self._notify_user(user_id, marketplace_changes)
+                else:
+                    logger.warning(f"Unknown marketplace: {marketplace}")
+                    continue
                 
                 # Update last check time only for successful non-priority checks
                 if not priority:
