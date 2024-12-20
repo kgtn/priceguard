@@ -165,11 +165,13 @@ class PromotionMonitor:
                     if any(changes.values()):  # Проверяем, есть ли какие-либо изменения
                         marketplace_changes = {'ozon': changes, 'wildberries': self._empty_changes()}
                         await self._notify_user(user_id, marketplace_changes)
-                else:
+                elif marketplace == 'wildberries':
                     changes = await self._check_wb_promotions(user_id, user)
                     if any(changes.values()):  # Проверяем, есть ли какие-либо изменения
                         marketplace_changes = {'ozon': self._empty_changes(), 'wildberries': changes}
                         await self._notify_user(user_id, marketplace_changes)
+                else:
+                    logger.warning(f"Unknown marketplace: {marketplace}")
                 
                 # Update last check time only for successful non-priority checks
                 if not priority:
@@ -207,18 +209,24 @@ class PromotionMonitor:
                     )
                     
                     if should_check:
-                        logger.info(
-                            f"Adding checks for user {user_id} "
-                            f"(interval: {interval} seconds, APIs: "
-                            f"{'Ozon ' if user.get('ozon_api_key') else ''}"
-                            f"{'WB' if user.get('wildberries_api_key') else ''})"
-                        )
+                        # Проверяем наличие API ключей
+                        has_ozon = bool(user.get('ozon_api_key'))
+                        has_wb = bool(user.get('wildberries_api_key'))
                         
-                        # Добавляем проверки в очереди
-                        if user.get('ozon_api_key'):
-                            await self._check_queue['ozon'].put((user_id, False))
-                        if user.get('wildberries_api_key'):
-                            await self._check_queue['wildberries'].put((user_id, False))
+                        # Логируем только если есть хотя бы один ключ
+                        if has_ozon or has_wb:
+                            logger.info(
+                                f"Adding checks for user {user_id} "
+                                f"(interval: {interval} seconds, APIs: "
+                                f"{'Ozon ' if has_ozon else ''}"
+                                f"{'WB' if has_wb else ''})"
+                            )
+                            
+                            # Добавляем проверки в очереди
+                            if has_ozon:
+                                await self._check_queue['ozon'].put((user_id, False))
+                            if has_wb:
+                                await self._check_queue['wildberries'].put((user_id, False))
                     else:
                         time_left = interval - (current_time - last_check).total_seconds()
                         logger.info(
