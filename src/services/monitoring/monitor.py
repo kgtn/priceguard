@@ -219,59 +219,53 @@ class PromotionMonitor:
 
     async def _monitor_loop(self) -> None:
         """Main monitoring loop."""
-        logger.info("Started main monitoring loop")
-        
         while True:
             try:
-                # Get all active subscriptions
+                # Получаем список активных подписок
                 subscriptions = await self.db.get_active_subscriptions()
                 logger.info(f"Found {len(subscriptions)} active subscriptions")
                 
-                # Add checks to queues
-                processed_users = set()  
-                for sub in subscriptions:
-                    user_id = sub["user_id"]
+                # Группируем проверки по интервалам
+                checks_by_interval = {}
+                for user in subscriptions:
+                    interval = user.get('check_interval', self.check_interval)
+                    if interval not in checks_by_interval:
+                        checks_by_interval[interval] = []
+                    checks_by_interval[interval].append(user)
+                
+                # Обрабатываем каждую группу с соответствующей задержкой
+                for interval, users in checks_by_interval.items():
+                    delay_between_users = interval / (len(users) + 1)  # Распределяем проверки равномерно
                     
-                    # Пропускаем повторные подписки одного пользователя
-                    if user_id in processed_users:
-                        logger.debug(f"Skipping duplicate subscription for user {user_id}")
-                        continue
-                    processed_users.add(user_id)
-                    
-                    # Получаем данные пользователя для проверки ключей
-                    user = await self.db.get_user(user_id)
-                    if not user:
-                        logger.warning(f"User {user_id} not found despite having active subscription")
-                        continue
-
-                    # Проверяем наличие хотя бы одного ключа API
-                    has_ozon = bool(user.get("ozon_api_key") and user.get("ozon_client_id"))
-                    has_wb = bool(user.get("wildberries_api_key"))
-                    
-                    if not (has_ozon or has_wb):
-                        logger.debug(f"Skipping user {user_id}: no API keys configured")
-                        continue
+                    for user in users:
+                        user_id = user['user_id']
+                        last_check = self._last_check.get(user_id)
                         
-                    # Получаем интервал проверки
-                    user_interval = user.get("check_interval", self.check_interval)
-                    logger.info(
-                        f"Adding checks for user {user_id} "
-                        f"(interval: {user_interval} seconds, "
-                        f"APIs: {'Ozon ' if has_ozon else ''}{'WB' if has_wb else ''})"
-                    )
-                    
-                    # Добавляем в очереди только если есть соответствующие ключи
-                    if has_ozon:
-                        await self._check_queue['ozon'].put((user_id, False))
-                    
-                    if has_wb:
-                        await self._check_queue['wildberries'].put((user_id, False))
-
+                        if not last_check or (datetime.now() - last_check).total_seconds() >= interval:
+                            logger.info(
+                                f"Adding checks for user {user_id} "
+                                f"(interval: {interval} seconds, APIs: "
+                                f"{'Ozon ' if user.get('ozon_api_key') else ''}"
+                                f"{'WB' if user.get('wildberries_api_key') else ''})"
+                            )
+                            
+                            # Добавляем проверки в очереди
+                            if user.get('ozon_api_key'):
+                                await self._check_queue['ozon'].put((user_id, False))
+                            if user.get('wildberries_api_key'):
+                                await self._check_queue['wildberries'].put((user_id, False))
+                            
+                            self._last_check[user_id] = datetime.now()
+                            
+                            # Ждем перед следующей проверкой
+                            await asyncio.sleep(delay_between_users)
+                
+                # Ждем минимальный интервал перед следующим циклом
+                await asyncio.sleep(min(checks_by_interval.keys(), default=self.check_interval))
+                
             except Exception as e:
                 logger.error(f"Error in monitoring loop: {str(e)}")
-
-            logger.debug(f"Monitoring loop sleeping for {self.check_interval} seconds")
-            await asyncio.sleep(self.check_interval)
+                await asyncio.sleep(60)  # Ждем минуту перед повторной попыткой
 
     async def _check_ozon_promotions(self, user_id: int, user: Dict) -> Dict:
         """Check Ozon promotions for user."""
@@ -443,7 +437,27 @@ class PromotionMonitor:
             user_id: User to notify
             changes: Changes found in promotions for each marketplace
         """
-        try:
-            await self.notification_service.notify_promotion_changes(user_id, changes)
-        except Exception as e:
-            logger.error(f"Failed to notify user {user_id} about changes: {str(e)}")
+        if any(changes.values()):
+            # Добавляем задержку между уведомлениями
+            await asyncio.sleep(2)  # 2 секунды между уведомлениями
+            
+            try:
+                await self.notification_service.notify_promotion_changes(user_id, changes)
+                logger.info(f"Sent notification about changes to user {user_id}")
+            except TelegramForbiddenError:
+                logger.warning(f"User {user_id} blocked the bot")
+                # Можно добавить логику для обработки блокировки
+            except TelegramBadRequest as e:
+                if "Flood control exceeded" in str(e):
+                    # При превышении лимита ждем и пробуем снова
+                    retry_after = int(str(e).split('retry after ')[1].split()[0])
+                    logger.warning(f"Rate limit exceeded, waiting {retry_after} seconds")
+                    await asyncio.sleep(retry_after)
+                    try:
+                        await self.notification_service.notify_promotion_changes(user_id, changes)
+                    except Exception as retry_e:
+                        logger.error(f"Failed to send notification after retry: {retry_e}")
+                else:
+                    logger.error(f"Error sending notification: {e}")
+            except Exception as e:
+                logger.error(f"Error sending notification: {e}")
