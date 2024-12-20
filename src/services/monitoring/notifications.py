@@ -56,7 +56,6 @@ class NotificationService:
             changes: Changes found in promotions
         """
         try:
-            # Format messages for each marketplace
             messages = []
             
             # Ozon changes

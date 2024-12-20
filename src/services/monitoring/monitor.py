@@ -162,12 +162,14 @@ class PromotionMonitor:
                 # Perform check
                 if marketplace == 'ozon':
                     changes = await self._check_ozon_promotions(user_id, user)
-                    if changes:
-                        await self._notify_user(user_id, {'ozon': changes, 'wildberries': self._empty_changes()})
+                    if any(changes.values()):  # Проверяем, есть ли какие-либо изменения
+                        marketplace_changes = {'ozon': changes, 'wildberries': self._empty_changes()}
+                        await self._notify_user(user_id, marketplace_changes)
                 else:
                     changes = await self._check_wb_promotions(user_id, user)
-                    if changes:
-                        await self._notify_user(user_id, {'ozon': self._empty_changes(), 'wildberries': changes})
+                    if any(changes.values()):  # Проверяем, есть ли какие-либо изменения
+                        marketplace_changes = {'ozon': self._empty_changes(), 'wildberries': changes}
+                        await self._notify_user(user_id, marketplace_changes)
                 
                 # Update last check time only for successful non-priority checks
                 if not priority:
