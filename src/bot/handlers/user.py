@@ -532,9 +532,9 @@ async def show_promotions(callback: CallbackQuery, db: Database):
             text += "└ Вы получите уведомление при изменениях\n"
 
     # Обновляем сообщение только если текст изменился
-    if callback.message.text != text:
+    if callback.message.text != text + "\u200b":
         await callback.message.edit_text(
-            text,
+            text + "\u200b",
             reply_markup=get_main_menu_keyboard(),
             parse_mode="Markdown"
         )
