@@ -46,54 +46,57 @@ class NotificationService:
     async def notify_promotion_changes(
         self,
         user_id: int,
-        changes: Dict
+        changes: Dict[str, List[Dict]]
     ) -> None:
         """
-        Send notification about promotion changes.
+        Отправляет уведомление об акциях.
         
         Args:
-            user_id: User to notify
-            changes: Changes found in promotions
+            user_id: ID пользователя
+            changes: Словарь с активными акциями для каждого маркетплейса
         """
         try:
             messages = []
             
-            # Ozon changes
-            if "ozon" in changes and any(changes["ozon"].values()):
+            # Форматируем сообщения для каждого маркетплейса
+            if "ozon" in changes and changes["ozon"]:
                 messages.append(self._format_ozon_changes(changes["ozon"]))
             
-            # Wildberries changes
-            if "wildberries" in changes and any(changes["wildberries"].values()):
+            if "wildberries" in changes and changes["wildberries"]:
                 messages.append(self._format_wb_changes(changes["wildberries"]))
             
-            # Send messages
+            # Отправляем сообщения
             for message in messages:
-                try:
-                    await self.bot.send_message(
-                        user_id,
-                        message,
-                        parse_mode="Markdown"
-                    )
-                except TelegramAPIError as e:
-                    logger.error(
-                        f"Error sending notification to user {user_id}: {str(e)}"
-                    )
+                if message:  # Отправляем только непустые сообщения
+                    try:
+                        await self.bot.send_message(
+                            user_id,
+                            message,
+                            parse_mode="Markdown"
+                        )
+                    except TelegramAPIError as e:
+                        logger.error(
+                            f"Error sending notification to user {user_id}: {str(e)}"
+                        )
 
         except Exception as e:
             logger.error(
                 f"Error formatting notification for user {user_id}: {str(e)}"
             )
 
-    def _format_ozon_changes(self, changes: Dict) -> str:
-        """Format Ozon changes message."""
-        message = "🔵 *Автоакции OZON*\n\n"
+    def _format_ozon_changes(self, promotions: List[Dict]) -> str:
+        """Форматирует сообщение об акциях Ozon."""
+        message = "🔵 *Активные акции OZON*\n\n"
         
+        if not promotions:
+            message += "❌ Активных акций с вашими товарами не найдено\n"
+            return message.strip()
+            
         # Функция для форматирования даты
         def format_date(date_str: str) -> str:
             if not date_str:
                 return "не указана"
             try:
-                # Проверяем формат даты и преобразуем соответственно
                 if 'T' in date_str:  # ISO format with timezone
                     date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
                 else:  # Simple date format
@@ -103,44 +106,29 @@ class NotificationService:
                 logger.error(f"Error formatting date {date_str}: {str(e)}")
                 return "не указана"
 
-        # New promotions
-        if changes["new"]:
-            active_promos = [p for p in changes["new"] if p.get('products_count', 0) > 0]
-            if active_promos:
-                message += "✨ *Новые акции:*\n"
-                for promo in active_promos:
-                    title = promo.get('title', promo.get('name', 'Hot Sale'))  # используем title или name
-                    message += (
-                        f"🔸 *{title}*\n"
-                        f"   └ 📦 Товаров: {promo['products_count']}\n"
-                        f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
-                    )
-
-        # Changed promotions
-        if changes["changed"]:
-            active_promos = [p for p in changes["changed"] if p.get('products_count', 0) > 0]
-            if active_promos:
-                message += "\n📊 *Изменения в акциях:*\n"
-                for promo in active_promos:
-                    title = promo.get('title', promo.get('name', 'Hot Sale'))  # используем title или name
-                    message += (
-                        f"🔸 *{title}*\n"
-                        f"   └ 📦 Товаров: {promo['products_count']}\n"
-                        f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
-                    )
+        for promo in promotions:
+            title = promo.get('title', promo.get('name', 'Hot Sale'))
+            message += (
+                f"🔸 *{title}*\n"
+                f"   └ 📦 Товаров: {promo.get('products_count', 0)}\n"
+                f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
+            )
 
         return message.strip()
 
-    def _format_wb_changes(self, changes: Dict) -> str:
-        """Format Wildberries changes message."""
-        message = "🟣 *Автоакции Wildberries*\n\n"
+    def _format_wb_changes(self, promotions: List[Dict]) -> str:
+        """Форматирует сообщение об акциях Wildberries."""
+        message = "🟣 *Активные акции Wildberries*\n\n"
         
+        if not promotions:
+            message += "❌ Активных акций с вашими товарами не найдено\n"
+            return message.strip()
+            
         # Функция для форматирования даты
         def format_date(date_str: str) -> str:
             if not date_str:
                 return "не указана"
             try:
-                # Проверяем формат даты и преобразуем соответственно
                 if 'T' in date_str:  # ISO format with timezone
                     date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
                 else:  # Simple date format
@@ -149,31 +137,14 @@ class NotificationService:
             except Exception as e:
                 logger.error(f"Error formatting date {date_str}: {str(e)}")
                 return "не указана"
-        
-        # New promotions
-        if changes["new"]:
-            active_promos = [p for p in changes["new"] if p.get('products_count', 0) > 0]
-            if active_promos:
-                message += "✨ *Новые автоакции:*\n"
-                for promo in active_promos:
-                    message += (
-                        f"🔸 *{promo['name']}*\n"
-                        f"   └ 📦 Товаров: {promo['products_count']}\n"
-                        f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
-                    )
-        
-        # Changed promotions
-        if changes["changed"]:
-            active_promos = [p for p in changes["changed"] if p.get('products_count', 0) > 0]
-            if active_promos:
-                message += "\n📊 *Изменения в автоакциях:*\n"
-                for promo in active_promos:
-                    message += (
-                        f"🔸 *{promo['name']}*\n"
-                        f"   └ 📦 Товаров: {promo['products_count']}\n"
-                        f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
-                    )
-        
+
+        for promo in promotions:
+            message += (
+                f"🔸 *{promo['name']}*\n"
+                f"   └ 📦 Товаров: {promo.get('products_count', 0)}\n"
+                f"   └ 📅 Период: {format_date(promo.get('date_start'))} - {format_date(promo.get('date_end'))}\n\n"
+            )
+
         return message.strip()
 
     def _format_ozon_promo(self, promo: Dict) -> str:
