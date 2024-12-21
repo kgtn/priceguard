@@ -89,7 +89,7 @@ async def process_how_it_works(callback: CallbackQuery):
 async def process_start_setup(callback: CallbackQuery):
     """Handle 'Start setup' button press."""
     await callback.message.edit_text(
-        text=START_SETUP_MESSAGE,
+        text=START_SETUP_MESSAGE + "\u200b",
         reply_markup=get_api_key_keyboard()
     )
     await callback.answer()
@@ -100,7 +100,7 @@ async def process_add_ozon_key(callback: CallbackQuery, state: FSMContext):
     try:
         await state.set_state(UserStates.waiting_for_ozon_api)
         await callback.message.edit_text(
-            text=OZON_API_KEY_INSTRUCTION,
+            text=OZON_API_KEY_INSTRUCTION + "\u200b",
             reply_markup=get_api_key_keyboard()
         )
     except TelegramBadRequest as e:
@@ -113,7 +113,7 @@ async def process_add_wb_key(callback: CallbackQuery, state: FSMContext):
     """Handle Wildberries API key addition."""
     await state.set_state(UserStates.waiting_for_wb_api)
     await callback.message.edit_text(
-        text=WILDBERRIES_API_KEY_INSTRUCTION,
+        text=WILDBERRIES_API_KEY_INSTRUCTION + "\u200b",
         reply_markup=get_api_key_keyboard()
     )
     await callback.answer()
@@ -122,7 +122,7 @@ async def process_add_wb_key(callback: CallbackQuery, state: FSMContext):
 async def process_back_to_main(callback: CallbackQuery):
     """Handle back to main menu button press."""
     await callback.message.edit_text(
-        text=START_MESSAGE,
+        text=START_MESSAGE + "\u200b",
         reply_markup=get_start_keyboard()
     )
     await callback.answer()
@@ -339,7 +339,7 @@ async def show_api_keys_message(message: Message, db: Database) -> None:
 async def process_settings(callback: CallbackQuery):
     """Handle settings button press."""
     await callback.message.edit_text(
-        "⚙️ Настройки\n\n"
+        "⚙️ Настройки\n\n" + "\u200b"
         "Выберите интервал проверки акций:",
         reply_markup=get_settings_keyboard()
     )
@@ -353,12 +353,12 @@ async def process_interval_change(callback: CallbackQuery, db: Database):
     try:
         await db.update_check_interval(callback.from_user.id, hours)
         await callback.message.edit_text(
-            f"✅ Интервал проверки обновлен: каждые {hours} {'час' if hours == 1 else 'часа' if 2 <= hours <= 4 else 'часов'}",
+            f"✅ Интервал проверки обновлен: каждые {hours} {'час' if hours == 1 else 'часа' if 2 <= hours <= 4 else 'часов'}" + "\u200b",
             reply_markup=get_main_menu_keyboard()
         )
     except Exception as e:
         await callback.message.edit_text(
-            "❌ Не удалось обновить интервал проверки. Попробуйте позже.",
+            "❌ Не удалось обновить интервал проверки. Попробуйте позже." + "\u200b",
             reply_markup=get_main_menu_keyboard()
         )
     
@@ -368,7 +368,7 @@ async def process_interval_change(callback: CallbackQuery, db: Database):
 async def process_back_to_main(callback: CallbackQuery) -> None:
     """Handle back to main menu."""
     await callback.message.edit_text(
-        format_start_message(True),
+        format_start_message(True) + "\u200b",
         reply_markup=get_start_keyboard()
     )
     await callback.answer()
@@ -393,13 +393,13 @@ async def cmd_delete_data(event: Union[Message, CallbackQuery], state: FSMContex
     """Handle /delete_data command and delete_data button."""
     if isinstance(event, CallbackQuery):
         await event.message.edit_text(
-            "❗️ Вы уверены, что хотите удалить все сохранённые API ключи?\n"
+            "❗️ Вы уверены, что хотите удалить все сохранённые API ключи?\n" + "\u200b"
             "Это действие нельзя отменить.",
             reply_markup=get_confirmation_keyboard()
         )
     else:
         await event.answer(
-            "❗️ Вы уверены, что хотите удалить все сохранённые API ключи?\n"
+            "❗️ Вы уверены, что хотите удалить все сохранённые API ключи?\n" + "\u200b"
             "Это действие нельзя отменить.",
             reply_markup=get_confirmation_keyboard()
         )
@@ -410,7 +410,7 @@ async def cmd_delete_data(event: Union[Message, CallbackQuery], state: FSMContex
 async def process_subscribe(callback: CallbackQuery) -> None:
     """Handle subscription request."""
     await callback.message.edit_text(
-        "💳 Выберите действие:",
+        "💳 Выберите действие:" + "\u200b",
         reply_markup=get_subscription_keyboard()
     )
     await callback.answer()
@@ -475,7 +475,7 @@ async def process_cancellation(
     state: FSMContext
 ) -> None:
     """Handle cancellation of dangerous actions."""
-    await callback.message.edit_text("❌ Действие отменено")
+    await callback.message.edit_text("❌ Действие отменено" + "\u200b")
     await state.clear()
     await callback.answer()
 
@@ -561,7 +561,7 @@ async def show_subscription(callback: CallbackQuery, db: Database):
     
     status_text = await format_subscription_status(user_data)
     await callback.message.edit_text(
-        status_text,
+        status_text + "\u200b",
         reply_markup=get_subscription_keyboard()
     )
 
@@ -577,7 +577,7 @@ async def show_api_keys(callback: CallbackQuery, db: Database):
         return
         
     await callback.message.edit_text(
-        await format_api_keys_message(user_data),
+        await format_api_keys_message(user_data) + "\u200b",
         reply_markup=get_api_key_keyboard()
     )
 
@@ -585,7 +585,7 @@ async def show_api_keys(callback: CallbackQuery, db: Database):
 async def show_check_interval(callback: CallbackQuery):
     """Show check interval settings."""
     await callback.message.edit_text(
-        "⏰ Интервал проверки акций\n\n"
+        "⏰ Интервал проверки акций\n\n" + "\u200b"
         "Выберите, как часто проверять акции:",
         reply_markup=get_settings_keyboard()
     )
@@ -595,7 +595,7 @@ async def show_help(callback: CallbackQuery):
     """Show help message."""
     help_text = format_help_message()
     await callback.message.edit_text(
-        help_text,
+        help_text + "\u200b",
         reply_markup=get_main_menu_keyboard()
     )
 
@@ -617,7 +617,7 @@ async def check_api_status(
         return
     
     await callback.message.edit_text(
-        "🔄 Проверяю статус API ключей...",
+        "🔄 Проверяю статус API ключей..." + "\u200b",
         reply_markup=None
     )
     
@@ -625,6 +625,6 @@ async def check_api_status(
     status_message = await format_api_keys_message(user_data, marketplace_factory, validate=True)
     
     await callback.message.edit_text(
-        status_message,
+        status_message + "\u200b",
         reply_markup=get_api_key_keyboard()
     )
