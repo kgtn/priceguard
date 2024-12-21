@@ -79,19 +79,27 @@ async def cmd_start(message: Message, db: Database):
 @router.callback_query(F.data == "how_it_works")
 async def process_how_it_works(callback: CallbackQuery):
     """Handle 'How it works' button press."""
-    await callback.message.edit_text(
-        text=HOW_IT_WORKS_MESSAGE + "\u200b",
-        reply_markup=get_start_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            text=HOW_IT_WORKS_MESSAGE + "\u200b",
+            reply_markup=get_start_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 @router.callback_query(F.data == "start_setup")
 async def process_start_setup(callback: CallbackQuery):
     """Handle 'Start setup' button press."""
-    await callback.message.edit_text(
-        text=START_SETUP_MESSAGE + "\u200b",
-        reply_markup=get_api_key_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            text=START_SETUP_MESSAGE + "\u200b",
+            reply_markup=get_api_key_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 @router.callback_query(F.data == "add_ozon_key")
@@ -121,10 +129,14 @@ async def process_add_wb_key(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == "back_to_main")
 async def process_back_to_main(callback: CallbackQuery):
     """Handle back to main menu button press."""
-    await callback.message.edit_text(
-        text=START_MESSAGE + "\u200b",
-        reply_markup=get_start_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            text=START_MESSAGE + "\u200b",
+            reply_markup=get_start_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 @router.message(Command("help"))
@@ -338,11 +350,15 @@ async def show_api_keys_message(message: Message, db: Database) -> None:
 @router.callback_query(F.data == "settings")
 async def process_settings(callback: CallbackQuery):
     """Handle settings button press."""
-    await callback.message.edit_text(
-        "⚙️ Настройки\n\n" + "\u200b"
-        "Выберите интервал проверки акций:",
-        reply_markup=get_settings_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            "⚙️ Настройки\n\n" + "\u200b"
+            "Выберите интервал проверки акций:",
+            reply_markup=get_settings_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 @router.callback_query(F.data.startswith("interval:"))
@@ -367,10 +383,14 @@ async def process_interval_change(callback: CallbackQuery, db: Database):
 @router.callback_query(F.data == "back_to_main")
 async def process_back_to_main(callback: CallbackQuery) -> None:
     """Handle back to main menu."""
-    await callback.message.edit_text(
-        format_start_message(True) + "\u200b",
-        reply_markup=get_start_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            format_start_message(True) + "\u200b",
+            reply_markup=get_start_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 @router.message(Command("unsubscribe"))
@@ -409,23 +429,31 @@ async def cmd_delete_data(event: Union[Message, CallbackQuery], state: FSMContex
 @router.callback_query(F.data == "subscribe")
 async def process_subscribe(callback: CallbackQuery) -> None:
     """Handle subscription request."""
-    await callback.message.edit_text(
-        "💳 Выберите действие:" + "\u200b",
-        reply_markup=get_subscription_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            "💳 Выберите действие:" + "\u200b",
+            reply_markup=get_subscription_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 @router.callback_query(F.data == "pay_subscription")
 async def process_payment(callback: CallbackQuery, db: Database) -> None:
     """Handle payment request."""
-    await callback.message.edit_text(
-        "💳 Выберите план подписки:\n\n"
-        "1️⃣ Месяц - 299₽\n"
-        "3️⃣ Месяца - 799₽\n"
-        "6️⃣ Месяцев - 1499₽\n"
-        "1️⃣2️⃣ Месяцев - 2699₽",
-        reply_markup=get_subscription_plans_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            "💳 Выберите план подписки:\n\n"
+            "1️⃣ Месяц - 299₽\n"
+            "3️⃣ Месяца - 799₽\n"
+            "6️⃣ Месяцев - 1499₽\n"
+            "1️⃣2️⃣ Месяцев - 2699₽",
+            reply_markup=get_subscription_plans_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 @router.callback_query(F.data == "cancel_subscription")
@@ -475,7 +503,11 @@ async def process_cancellation(
     state: FSMContext
 ) -> None:
     """Handle cancellation of dangerous actions."""
-    await callback.message.edit_text("❌ Действие отменено" + "\u200b")
+    try:
+        await callback.message.edit_text("❌ Действие отменено" + "\u200b")
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await state.clear()
     await callback.answer()
 
@@ -545,11 +577,16 @@ async def show_promotions(callback: CallbackQuery, db: Database):
 @router.callback_query(F.data == "settings")
 async def show_settings(callback: CallbackQuery):
     """Show settings menu."""
-    await callback.message.edit_text(
-        "⚙️ Настройки\n\n"
-        "Выберите параметр для настройки:",
-        reply_markup=get_settings_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            "⚙️ Настройки\n\n"
+            "Выберите параметр для настройки:",
+            reply_markup=get_settings_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
 
 @router.callback_query(F.data == "subscription")
 async def show_subscription(callback: CallbackQuery, db: Database):
@@ -560,10 +597,15 @@ async def show_subscription(callback: CallbackQuery, db: Database):
         return
     
     status_text = await format_subscription_status(user_data)
-    await callback.message.edit_text(
-        status_text + "\u200b",
-        reply_markup=get_subscription_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            status_text + "\u200b",
+            reply_markup=get_subscription_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
 
 @router.callback_query(F.data == "api_keys")
 async def show_api_keys(callback: CallbackQuery, db: Database):
@@ -576,28 +618,43 @@ async def show_api_keys(callback: CallbackQuery, db: Database):
         )
         return
         
-    await callback.message.edit_text(
-        await format_api_keys_message(user_data) + "\u200b",
-        reply_markup=get_api_key_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            await format_api_keys_message(user_data) + "\u200b",
+            reply_markup=get_api_key_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
 
 @router.callback_query(F.data == "check_interval")
 async def show_check_interval(callback: CallbackQuery):
     """Show check interval settings."""
-    await callback.message.edit_text(
-        "⏰ Интервал проверки акций\n\n" + "\u200b"
-        "Выберите, как часто проверять акции:",
-        reply_markup=get_settings_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            "⏰ Интервал проверки акций\n\n" + "\u200b"
+            "Выберите, как часто проверять акции:",
+            reply_markup=get_settings_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
 
 @router.callback_query(F.data == "help")
 async def show_help(callback: CallbackQuery):
     """Show help message."""
     help_text = format_help_message()
-    await callback.message.edit_text(
-        help_text + "\u200b",
-        reply_markup=get_main_menu_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            help_text + "\u200b",
+            reply_markup=get_main_menu_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
 
 @router.callback_query(F.data == "check_api_status")
 async def check_api_status(
@@ -616,15 +673,24 @@ async def check_api_status(
         await callback.answer("❌ Добавьте хотя бы один API ключ", show_alert=True)
         return
     
-    await callback.message.edit_text(
-        "🔄 Проверяю статус API ключей..." + "\u200b",
-        reply_markup=None
-    )
+    try:
+        await callback.message.edit_text(
+            "🔄 Проверяю статус API ключей..." + "\u200b",
+            reply_markup=None
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     
     # Get status message with validation
     status_message = await format_api_keys_message(user_data, marketplace_factory, validate=True)
     
-    await callback.message.edit_text(
-        status_message + "\u200b",
-        reply_markup=get_api_key_keyboard()
-    )
+    try:
+        await callback.message.edit_text(
+            status_message + "\u200b",
+            reply_markup=get_api_key_keyboard()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
