@@ -6,6 +6,7 @@ File: src/services/monitoring/notifications.py
 import logging
 from typing import Dict, List
 from datetime import datetime
+from dateutil import tz
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError
@@ -98,10 +99,14 @@ class NotificationService:
                 return "не указана"
             try:
                 if 'T' in date_str:  # ISO format with timezone
+                    # Преобразуем 'Z' в '+00:00' и создаем datetime с UTC
                     date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                    # Конвертируем в московское время (UTC+3)
+                    date = date.astimezone(tz.tzoffset(None, 3*60*60))
+                    return date.strftime("%d.%m.%Y")
                 else:  # Simple date format
                     date = datetime.strptime(date_str, "%Y-%m-%d")
-                return date.strftime("%d.%m.%Y")
+                    return date.strftime("%d.%m.%Y")
             except Exception as e:
                 logger.error(f"Error formatting date {date_str}: {str(e)}")
                 return "не указана"
@@ -130,10 +135,14 @@ class NotificationService:
                 return "не указана"
             try:
                 if 'T' in date_str:  # ISO format with timezone
+                    # Преобразуем 'Z' в '+00:00' и создаем datetime с UTC
                     date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                    # Конвертируем в московское время (UTC+3)
+                    date = date.astimezone(tz.tzoffset(None, 3*60*60))
+                    return date.strftime("%d.%m.%Y")
                 else:  # Simple date format
                     date = datetime.strptime(date_str, "%Y-%m-%d")
-                return date.strftime("%d.%m.%Y")
+                    return date.strftime("%d.%m.%Y")
             except Exception as e:
                 logger.error(f"Error formatting date {date_str}: {str(e)}")
                 return "не указана"

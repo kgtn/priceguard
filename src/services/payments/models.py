@@ -15,17 +15,19 @@ class PaymentStatus(str, Enum):
 
 class SubscriptionPlan(str, Enum):
     """Subscription plan enum."""
-    MONTHLY = "monthly"
-    QUARTERLY = "quarterly"
-    YEARLY = "yearly"
+    MONTHLY = "1"
+    QUARTERLY = "3"
+    HALF_YEARLY = "6"
+    YEARLY = "12"
 
     @property
     def price(self) -> int:
         """Get plan price in kopeks."""
         prices = {
-            self.MONTHLY: 49900,    # 499 RUB
-            self.QUARTERLY: 129900,  # 1299 RUB
-            self.YEARLY: 399900     # 3999 RUB
+            self.MONTHLY: 29900,     # 299 RUB
+            self.QUARTERLY: 79900,   # 799 RUB
+            self.HALF_YEARLY: 149900, # 1499 RUB
+            self.YEARLY: 269900      # 2699 RUB
         }
         return prices[self]
 
@@ -35,6 +37,7 @@ class SubscriptionPlan(str, Enum):
         durations = {
             self.MONTHLY: 30,
             self.QUARTERLY: 90,
+            self.HALF_YEARLY: 180,
             self.YEARLY: 365
         }
         return durations[self]
@@ -44,7 +47,8 @@ class SubscriptionPlan(str, Enum):
         """Get plan title."""
         titles = {
             self.MONTHLY: "Месячная подписка",
-            self.QUARTERLY: "Квартальная подписка",
+            self.QUARTERLY: "Подписка на 3 месяца",
+            self.HALF_YEARLY: "Подписка на 6 месяцев",
             self.YEARLY: "Годовая подписка"
         }
         return titles[self]
@@ -55,6 +59,7 @@ class SubscriptionPlan(str, Enum):
         descriptions = {
             self.MONTHLY: "Доступ ко всем функциям на 1 месяц",
             self.QUARTERLY: "Доступ ко всем функциям на 3 месяца",
+            self.HALF_YEARLY: "Доступ ко всем функциям на 6 месяцев",
             self.YEARLY: "Доступ ко всем функциям на 1 год"
         }
         return descriptions[self]

@@ -53,7 +53,7 @@ class ErrorMiddleware(BaseMiddleware):
                 try:
                     error_message = (
                         "Произошла ошибка при обработке вашего запроса. "
-                        "Пожалуйста, попробуйте позже или обратитесь к администратору."
+                        "Пожалуйста, попробуйте позже или обратитесь к администратору @kagitin"
                     )
                     if isinstance(event, Message):
                         await event.answer(error_message)

@@ -55,8 +55,7 @@ async def process_plan_selection(
         description=(
             f"Доступ ко всем функциям бота на {months} месяцев\n"
             "• Мониторинг акций\n"
-            "• Уведомления об изменениях\n"
-            "• Статистика и аналитика"
+            "• Уведомления об изменениях"
         ),
         payload=f"sub_{months}",
         provider_token=settings.telegram.payment_provider_token,
