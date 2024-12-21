@@ -527,9 +527,6 @@ async def cmd_menu(message: Message, db: Database):
 @router.callback_query(F.data == "my_promotions")
 async def show_promotions(callback: CallbackQuery, db: Database):
     """Show user's promotions."""
-    # Сначала отправляем ответ на callback, чтобы убрать состояние загрузки
-    await callback.answer()
-    
     # Проверяем наличие API ключей
     user_data = await db.get_user(callback.from_user.id)
     if not user_data:
@@ -563,16 +560,17 @@ async def show_promotions(callback: CallbackQuery, db: Database):
             text += f"└ Бот проверяет акции каждые {interval_hours} часа\n"
             text += "└ Вы получите уведомление при изменениях\n"
 
-    # Обновляем сообщение только если текст изменился
-    if callback.message.text != text + "\u200b":
+    try:
         await callback.message.edit_text(
             text + "\u200b",
             reply_markup=get_main_menu_keyboard(),
             parse_mode="Markdown"
         )
-    else:
-        # Если текст не изменился, просто отвечаем на callback
-        await callback.answer()
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    
+    await callback.answer()
 
 @router.callback_query(F.data == "settings")
 async def show_settings(callback: CallbackQuery):
