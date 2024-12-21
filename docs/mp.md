@@ -278,85 +278,46 @@ async def validate_api_key(self) -> bool:
 #### Пример ответа
 ```json
 {
-  "data": {
-    "promotions": [
-      {
-        "id": 123,
-        "name": "ХИТЫ ГОДА",
-        "description": "В акции принимают участие самые популярные товары 2023 года. Карточки товаров будут выделены плашкой «ХИТ ГОДА», чтобы покупатели замечали эти товары среди других. Также они будут размещены под баннерами на главной странице и примут участие в PUSH-уведомлениях. С ценами для вступления в акцию вы можете ознакомиться ниже.",
-        "advantages": [
-          "Плашка",
-          "Баннер",
-          "Топ выдачи товаров"
-        ],
-        "startDateTime": "2023-06-05T21:00:00Z",
-        "endDateTime": "2023-06-05T21:00:00Z",
-        "inPromoActionLeftovers": 45,
-        "inPromoActionTotal": 123,
-        "notInPromoActionLeftovers": 3,
-        "notInPromoActionTotal": 10,
-        "participationPercentage": 10,
-        "type": "auto",
-        "exceptionProductsCount": 10
-      }
-    ]
-  }
+"data": {
+"promotions": []
 }
+
 ```
-Response Schema: application/json
-data (object)
-Корневой объект данных.
 
-promotions (Array of objects)
-Список акций.
 
-id (integer)
-ID акции.
+promotions	
+Array of objects
+Array 
+id	
+integer
+ID акции
 
-name (string)
-Название акции.
+name	
+string
+Название акции
 
-description (string)
-Описание акции.
+startDateTime	
+string <RFC3339>
+Начало акции
 
-advantages (Array of strings)
-Преимущества акции. Например:
+endDateTime	
+string <RFC3339>
+Конец акции
 
-"Плашка"
-"Баннер"
-"Топ выдачи товаров"
-startDateTime (string)
-Дата и время начала акции в формате YYYY-MM-DDTHH:MM:SSZ.
+type	
+string
+Enum: "regular" "auto"
+Тип акции:
 
-endDateTime (string)
-Дата и время завершения акции в формате YYYY-MM-DDTHH:MM:SSZ.
-
-inPromoActionLeftovers (integer)
-Количество товаров с остатками, участвующих в акции.
-
-inPromoActionTotal (integer)
-Общее количество товаров, участвующих в акции.
-
-notInPromoActionLeftovers (integer)
-Количество товаров с остатками, не участвующих в акции.
-
-notInPromoActionTotal (integer)
-Общее количество товаров, не участвующих в акции.
-
-participationPercentage (integer)
-Процент товаров, уже участвующих в акции. Рассчитывается по товарам в акции и с остатком.
-
-type (string)
-Тип акции. Возможные значения:
+regular — акция
+auto — автоакция
 
 "regular" — обычная акция.
 "auto" — автоакция.
 exceptionProductsCount (integer <uint>)
 Количество товаров, исключённых из автоакции до её старта. (Только для "type": "auto")
 Эти товары автоматически будут без скидки при старте акции.
-
-Использование
-С помощью данного метода можно получить информацию о том, сколько товаров клиента участвуют в автоакциях Wildberries ("type": "auto").
+.
 
 ## Детальная информация по акциям WB
 

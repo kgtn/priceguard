@@ -199,7 +199,8 @@ async def process_broadcast(
     db: Database
 ):
     """Process broadcast message."""
-    users = await db.get_all_users()
+    users_data = await db.get_all_users()
+    users = users_data["users"]  # Получаем список пользователей из словаря
     sent_count = 0
     failed_count = 0
     error_details = []
