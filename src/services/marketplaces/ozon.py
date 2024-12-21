@@ -234,8 +234,8 @@ class OzonClient(MarketplaceClient):
                 })
                 logger.info(f"Hot Sale products: {hot_sale_count}")
             
-            logger.info(f"Total promotions found: {len(all_promotions)}")
-            logger.info(f"Total products in promotions: {total_products}")
+            logger.info(f"Total hot sales found: {len(all_promotions)}")
+            logger.info(f"Total products in hot sales: {total_products}")
             
             return all_promotions
             

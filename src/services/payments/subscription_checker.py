@@ -41,11 +41,20 @@ class SubscriptionChecker:
         self.settings = settings
         self.notification_days = 3  # Notify users 3 days before subscription expires
     
+    async def is_bot_active_for_user(self, user_id: int) -> bool:
+        """Проверяет, активен ли бот для конкретного пользователя."""
+        try:
+            chat_member = await self.bot.get_chat_member(chat_id=user_id, user_id=self.bot.id)
+            return chat_member.status in ["member", "administrator"]
+        except Exception as e:
+            logger.error(f"Error checking bot status for user {user_id}: {e}")
+            return False
+
     async def check_subscriptions(self):
-        """Check subscriptions for all users."""
+        """Проверяет подписки для всех пользователей."""
         while True:
             try:
-                # Get all active subscriptions
+                # Получить всех активных пользователей
                 users = await self.db.get_all_users()
                 active_users = [
                     user for user in users["users"]
@@ -53,14 +62,17 @@ class SubscriptionChecker:
                 ]
                 
                 for user in active_users:
-                    await self._check_user_subscription(user)
-                
-                # Check once per hour
+                    if await self.is_bot_active_for_user(user["user_id"]):
+                        await self._check_user_subscription(user)
+                    else:
+                        logger.info(f"Bot is not active for user {user['user_id']}, skipping.")
+
+                # Проверять раз в час
                 await asyncio.sleep(3600)
-            
+
             except Exception as e:
                 logger.error(f"Error in subscription checker: {e}")
-                await asyncio.sleep(60)  # Wait a minute before retrying
+                await asyncio.sleep(60)  # Подождите минуту перед повторной попыткой
     
     async def _check_user_subscription(self, user: Dict):
         """Check subscription for specific user."""
