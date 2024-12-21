@@ -266,7 +266,12 @@ class PromotionMonitor:
                 
                 for promo in promotions:
                     if promo.get('products_count', 0) > 0:
-                        active_promotions.append(promo)
+                        active_promotions.append({
+                            "name": promo.get("title", promo.get("name", "Hot Sale")),
+                            "products_count": promo.get("products_count", 0),
+                            "date_start": promo.get("start_date"),
+                            "date_end": promo.get("end_date")
+                        })
                 
                 return active_promotions
                 
