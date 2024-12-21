@@ -269,8 +269,8 @@ def format_user_info(user: Dict) -> str:
     interval_min = interval // 60  # Converting seconds to minutes
     
     user_id = user.get('user_id')
-    username = user.get('username')
-    full_name = user.get('full_name')
+    username = user.get('username', '').replace('_', '\\_')  # Экранируем подчеркивания
+    full_name = user.get('full_name', '').replace('_', '\\_')  # Экранируем подчеркивания
     
     user_info = f"👤 ID: `{user_id}`"
     if username:

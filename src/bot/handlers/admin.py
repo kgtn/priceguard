@@ -48,6 +48,10 @@ async def cmd_admin(message: types.Message, settings: Settings):
 @router.callback_query(F.data == "admin_users")
 async def on_admin_users(callback: types.CallbackQuery, db: Database, settings: Settings):
     """Handle admin_users callback."""
+    if not await is_admin(callback.from_user.id, settings):
+        await callback.answer("❌ У вас нет прав администратора", show_alert=True)
+        return
+
     users_data = await db.get_all_users(page=1)
     users = users_data["users"]
     
@@ -60,11 +64,20 @@ async def on_admin_users(callback: types.CallbackQuery, db: Database, settings: 
         total_pages=users_data["total_pages"]
     )
     
-    await callback.message.edit_text(
-        text=message,
-        reply_markup=keyboard,
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            text=message,
+            reply_markup=keyboard,
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        logger = get_logger(__name__)
+        logger.error(f"Error in on_admin_users: {str(e)}\nMessage: {message}")
+        await callback.message.edit_text(
+            "❌ Произошла ошибка при форматировании сообщения",
+            reply_markup=keyboard
+        )
+    
     await callback.answer()
 
 @router.callback_query(F.data.startswith("users_page:"))
@@ -84,11 +97,20 @@ async def handle_users_page(callback: types.CallbackQuery, db: Database):
         total_pages=users_data["total_pages"]
     )
     
-    await callback.message.edit_text(
-        text=message,
-        reply_markup=keyboard,
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            text=message,
+            reply_markup=keyboard,
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        logger = get_logger(__name__)
+        logger.error(f"Error in handle_users_page: {str(e)}\nMessage: {message}")
+        await callback.message.edit_text(
+            "❌ Произошла ошибка при форматировании сообщения",
+            reply_markup=keyboard
+        )
+    
     await callback.answer()
 
 @router.message(Command("users"))
@@ -277,7 +299,8 @@ async def on_admin_subscriptions(callback: types.CallbackQuery, settings: Settin
     """Handle admin_subscriptions callback."""
     await callback.message.edit_text(
         "💳 Управление подписками",
-        reply_markup=get_subscriptions_keyboard()
+        reply_markup=get_subscriptions_keyboard(),
+        parse_mode="Markdown"
     )
 
 @router.callback_query(F.data == "admin_broadcast")
@@ -286,7 +309,8 @@ async def on_admin_broadcast(callback: types.CallbackQuery, state: FSMContext, s
     await state.set_state(AdminStates.waiting_for_broadcast)
     await callback.message.edit_text(
         "📢 Введите текст для рассылки:",
-        reply_markup=None
+        reply_markup=None,
+        parse_mode="Markdown"
     )
 
 @router.callback_query(F.data == "admin_stats")
@@ -307,7 +331,8 @@ async def on_admin_force_check(callback: types.CallbackQuery, state: FSMContext,
     await state.set_state(AdminStates.waiting_for_force_check)
     await callback.message.edit_text(
         "🔄 Введите ID пользователя для проверки акций:",
-        reply_markup=None
+        reply_markup=None,
+        parse_mode="Markdown"
     )
 
 @router.callback_query(F.data == "admin_active_subs")
@@ -379,6 +404,7 @@ async def on_admin_back(callback: types.CallbackQuery, settings: Settings):
     """Handle admin_back callback."""
     await callback.message.edit_text(
         "🤖 Панель администратора",
-        reply_markup=get_admin_keyboard()
+        reply_markup=get_admin_keyboard(),
+        parse_mode="Markdown"
     )
     await callback.answer()
