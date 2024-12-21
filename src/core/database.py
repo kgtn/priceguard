@@ -217,7 +217,7 @@ class Database:
             "subscription_end_date", "created_at", "check_interval"
         ])
         
-        query = f"SELECT {', '.join(select_columns)} FROM users LIMIT ? OFFSET ?"
+        query = f"SELECT {', '.join(select_columns)} FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?"
         users = []
         async with self.db.execute(query, (per_page, offset)) as cursor:
             async for row in cursor:
