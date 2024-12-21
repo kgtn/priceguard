@@ -238,6 +238,12 @@ def format_api_instructions(marketplace: str) -> str:
 
 def format_user_info(user: Dict) -> str:
     """Format user info message."""
+    def escape_markdown(text: Optional[str]) -> str:
+        """Экранирует специальные символы Markdown."""
+        if not text:
+            return ""
+        return text.replace('_', '\\_').replace('*', '\\*').replace('`', '\\`').replace('[', '\\[')
+
     ozon_key = "✅" if user.get("ozon_api_key") and user.get("ozon_client_id") else "❌"
     wb_key = "✅" if user.get("wildberries_api_key") else "❌"
     
@@ -255,6 +261,8 @@ def format_user_info(user: Dict) -> str:
             created_at = datetime.fromisoformat(created_at).strftime("%d.%m.%Y %H:%M")
         except (ValueError, TypeError):
             created_at = "Неизвестно"
+    else:
+        created_at = "Неизвестно"
     
     end_date = user.get("subscription_end_date")
     if end_date:
@@ -268,9 +276,9 @@ def format_user_info(user: Dict) -> str:
     interval = user.get("check_interval", 14400)
     interval_min = interval // 60  # Converting seconds to minutes
     
-    user_id = user.get('user_id')
-    username = user.get('username', '').replace('_', '\\_')  # Экранируем подчеркивания
-    full_name = user.get('full_name', '').replace('_', '\\_')  # Экранируем подчеркивания
+    user_id = user.get('user_id', 'Неизвестно')
+    username = escape_markdown(user.get('username'))
+    full_name = escape_markdown(user.get('full_name'))
     
     user_info = f"👤 ID: `{user_id}`"
     if username:
