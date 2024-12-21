@@ -80,7 +80,7 @@ async def cmd_start(message: Message, db: Database):
 async def process_how_it_works(callback: CallbackQuery):
     """Handle 'How it works' button press."""
     await callback.message.edit_text(
-        text=HOW_IT_WORKS_MESSAGE,
+        text=HOW_IT_WORKS_MESSAGE + "\u200b",
         reply_markup=get_start_keyboard()
     )
     await callback.answer()
