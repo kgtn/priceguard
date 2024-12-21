@@ -67,9 +67,9 @@ async def process_plan_selection(
             )
         ],
         start_parameter="subscribe",
-        need_name=False,
+        need_name=True,
         need_phone_number=False,
-        need_email=False,
+        need_email=True,
         need_shipping_address=False,
         is_flexible=False
     )
