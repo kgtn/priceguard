@@ -145,18 +145,52 @@ def format_start_message(is_registered: bool = False) -> str:
             START_SETUP_MESSAGE
         )
 
-def format_help_message() -> str:
-    """Format help command message."""
-    return (
-        "ℹ️ Доступные команды:\n\n"
-        "/start - Запустить бота\n"
-        "/help - Показать эту справку\n"
-        "/settings - Настройки бота\n"
-        "/status - Подписка и тариф\n"
-        "/add_api - Добавить API ключи\n"
-        "/delete_data - Удалить все API ключи\n\n"
-        "По всем вопросам обращайтесь к @kagitin"
+async def format_help_message(user_data: Optional[Dict] = None, marketplace_factory: Optional[MarketplaceFactory] = None) -> str:
+    """Format help command message with context-aware hints."""
+    base_message = (
+        "🤖 <b>PriceGuard Bot</b> - ваш помощник в мониторинге цен\n\n"
+        "<b>📱 Основные команды:</b>\n"
+        "▫️ /start - Запустить бота\n"
+        "▫️ /help - Показать эту справку\n"
+        "▫️ /settings - Настройки бота\n"
+        "▫️ /status - Подписка и тариф\n"
+        "▫️ /add_api - Добавить API ключи\n"
+        "▫️ /delete_data - Удалить все API ключи\n"
     )
+
+    # Добавляем контекстные подсказки
+    hints = []
+    if user_data:
+        # Если нет API ключей
+        if not user_data.get('ozon_api_key') and not user_data.get('wb_api_key'):
+            hints.append("💡 <b>Подсказка:</b> Добавьте API ключи через команду /add_api, чтобы начать мониторинг")
+        
+        # Если ключи не прошли валидацию
+        elif marketplace_factory:
+            validation = await validate_marketplace_keys(user_data, marketplace_factory)
+            if not validation['ozon'] and user_data.get('ozon_api_key'):
+                hints.append("⚠️ <b>Внимание:</b> API ключ Ozon недействителен. Убедитесь, что при создании ключа вы установили роль Admin Read Only, и что указали его боту в формате Client_id:Api_key")
+            if not validation['wildberries'] and user_data.get('wb_api_key'):
+                hints.append("⚠️ <b>Внимание:</b> API ключ Wildberries недействителен. Убедитесь, что при создании ключа вы указали разрешение на Цены и скидки.")
+        
+        # Если есть ключи, но нет активной подписки
+        elif not user_data.get('is_subscribed'):
+            hints.append("💡 <b>Подсказка:</b> Оформите подписку в разделе /status, чтобы активировать мониторинг")
+        
+        # Если большой интервал проверки
+        elif user_data.get('check_interval', 240) > 240:  # больше 4 часов
+            hints.append("💡 <b>Подсказка:</b> Вы можете уменьшить интервал проверки акций в настройках /settings")
+        
+        # Если давно не было обновлений
+        elif user_data.get('last_check'):
+            last_check = datetime.fromisoformat(user_data['last_check'])
+            if (datetime.now() - last_check).days > 7:
+                hints.append("⚠️ <b>Внимание:</b> Бот давно не проверял акции. Проверьте работу API ключей в настройках")
+
+    if hints:
+        base_message += "\n\n" + "\n".join(hints)
+
+    return base_message
 
 async def format_subscription_status(user_data: Dict) -> str:
     """Format subscription status message."""

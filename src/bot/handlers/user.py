@@ -143,10 +143,11 @@ async def process_back_to_main(callback: CallbackQuery):
     await callback.answer()
 
 @router.message(Command("help"))
-async def cmd_help(message: Message) -> None:
+async def cmd_help(message: Message, db: Database, marketplace_factory: MarketplaceFactory) -> None:
     """Handle /help command."""
+    user_data = await db.get_user(message.from_user.id)
     await message.answer(
-        format_help_message(),
+        await format_help_message(user_data, marketplace_factory),
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [
@@ -168,7 +169,8 @@ async def cmd_help(message: Message) -> None:
                     )
                 ]
             ]
-        )
+        ),
+        parse_mode="HTML"
     )
 
 @router.callback_query(F.data == "show_faq")
@@ -195,11 +197,12 @@ async def process_faq(callback: CallbackQuery):
     await callback.answer()
 
 @router.callback_query(F.data == "back_to_help")
-async def process_back_to_help(callback: CallbackQuery):
+async def process_back_to_help(callback: CallbackQuery, db: Database, marketplace_factory: MarketplaceFactory):
     """Handle back to help button press."""
     try:
+        user_data = await db.get_user(callback.from_user.id)
         await callback.message.edit_text(
-            format_help_message(),
+            await format_help_message(user_data, marketplace_factory),
             reply_markup=InlineKeyboardMarkup(
                 inline_keyboard=[
                     [
@@ -221,7 +224,8 @@ async def process_back_to_help(callback: CallbackQuery):
                         )
                     ]
                 ]
-            )
+            ),
+            parse_mode="HTML"
         )
     except TelegramBadRequest as e:
         if "message is not modified" not in str(e):
@@ -690,7 +694,7 @@ async def show_api_keys(callback: CallbackQuery, db: Database):
         
     try:
         await callback.message.edit_text(
-            await format_api_keys_message(user_data) + "\u200b",
+            await format_api_keys_message(user_data),
             reply_markup=get_api_key_keyboard()
         )
     except TelegramBadRequest as e:
