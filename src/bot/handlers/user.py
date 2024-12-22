@@ -330,10 +330,11 @@ async def process_ozon_api_key(
             logger.info(f"API key validation result: {is_valid}")
             if not is_valid:
                 # Обновляем статус на api_added при неудачной попытке
-                await db.execute(
+                await db.db.execute(
                     "UPDATE users SET setup_status = 'api_added' WHERE user_id = ?",
                     (message.from_user.id,)
                 )
+                await db.db.commit()
                 await message.answer("❌ Неверный API ключ")
                 return
         
@@ -343,7 +344,7 @@ async def process_ozon_api_key(
         
         # Сохраняем API ключ и client_id в одной транзакции
         logger.info("Saving API credentials to database")
-        async with db.db.execute(
+        await db.db.execute(
             """
             UPDATE users 
             SET ozon_api_key = ?,
@@ -351,8 +352,8 @@ async def process_ozon_api_key(
             WHERE user_id = ?
             """,
             (encrypted_key, client_id, message.from_user.id)
-        ):
-            await db.db.commit()
+        )
+        await db.db.commit()
             
         await message.answer(
             "✅ API ключ Ozon успешно добавлен!\n\n"
@@ -363,11 +364,18 @@ async def process_ozon_api_key(
         )
         await show_api_keys_message(message, db)
         
-    except ValueError as e:
-        await message.answer(f"❌ Ошибка валидации: {str(e)}")
     except Exception as e:
         logger.error(f"Error adding Ozon API key: {str(e)}")
-        await message.answer("❌ Произошла ошибка при добавлении API ключа")
+        # Обновляем статус на api_added при любой ошибке валидации
+        await db.db.execute(
+            "UPDATE users SET setup_status = 'api_added' WHERE user_id = ?",
+            (message.from_user.id,)
+        )
+        await db.db.commit()
+        await message.answer(
+            "❌ Ошибка при проверке API ключа. " 
+            "Проверьте правильность ввода и попробуйте снова."
+        )
     finally:
         await state.clear()
 
@@ -397,19 +405,21 @@ async def process_wb_api_key(
             is_valid = await client.validate_api_key()
             if not is_valid:
                 # Обновляем статус на api_added при неудачной попытке
-                await db.execute(
+                await db.db.execute(
                     "UPDATE users SET setup_status = 'api_added' WHERE user_id = ?",
                     (message.from_user.id,)
                 )
+                await db.db.commit()
                 await message.answer("❌ Неверный API ключ")
                 return
         
         # Если ключ валидный, шифруем и сохраняем
         encrypted_key = marketplace_factory.encrypt_api_key(api_key)
-        await db.update_api_keys(
-            message.from_user.id,
-            wildberries_key=encrypted_key
+        await db.db.execute(
+            "UPDATE users SET wildberries_api_key = ? WHERE user_id = ?",
+            (encrypted_key, message.from_user.id)
         )
+        await db.db.commit()
         
         await message.answer(
             "✅ API ключ Wildberries успешно добавлен!\n\n"
@@ -422,6 +432,12 @@ async def process_wb_api_key(
         
     except Exception as e:
         logger.error(f"Error processing Wildberries API key: {str(e)}")
+        # Обновляем статус на api_added при любой ошибке валидации
+        await db.db.execute(
+            "UPDATE users SET setup_status = 'api_added' WHERE user_id = ?",
+            (message.from_user.id,)
+        )
+        await db.db.commit()
         await message.answer(
             "❌ Произошла ошибка при проверке API ключа\n\n"
             "Пожалуйста, убедитесь что:\n"
@@ -466,7 +482,11 @@ async def process_interval_change(callback: CallbackQuery, db: Database):
     hours = int(callback.data.split(":")[1])
     
     try:
-        await db.update_check_interval(callback.from_user.id, hours)
+        await db.db.execute(
+            "UPDATE users SET check_interval = ? WHERE user_id = ?",
+            (hours * 3600, callback.from_user.id)
+        )
+        await db.db.commit()
         await callback.message.edit_text(
             f"✅ Интервал проверки обновлен: каждые {hours} {'час' if hours == 1 else 'часа' if 2 <= hours <= 4 else 'часов'}" + "\u200b",
             reply_markup=get_main_menu_keyboard()
@@ -562,11 +582,11 @@ async def process_cancel_subscription(
 ) -> None:
     """Handle subscription cancellation."""
     try:
-        await db.update_subscription(
-            callback.from_user.id,
-            status="inactive",
-            end_date=datetime.now()
+        await db.db.execute(
+            "UPDATE users SET subscription_status = 'inactive', subscription_end_date = ? WHERE user_id = ?",
+            (datetime.now(), callback.from_user.id)
         )
+        await db.db.commit()
         await callback.message.edit_text("✅ Подписка успешно отменена")
     except Exception as e:
         await callback.message.edit_text(f"❌ Ошибка: {str(e)}")
@@ -586,7 +606,11 @@ async def process_confirmation(
         
         if action == "delete_keys":
             try:
-                await db.clear_api_keys(callback.from_user.id)
+                await db.db.execute(
+                    "UPDATE users SET ozon_api_key = NULL, wildberries_api_key = NULL WHERE user_id = ?",
+                    (callback.from_user.id,)
+                )
+                await db.db.commit()
                 await callback.message.edit_text(
                     "✅ Все API ключи успешно удалены"
                 )
