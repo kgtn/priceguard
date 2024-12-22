@@ -329,6 +329,11 @@ async def process_ozon_api_key(
             is_valid = await client.validate_api_key()
             logger.info(f"API key validation result: {is_valid}")
             if not is_valid:
+                # Обновляем статус на api_added при неудачной попытке
+                await db.execute(
+                    "UPDATE users SET setup_status = 'api_added' WHERE user_id = ?",
+                    (message.from_user.id,)
+                )
                 await message.answer("❌ Неверный API ключ")
                 return
         
@@ -391,6 +396,11 @@ async def process_wb_api_key(
         async with client:
             is_valid = await client.validate_api_key()
             if not is_valid:
+                # Обновляем статус на api_added при неудачной попытке
+                await db.execute(
+                    "UPDATE users SET setup_status = 'api_added' WHERE user_id = ?",
+                    (message.from_user.id,)
+                )
                 await message.answer("❌ Неверный API ключ")
                 return
         

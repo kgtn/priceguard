@@ -19,7 +19,8 @@ from core.logging import setup_logging, get_logger
 from services.monitoring.monitor import PromotionMonitor
 from services.monitoring.notifications import NotificationService
 from services.marketplaces.factory import MarketplaceFactory
-from bot.handlers import admin, user, payment
+from services.reminder import ReminderService
+from bot.handlers import admin, user, payment, reminders
 from bot.middlewares import setup_middlewares
 from bot.routers import admin_router, user_router, payment_router
 from services.payments.trial_checker import start_trial_checker
@@ -31,12 +32,13 @@ logger = get_logger(__name__)
 
 # Global variables for cleanup
 monitor: Optional[PromotionMonitor] = None
+reminder_service: Optional[ReminderService] = None
 dp: Optional[Dispatcher] = None
 bot: Optional[Bot] = None
 
 async def shutdown(signal_type=None):
     """Cleanup resources on shutdown."""
-    global monitor, dp, bot
+    global monitor, dp, bot, reminder_service
     
     logger.info(f"Received signal: {signal_type}. Starting graceful shutdown...")
     
@@ -57,9 +59,20 @@ async def shutdown(signal_type=None):
     
     logger.info("Shutdown complete.")
 
+async def start_reminder_checker(reminder_service: ReminderService):
+    """Start periodic reminder checks."""
+    while True:
+        try:
+            await reminder_service.check_and_send_reminders()
+        except Exception as e:
+            logger.error(f"Error in reminder checker: {e}")
+        
+        # Проверяем каждые 6 часов
+        await asyncio.sleep(6 * 60 * 60)
+
 async def main():
     """Main function."""
-    global monitor, dp, bot
+    global monitor, dp, bot, reminder_service
     
     try:
         # Load configuration
@@ -88,6 +101,14 @@ async def main():
         )
         dp["monitor"] = monitor
 
+        # Initialize reminder service
+        reminder_service = ReminderService(
+            bot=bot,
+            db=dp["db"],
+            marketplace_factory=dp["marketplace_factory"]
+        )
+        dp["reminder_service"] = reminder_service
+
         # Setup middlewares
         setup_middlewares(dp, config)
 
@@ -95,30 +116,28 @@ async def main():
         dp.include_router(admin.router)
         dp.include_router(user.router)
         dp.include_router(payment.router)
+        dp.include_router(reminders.router)
 
         # Setup commands
         await user.setup_bot_commands(bot)
 
-        # Start promotion monitor
-        await monitor.start()
+        # Start background tasks
+        logger.info("Starting background tasks...")
+        asyncio.create_task(monitor.start())
+        asyncio.create_task(start_trial_checker(bot=bot, db=dp["db"], settings=dp["settings"]))
+        asyncio.create_task(start_subscription_checker(bot=bot, db=dp["db"], settings=dp["settings"]))
+        asyncio.create_task(start_reminder_checker(reminder_service))
 
-        # Start trial checker
-        asyncio.create_task(start_trial_checker(bot, dp["db"], config))
-
-        # Start subscription checker
-        asyncio.create_task(start_subscription_checker(bot, dp["db"], config))
-
-        # Setup signal handlers
-        loop = asyncio.get_event_loop()
+        # Register signal handlers
         for sig in (signal.SIGINT, signal.SIGTERM):
-            loop.add_signal_handler(sig, lambda s=sig: asyncio.create_task(shutdown(s)))
+            asyncio.get_event_loop().add_signal_handler(sig, lambda: asyncio.create_task(shutdown(sig)))
 
         # Start polling
-        logger.info("Starting bot...")
+        logger.info("Starting bot polling...")
         await dp.start_polling(bot)
 
     except Exception as e:
-        logger.exception("Error in main function: %s", str(e))
+        logger.error(f"Error in main function: {e}")
         raise
     finally:
         await shutdown()
@@ -127,4 +146,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
-        logger.info("Bot stopped")
+        pass
