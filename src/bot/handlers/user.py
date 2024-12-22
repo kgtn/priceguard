@@ -16,6 +16,7 @@ from aiogram.exceptions import TelegramBadRequest
 from core.database import Database
 from core.logging import get_logger
 from services.marketplaces.factory import MarketplaceFactory
+from services.monitoring.monitor import PromotionMonitor
 from bot.utils.messages import (
     format_help_message,
     format_subscription_status,
@@ -543,7 +544,7 @@ async def show_promotions(callback: CallbackQuery, db: Database):
         text = (
             "📊 *Ваши акции*\n\n"
             "❌ У вас не добавлены API ключи маркетплейсов\n\n"
-            "Добавьте ключи в разделе настроек, чтобы отслеживать акции"
+            "Добавьте ключи в разделе 🔑 API ключи, чтобы отслеживать акции"
         )
     else:
         # Получаем интервал проверки пользователя (в секундах) или используем значение по умолчанию
@@ -553,12 +554,12 @@ async def show_promotions(callback: CallbackQuery, db: Database):
         text = "📊 *Ваши акции*\n\n"
         
         if has_wb:
-            text += "🟣 *Wildberries*\n"
+            text += "🟣 *Wildberries*: Подключен\n"
             text += f"└ Бот проверяет акции каждые {interval_hours} часа\n"
             text += "└ Вы получите уведомление при изменениях\n\n"
             
         if has_ozon:
-            text += "🔵 *OZON*\n"
+            text += "🔵 *OZON*: Подключен\n"
             text += f"└ Бот проверяет акции каждые {interval_hours} часа\n"
             text += "└ Вы получите уведомление при изменениях\n"
 
@@ -696,7 +697,7 @@ async def check_api_status(
     await callback.answer()
 
 @router.message(Command("my_promotions"))
-async def cmd_my_promotions(message: Message, db: Database):
+async def cmd_my_promotions(message: Message, db: Database, monitor: PromotionMonitor):
     """Handle /my_promotions command."""
     # Проверяем наличие API ключей
     user_data = await db.get_user(message.from_user.id)
@@ -719,15 +720,37 @@ async def cmd_my_promotions(message: Message, db: Database):
         check_interval = user_data.get("check_interval", 14400)  # 4 часа по умолчанию
         interval_hours = check_interval // 3600  # переводим секунды в часы
         
+        # Получаем времена последних проверок
+        user_last_checks = monitor._last_check.get(message.from_user.id, {})
+        last_check_ozon = user_last_checks.get('ozon')
+        last_check_wb = user_last_checks.get('wildberries')
+        
+        # Получаем кэшированные данные о промо-акциях
+        cached_promotions = monitor._cached_promotions.get(message.from_user.id, {})
+        
         text = "📊 *Ваши акции*\n\n"
         
         if has_ozon:
             text += "🔵 *OZON*: Подключен\n"
-            text += "└ Акций: 0\n\n"
+            # Получаем количество активных акций из кэша
+            ozon_promotions = cached_promotions.get('ozon', [])
+            text += f"└ Акций: {len(ozon_promotions)}\n"
+            if last_check_ozon:
+                minutes_ago = int((datetime.now() - last_check_ozon).total_seconds() / 60)
+                text += f"└ Проверено: {minutes_ago} мин. назад\n\n"
+            else:
+                text += "└ Ещё не проверялось\n\n"
             
         if has_wb:
             text += "🟣 *Wildberries*: Подключен\n"
-            text += "└ Акций: 0\n\n"
+            # Получаем количество активных акций из кэша
+            wb_promotions = cached_promotions.get('wildberries', [])
+            text += f"└ Акций: {len(wb_promotions)}\n"
+            if last_check_wb:
+                minutes_ago = int((datetime.now() - last_check_wb).total_seconds() / 60)
+                text += f"└ Проверено: {minutes_ago} мин. назад\n\n"
+            else:
+                text += "└ Ещё не проверялось\n\n"
             
         text += f"Интервал проверки: {interval_hours} ч."
 

@@ -165,11 +165,27 @@ class PromotionMonitor:
                 # Perform check
                 if marketplace == 'ozon':
                     changes = await self._check_ozon_promotions(user_id, user)
+                    # Сохраняем в кэш
+                    if user_id not in self._cached_promotions:
+                        self._cached_promotions[user_id] = {}
+                    self._cached_promotions[user_id]['ozon'] = changes
+                    logger.info(
+                        f"Updated Ozon promotions cache for user {user_id}:\n"
+                        f"Active promotions: {len(changes)}"
+                    )
                     if any(changes):  # Проверяем, есть ли какие-либо изменения
                         marketplace_changes = {'ozon': changes, 'wildberries': []}
                         await self._notify_user(user_id, marketplace_changes)
                 elif marketplace == 'wildberries':
                     changes = await self._check_wb_promotions(user_id, user)
+                    # Сохраняем в кэш
+                    if user_id not in self._cached_promotions:
+                        self._cached_promotions[user_id] = {}
+                    self._cached_promotions[user_id]['wildberries'] = changes
+                    logger.info(
+                        f"Updated Wildberries promotions cache for user {user_id}:\n"
+                        f"Active promotions: {len(changes)}"
+                    )
                     if any(changes):  # Проверяем, есть ли какие-либо изменения
                         marketplace_changes = {'ozon': [], 'wildberries': changes}
                         await self._notify_user(user_id, marketplace_changes)
