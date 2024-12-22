@@ -57,7 +57,7 @@ class UserStates(StatesGroup):
 async def setup_bot_commands(bot: Bot):
     """Setup bot commands."""
     commands = [
-        BotCommand(command="menu", description="📱 Главное меню"),
+        BotCommand(command="start", description="🚀 Запустить бота"),
         BotCommand(command="my_promotions", description="📊 Акции"),
         BotCommand(command="settings", description="⚙️ Настройки"),
         BotCommand(command="add_api", description="🔑 API ключи"),
@@ -513,19 +513,6 @@ async def process_cancellation(
             raise
     await state.clear()
     await callback.answer()
-
-@router.message(Command("menu"))
-async def cmd_menu(message: Message, db: Database):
-    """Show main menu."""
-    user_data = await db.get_user(message.from_user.id)
-    if not user_data:
-        await db.add_user(message.from_user.id)
-    
-    await message.answer(
-        "🤖 Главное меню PriceGuard\n\n"
-        "Выберите нужное действие:",
-        reply_markup=get_main_menu_keyboard()
-    )
 
 @router.callback_query(F.data == "my_promotions")
 async def show_promotions(callback: CallbackQuery, db: Database):
