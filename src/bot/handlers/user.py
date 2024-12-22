@@ -10,7 +10,7 @@ from aiogram import Router, F, Bot
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery, BotCommand, BotCommandScopeDefault
+from aiogram.types import Message, CallbackQuery, BotCommand, BotCommandScopeDefault, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.exceptions import TelegramBadRequest
 
 from core.database import Database
@@ -144,7 +144,25 @@ async def process_back_to_main(callback: CallbackQuery):
 @router.message(Command("help"))
 async def cmd_help(message: Message) -> None:
     """Handle /help command."""
-    await message.answer(format_help_message())
+    await message.answer(
+        format_help_message(),
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="🤔 Как это работает?",
+                        callback_data="how_it_works"
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="👨‍💻 Тех. поддержка",
+                        url="https://t.me/kagitin"
+                    )
+                ]
+            ]
+        )
+    )
 
 @router.message(Command("status"))
 async def cmd_status(message: Message, db: Database) -> None:
