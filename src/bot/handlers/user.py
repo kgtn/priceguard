@@ -157,7 +157,7 @@ async def cmd_help(message: Message) -> None:
                 [
                     InlineKeyboardButton(
                         text="👨‍💻 Тех. поддержка",
-                        url="https://t.me/kagitin"
+                        url="https://t.me/plmkr78"
                     )
                 ]
             ]
