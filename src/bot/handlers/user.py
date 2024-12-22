@@ -20,7 +20,8 @@ from services.monitoring.monitor import PromotionMonitor
 from bot.utils.messages import (
     format_help_message,
     format_subscription_status,
-    format_api_keys_message
+    format_api_keys_message,
+    format_faq_message
 )
 from ..utils.messages import (
     format_start_message,
@@ -156,6 +157,12 @@ async def cmd_help(message: Message) -> None:
                 ],
                 [
                     InlineKeyboardButton(
+                        text="❓ Частые вопросы",
+                        callback_data="show_faq"
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
                         text="👨‍💻 Тех. поддержка",
                         url="https://t.me/plmkr78"
                     )
@@ -163,6 +170,63 @@ async def cmd_help(message: Message) -> None:
             ]
         )
     )
+
+@router.callback_query(F.data == "show_faq")
+async def process_faq(callback: CallbackQuery):
+    """Handle FAQ button press."""
+    try:
+        await callback.message.edit_text(
+            format_faq_message(),
+            reply_markup=InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="◀️ Назад",
+                            callback_data="back_to_help"
+                        )
+                    ]
+                ]
+            ),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
+
+@router.callback_query(F.data == "back_to_help")
+async def process_back_to_help(callback: CallbackQuery):
+    """Handle back to help button press."""
+    try:
+        await callback.message.edit_text(
+            format_help_message(),
+            reply_markup=InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="🤔 Как это работает?",
+                            callback_data="how_it_works"
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="❓ Частые вопросы",
+                            callback_data="show_faq"
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="👨‍💻 Тех. поддержка",
+                            url="https://t.me/plmkr78"
+                        )
+                    ]
+                ]
+            )
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
 
 @router.message(Command("status"))
 async def cmd_status(message: Message, db: Database) -> None:
