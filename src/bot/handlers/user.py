@@ -187,7 +187,7 @@ async def process_faq(callback: CallbackQuery):
                     ]
                 ]
             ),
-            parse_mode="Markdown"
+            parse_mode="HTML"
         )
     except TelegramBadRequest as e:
         if "message is not modified" not in str(e):
