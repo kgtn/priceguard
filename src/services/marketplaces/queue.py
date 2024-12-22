@@ -102,14 +102,18 @@ class OzonQueue(MarketplaceQueue):
     
     def __init__(self):
         """Initialize Ozon queue with specific rate limits."""
-        super().__init__(RateLimiter(requests_per_minute=30, min_interval=2))
+        super().__init__(RateLimiter(requests_per_minute=600, min_interval=0.1))  # 600 в минуту = 10 в секунду
 
 class WildberriesQueue(MarketplaceQueue):
     """Queue for Wildberries API requests."""
     
     def __init__(self):
-        """Initialize Wildberries queue with specific rate limits."""
-        super().__init__(RateLimiter(requests_per_minute=30, min_interval=2))
+        """Initialize Wildberries queue with specific rate limits (10 requests per 6 seconds)."""
+        # Оптимизированные настройки для лимита 10 запросов за 6 секунд:
+        # - Размер окна: 6 секунд
+        # - Максимум запросов в окне: 10
+        # - Минимальный интервал: 6/10 = 0.6 секунд между запросами
+        super().__init__(RateLimiter(requests_per_minute=60, min_interval=0.6))  # 60 в минуту = 10 за 6 секунд
 
 class QueueManager:
     """Manager for marketplace queues."""

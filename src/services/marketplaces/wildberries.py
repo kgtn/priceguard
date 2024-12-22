@@ -5,6 +5,7 @@ Wildberries marketplace integration service.
 from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 from .base import MarketplaceClient, logger
+from .queue import QueueManager
 
 class WildberriesClient(MarketplaceClient):
     """Client for Wildberries API."""
@@ -20,6 +21,7 @@ class WildberriesClient(MarketplaceClient):
         self.base_url = "https://suppliers-api.wildberries.ru"
         self.calendar_url = "https://dp-calendar-api.wildberries.ru"
         self.common_url = "https://common-api.wildberries.ru"
+        self.queue = QueueManager.get_queue('wildberries')
     
     def _get_headers(self) -> Dict[str, str]:
         """Get headers for Wildberries API requests."""
@@ -40,7 +42,8 @@ class WildberriesClient(MarketplaceClient):
         """
         try:
             # Use ping endpoint for validation
-            await self._make_request(
+            await self.queue.execute(
+                self._make_request,
                 method="GET",
                 url=f"{self.common_url}/ping",
                 headers=self._get_headers()
@@ -72,7 +75,8 @@ class WildberriesClient(MarketplaceClient):
             end_time = (now + timedelta(days=365)).strftime("%Y-%m-%dT%H:%M:%SZ")
             
             # Get promotion details
-            response = await self._make_request(
+            response = await self.queue.execute(
+                self._make_request,
                 method="GET",
                 url=f"{self.calendar_url}/api/v1/calendar/promotions",
                 headers=self._get_headers(),
@@ -89,7 +93,10 @@ class WildberriesClient(MarketplaceClient):
             for promo in response.get("data", {}).get("promotions", []):
                 if promo.get("type") == "auto":
                     # Получаем детальную информацию о товарах в акции
-                    promo_details = await self._get_promo_details(promo["id"])
+                    promo_details = await self.queue.execute(
+                        self._get_promo_details,
+                        promo["id"]
+                    )
                     
                     auto_promotions.append({
                         "id": promo["id"],
@@ -116,7 +123,8 @@ class WildberriesClient(MarketplaceClient):
             Dict with promotion details including products count
         """
         try:
-            response = await self._make_request(
+            response = await self.queue.execute(
+                self._make_request,
                 method="GET",
                 url=f"{self.calendar_url}/api/v1/calendar/promotions/details",
                 headers=self._get_headers(),
