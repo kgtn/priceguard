@@ -56,11 +56,12 @@ class UserStates(StatesGroup):
 async def setup_bot_commands(bot: Bot):
     """Setup bot commands."""
     commands = [
-        BotCommand(command="menu", description="Открыть главное меню"),
-        BotCommand(command="status", description="Проверить статус подписки"),
-        BotCommand(command="settings", description="Настройки бота"),
-        BotCommand(command="add_api", description="Добавить API ключи"),
-        BotCommand(command="help", description="Показать справку")
+        BotCommand(command="menu", description="📱 Главное меню"),
+        BotCommand(command="my_promotions", description="📊 Акции"),
+        BotCommand(command="settings", description="⚙️ Настройки"),
+        BotCommand(command="add_api", description="🔑 API ключи"),
+        BotCommand(command="status", description="💳 Статус подписки"),
+        BotCommand(command="help", description="❓ Помощь")
     ]
     await bot.set_my_commands(commands)
 
@@ -693,3 +694,44 @@ async def check_api_status(
         if "message is not modified" not in str(e):
             raise
     await callback.answer()
+
+@router.message(Command("my_promotions"))
+async def cmd_my_promotions(message: Message, db: Database):
+    """Handle /my_promotions command."""
+    # Проверяем наличие API ключей
+    user_data = await db.get_user(message.from_user.id)
+    if not user_data:
+        await message.answer("❌ Сначала добавьте API ключи")
+        return
+
+    # Формируем сообщение в зависимости от наличия ключей
+    has_wb = bool(user_data.get("wildberries_api_key"))
+    has_ozon = bool(user_data.get("ozon_api_key") and user_data.get("ozon_client_id"))
+    
+    if not (has_wb or has_ozon):
+        text = (
+            "📊 *Ваши акции*\n\n"
+            "❌ У вас не добавлены API ключи маркетплейсов\n\n"
+            "Добавьте ключи в разделе 🔑 API ключи, чтобы отслеживать акции"
+        )
+    else:
+        # Получаем интервал проверки пользователя (в секундах) или используем значение по умолчанию
+        check_interval = user_data.get("check_interval", 14400)  # 4 часа по умолчанию
+        interval_hours = check_interval // 3600  # переводим секунды в часы
+        
+        text = "📊 *Ваши акции*\n\n"
+        
+        if has_ozon:
+            text += "🔵 *OZON*: Подключен\n"
+            text += "└ Акций: 0\n\n"
+            
+        if has_wb:
+            text += "🟣 *Wildberries*: Подключен\n"
+            text += "└ Акций: 0\n\n"
+            
+        text += f"Интервал проверки: {interval_hours} ч."
+
+    await message.answer(
+        text,
+        parse_mode="Markdown"
+    )

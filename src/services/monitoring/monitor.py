@@ -34,7 +34,7 @@ class PromotionMonitor:
         self.notification_service = notification_service
         self.check_interval = check_interval
         self._task: Optional[asyncio.Task] = None
-        self._last_check: Dict[int, datetime] = {}
+        self._last_check: Dict[int, Dict[str, datetime]] = {}  # Changed to store per-marketplace timestamps
         self._cached_promotions: Dict[int, Dict] = {}
         self._check_queue: Dict[str, asyncio.Queue] = {
             'ozon': asyncio.Queue(),
@@ -143,7 +143,10 @@ class PromotionMonitor:
                 )
                 
                 # Skip if checked recently
-                last_check = self._last_check.get(user_id)
+                if user_id not in self._last_check:
+                    self._last_check[user_id] = {}
+                
+                last_check = self._last_check[user_id].get(marketplace)
                 check_interval = user.get('check_interval', self.check_interval)
                 
                 if not priority and last_check:
@@ -176,7 +179,9 @@ class PromotionMonitor:
                 
                 # Update last check time only for successful non-priority checks
                 if not priority:
-                    self._last_check[user_id] = datetime.now()
+                    if user_id not in self._last_check:
+                        self._last_check[user_id] = {}
+                    self._last_check[user_id][marketplace] = datetime.now()
                 
             except asyncio.CancelledError:
                 break
@@ -200,16 +205,17 @@ class PromotionMonitor:
                     interval = user.get('check_interval', self.check_interval)
                     
                     # Проверяем время последней проверки
-                    last_check = self._last_check.get(user_id)
-                    current_time = datetime.now()
+                    if user_id not in self._last_check:
+                        self._last_check[user_id] = {}
+                    
+                    last_check_ozon = self._last_check[user_id].get('ozon')
+                    last_check_wb = self._last_check[user_id].get('wildberries')
                     
                     # Если нет записи о последней проверке или интервал истек
-                    should_check = (
-                        not last_check or 
-                        (current_time - last_check).total_seconds() >= interval
-                    )
+                    should_check_ozon = not last_check_ozon or (datetime.now() - last_check_ozon).total_seconds() >= interval
+                    should_check_wb = not last_check_wb or (datetime.now() - last_check_wb).total_seconds() >= interval
                     
-                    if should_check:
+                    if should_check_ozon or should_check_wb:
                         # Проверяем наличие API ключей
                         has_ozon = bool(user.get('ozon_api_key'))
                         has_wb = bool(user.get('wildberries_api_key'))
@@ -224,17 +230,20 @@ class PromotionMonitor:
                             )
                             
                             # Добавляем проверки в очереди
-                            if has_ozon:
+                            if has_ozon and should_check_ozon:
                                 await self._check_queue['ozon'].put((user_id, False))
-                            if has_wb:
+                            if has_wb and should_check_wb:
                                 await self._check_queue['wildberries'].put((user_id, False))
                     else:
-                        time_left = interval - (current_time - last_check).total_seconds()
+                        time_left_ozon = interval - (datetime.now() - last_check_ozon).total_seconds()
+                        time_left_wb = interval - (datetime.now() - last_check_wb).total_seconds()
                         logger.info(
                             f"Skipping checks for user {user_id}:\n"
-                            f"Last check: {int((current_time - last_check).total_seconds())} seconds ago\n"
+                            f"Last check Ozon: {int((datetime.now() - last_check_ozon).total_seconds())} seconds ago\n"
+                            f"Last check WB: {int((datetime.now() - last_check_wb).total_seconds())} seconds ago\n"
                             f"Check interval: {interval} seconds\n"
-                            f"Next check in: {int(time_left)} seconds"
+                            f"Next check Ozon in: {int(time_left_ozon)} seconds\n"
+                            f"Next check WB in: {int(time_left_wb)} seconds"
                         )
                 
                 # Ждем 15 минут перед следующей итерацией
