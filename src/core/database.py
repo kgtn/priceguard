@@ -24,7 +24,9 @@ CREATE_TABLES = [
         subscription_status TEXT CHECK(subscription_status IN ('active', 'inactive', 'trial')) NOT NULL DEFAULT 'inactive',
         subscription_end_date TIMESTAMP,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        check_interval INTEGER NOT NULL DEFAULT 14400
+        check_interval INTEGER NOT NULL DEFAULT 14400,
+        setup_status TEXT CHECK(setup_status IN ('started', 'api_added', 'api_validated')) NOT NULL DEFAULT 'started',
+        last_reminder_sent TIMESTAMP
     )
     """,
     """
@@ -59,6 +61,15 @@ CREATE_TABLES = [
         is_active BOOLEAN NOT NULL DEFAULT 1,
         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
         FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE CASCADE
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS user_notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     );
     """
 ]
@@ -95,6 +106,13 @@ class Database:
         if self.db:
             await self.db.close()
             self.db = None
+
+    async def fetch_all(self, query: str, params: tuple = ()) -> List[Dict[str, Any]]:
+        """Execute query and return all results as list of dictionaries."""
+        cursor = await self.db.execute(query, params)
+        columns = [description[0] for description in cursor.description]
+        rows = await cursor.fetchall()
+        return [dict(zip(columns, row)) for row in rows]
 
     async def add_user(
         self, 
