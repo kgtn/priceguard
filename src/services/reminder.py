@@ -148,8 +148,8 @@ class ReminderService:
         else:  # check_api
             keyboard = [
                 [InlineKeyboardButton(
-                    text="🔄 Проверить ключи",
-                    callback_data="check_api"
+                    text="🔑 Изменить ключи",
+                    callback_data="change_api_keys"
                 )],
                 [InlineKeyboardButton(
                     text="📝 Как получить ключи",

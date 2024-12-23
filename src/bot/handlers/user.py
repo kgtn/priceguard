@@ -865,3 +865,25 @@ async def cmd_my_promotions(message: Message, db: Database, monitor: PromotionMo
         text,
         parse_mode="Markdown"
     )
+
+@router.callback_query(F.data == "change_api_keys")
+async def process_change_api_keys(callback: CallbackQuery, db: Database) -> None:
+    """Handle change_api_keys button press."""
+    await callback.message.edit_text(
+        "🔑 Выберите маркетплейс для изменения API ключа:",
+        reply_markup=get_api_key_keyboard()
+    )
+    await callback.answer()
+
+@router.message(Command("add_api"))
+async def cmd_add_api(message: Message, db: Database) -> None:
+    """Handle /add_api command."""
+    user_data = await db.get_user(message.from_user.id)
+    if not user_data:
+        await message.answer("❌ Вы не зарегистрированы. Используйте /start")
+        return
+        
+    await message.answer(
+        "🔑 Выберите маркетплейс для добавления API ключа:",
+        reply_markup=get_api_key_keyboard()
+    )
