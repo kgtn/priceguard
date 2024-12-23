@@ -119,6 +119,9 @@ class ReminderService:
                 """,
                 (user_id,)
             )
+
+            # Сохраняем изменения в базе данных
+            await self.db.db.commit()
             
             logger.info(f"Sent reminder to user {user_id}")
         except Exception as e:
