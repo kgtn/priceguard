@@ -80,11 +80,13 @@ MIGRATIONS = [
 
 class Database:
     def __init__(self, database_path: str):
+        logger.debug(f"Database __init__ with path: {database_path}")
         self.database_path = database_path
         self.db: Optional[aiosqlite.Connection] = None
 
     async def init(self):
         """Initialize database connection and create tables."""
+        logger.debug(f"Database init with path: {self.database_path}")
         self.db = await aiosqlite.connect(self.database_path)
         await self.db.execute("PRAGMA foreign_keys = ON")
         
@@ -109,6 +111,7 @@ class Database:
 
     async def fetch_all(self, query: str, params: tuple = ()) -> List[Dict[str, Any]]:
         """Execute query and return all results as list of dictionaries."""
+        logger.debug(f"Database fetch_all with query: {query}, params: {params}")
         cursor = await self.db.execute(query, params)
         columns = [description[0] for description in cursor.description]
         rows = await cursor.fetchall()
@@ -162,6 +165,7 @@ class Database:
         query = f"UPDATE users SET {', '.join(update_fields)} WHERE user_id = ?"
         
         try:
+            logger.debug(f"Database execute with query: {query}, params: {params}")
             await self.db.execute(query, params)
             await self.db.commit()
             return True
