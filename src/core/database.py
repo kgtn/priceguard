@@ -530,6 +530,63 @@ class Database:
             await self.db.rollback()
             raise
 
+    async def update_reminder_info(self, user_id: int) -> None:
+        """Update reminder information for user.
+        
+        Args:
+            user_id: ID of the user to update reminder for
+        """
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+        
+        try:
+            # Обновляем время последнего напоминания
+            await self.db.execute(
+                "UPDATE users SET last_reminder_sent = datetime('now') WHERE user_id = ?",
+                (user_id,)
+            )
+            
+            # Добавляем запись о напоминании
+            await self.db.execute(
+                """
+                INSERT INTO user_notifications (user_id, type, created_at) 
+                VALUES (?, 'reminder', datetime('now'))
+                """,
+                (user_id,)
+            )
+            
+            await self.db.commit()
+        except Exception as e:
+            await self.db.rollback()
+            raise
+
+    async def disable_reminders(self, user_id: int) -> None:
+        """Disable reminders for user by adding maximum number of notifications.
+        
+        Args:
+            user_id: ID of the user to disable reminders for
+        """
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+            
+        try:
+            await self.db.execute(
+                """
+                INSERT INTO user_notifications (user_id, type, created_at)
+                SELECT ?, 'reminder', datetime('now')
+                FROM (SELECT 1 AS dummy) d
+                WHERE (
+                    SELECT COUNT(*) FROM user_notifications
+                    WHERE user_id = ? AND type = 'reminder'
+                ) < 4
+                """,
+                (user_id, user_id)
+            )
+            await self.db.commit()
+        except Exception as e:
+            await self.db.rollback()
+            raise
+
 async def init_db(database_path: str) -> Database:
     """Initialize and return database instance."""
     db = Database(database_path)

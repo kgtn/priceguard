@@ -105,23 +105,8 @@ class ReminderService:
                 parse_mode="HTML"
             )
             
-            # Обновляем время последнего напоминания
-            await self.db.execute(
-                "UPDATE users SET last_reminder_sent = datetime('now') WHERE user_id = ?",
-                (user_id,)
-            )
-            
-            # Добавляем запись о напоминании
-            await self.db.execute(
-                """
-                INSERT INTO user_notifications (user_id, type, created_at) 
-                VALUES (?, 'reminder', datetime('now'))
-                """,
-                (user_id,)
-            )
-
-            # Сохраняем изменения в базе данных
-            await self.db.commit()
+            # Обновляем информацию о напоминании
+            await self.db.update_reminder_info(user_id)
             
             logger.info(f"Sent reminder to user {user_id}")
         except Exception as e:
@@ -172,16 +157,4 @@ class ReminderService:
 
     async def disable_reminders(self, user_id: int):
         """Disable reminders for user."""
-        # Устанавливаем максимальное количество напоминаний
-        await self.db.execute(
-            """
-            INSERT INTO user_notifications (user_id, type, created_at)
-            SELECT ?, 'reminder', datetime('now')
-            FROM (SELECT 1 AS dummy) d
-            WHERE (
-                SELECT COUNT(*) FROM user_notifications
-                WHERE user_id = ? AND type = 'reminder'
-            ) < 4
-            """,
-            (user_id, user_id)
-        )
+        await self.db.disable_reminders(user_id)
