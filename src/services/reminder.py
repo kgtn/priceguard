@@ -67,18 +67,27 @@ class ReminderService:
         # 3. Отправлено менее 4 напоминаний
         
         query = """
-            SELECT * FROM users 
-            WHERE setup_status != 'api_validated'
+            SELECT u.* FROM users u
+            LEFT JOIN (
+                SELECT user_id, COUNT(*) as reminder_count
+                FROM user_notifications
+                WHERE type = 'reminder'
+                GROUP BY user_id
+            ) n ON u.user_id = n.user_id
+            WHERE u.setup_status != 'api_validated'
             AND (
-                (last_reminder_sent IS NULL AND created_at < datetime('now', '-1 day'))
-                OR 
-                (last_reminder_sent < datetime('now', '-1 day'))
+                (u.last_reminder_sent IS NULL AND u.created_at < datetime('now', '-1 day'))
+                OR
+                (
+                    CASE
+                        WHEN COALESCE(n.reminder_count, 0) = 0 THEN u.last_reminder_sent < datetime('now', '-1 day')
+                        WHEN COALESCE(n.reminder_count, 0) = 1 THEN u.last_reminder_sent < datetime('now', '-2 days')
+                        WHEN COALESCE(n.reminder_count, 0) = 2 THEN u.last_reminder_sent < datetime('now', '-4 days')
+                        WHEN COALESCE(n.reminder_count, 0) = 3 THEN u.last_reminder_sent < datetime('now', '-7 days')
+                    END
+                )
             )
-            AND (
-                (SELECT COUNT(*) FROM user_notifications 
-                WHERE user_id = users.user_id 
-                AND type = 'reminder') < 4
-            );
+            AND COALESCE(n.reminder_count, 0) < 4;
         """
         
         return await self.db.fetch_all(query)
