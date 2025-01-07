@@ -88,27 +88,40 @@ class SubscriptionChecker:
             
             # Subscription expired
             if now >= end_date:
-                await self.db.update_subscription(
-                    user_id=user_id,
-                    status="inactive",
-                    end_date=end_date
-                )
-                await self.bot.send_message(
-                    chat_id=user_id,
-                    text=SUBSCRIPTION_EXPIRED,
-                    reply_markup=get_subscription_keyboard()
-                )
+                last_notification_sent = user.get("last_subscription_notification_sent")
+                if not last_notification_sent or (datetime.fromisoformat(last_notification_sent).date() < now.date()):
+                    await self.db.update_subscription(
+                        user_id=user_id,
+                        status="inactive",
+                        end_date=end_date
+                    )
+                    logger.info(f"Subscription expired for user {user_id}")
+                    await self.bot.send_message(
+                        chat_id=user_id,
+                        text=SUBSCRIPTION_EXPIRED,
+                        reply_markup=get_subscription_keyboard()
+                    )
+                    await self.db.update_user(
+                        user_id=user_id,
+                        last_subscription_notification_sent=now.isoformat()
+                    )
                 return
             
             # Subscription expiring soon
             days_left = (end_date - now).days
             if days_left <= self.notification_days:
-                await self.bot.send_message(
-                    chat_id=user_id,
-                    text=SUBSCRIPTION_EXPIRING_SOON.format(days_left),
-                    reply_markup=get_subscription_keyboard()
-                )
-        
+                last_notification_sent = user.get("last_subscription_notification_sent")
+                if not last_notification_sent or (datetime.fromisoformat(last_notification_sent).date() < now.date()):
+                    await self.bot.send_message(
+                        chat_id=user_id,
+                        text=SUBSCRIPTION_EXPIRING_SOON.format(days_left),
+                        reply_markup=get_subscription_keyboard()
+                    )
+                    await self.db.update_user(
+                        user_id=user_id,
+                        last_subscription_notification_sent=now.isoformat()
+                    )
+
         except Exception as e:
             logger.error(f"Error checking subscription for user {user.get('user_id')}: {e}")
 
