@@ -194,6 +194,32 @@ class Database:
             await self.db.rollback()
             raise
 
+    async def update_user(self, user_id: int, **kwargs) -> bool:
+        """Update user information."""
+        if not self.db:
+            raise RuntimeError("Database not initialized")
+        
+        update_fields = []
+        params = []
+        for key, value in kwargs.items():
+            update_fields.append(f"{key} = ?")
+            params.append(value)
+        
+        if not update_fields:
+            return False
+        
+        params.append(user_id)
+        query = f"UPDATE users SET {', '.join(update_fields)} WHERE user_id = ?"
+        
+        try:
+            logger.debug(f"Database execute with query: {query}, params: {params}")
+            await self.db.execute(query, params)
+            await self.db.commit()
+            return True
+        except Exception as e:
+            await self.db.rollback()
+            raise
+
     async def get_user(self, user_id: int) -> Optional[Dict]:
         """Get user information."""
         if not self.db:
