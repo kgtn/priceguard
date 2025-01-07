@@ -93,7 +93,7 @@ class SubscriptionChecker:
             # Subscription expired
             if now >= end_date:
                 last_notification_sent = user.get("last_subscription_notification_sent")
-                if not last_notification_sent or (datetime.fromisoformat(last_notification_sent) < now):
+                if not last_notification_sent or (datetime.fromisoformat(last_notification_sent) < now - timedelta(hours=24)):
                     await self.db.update_subscription(
                         user_id=user_id,
                         status="inactive",
@@ -115,7 +115,7 @@ class SubscriptionChecker:
             days_left = (end_date - now).days
             if days_left <= self.notification_days:
                 last_notification_sent = user.get("last_subscription_notification_sent")
-                if not last_notification_sent or (datetime.fromisoformat(last_notification_sent) < now):
+                if not last_notification_sent or (datetime.fromisoformat(last_notification_sent) < now - timedelta(hours=24)):
                     await self.bot.send_message(
                         chat_id=user_id,
                         text=SUBSCRIPTION_EXPIRING_SOON.format(days_left),
