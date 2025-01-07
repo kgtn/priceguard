@@ -64,8 +64,8 @@ class SubscriptionChecker:
                 for user in active_users:
                     if await self.is_bot_active_for_user(user["user_id"]):
                         last_notification_sent = user.get("last_subscription_notification_sent")
-                        if last_notification_sent and (datetime.fromisoformat(last_notification_sent) > datetime.now() - timedelta(hours=1)):
-                            logger.info(f"Notification already sent this hour for user {user['user_id']}, skipping.")
+                        if last_notification_sent and (datetime.fromisoformat(last_notification_sent) > datetime.now() - timedelta(hours=24)):
+                            logger.info(f"Notification already sent in the last 24 hours for user {user['user_id']}, skipping.")
                             continue
                         await self._check_user_subscription(user)
                     else:
@@ -113,7 +113,7 @@ class SubscriptionChecker:
             
             # Subscription expiring soon
             days_left = (end_date - now).days
-            if days_left <= self.notification_days:
+            if days_left == self.notification_days:
                 last_notification_sent = user.get("last_subscription_notification_sent")
                 if not last_notification_sent or (datetime.fromisoformat(last_notification_sent) < now - timedelta(hours=24)):
                     await self.bot.send_message(
