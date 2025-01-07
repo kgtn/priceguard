@@ -63,6 +63,10 @@ class SubscriptionChecker:
                 
                 for user in active_users:
                     if await self.is_bot_active_for_user(user["user_id"]):
+                        last_notification_sent = user.get("last_subscription_notification_sent")
+                        if last_notification_sent and (datetime.fromisoformat(last_notification_sent) > datetime.now() - timedelta(hours=1)):
+                            logger.info(f"Notification already sent this hour for user {user['user_id']}, skipping.")
+                            continue
                         await self._check_user_subscription(user)
                     else:
                         logger.info(f"Bot is not active for user {user['user_id']}, skipping.")
