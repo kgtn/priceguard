@@ -80,10 +80,10 @@ class ReminderService:
                 OR
                 (
                     CASE
-                        WHEN COALESCE(n.reminder_count, 0) = 0 THEN u.last_reminder_sent < datetime('now', '-1 day')
-                        WHEN COALESCE(n.reminder_count, 0) = 1 THEN u.last_reminder_sent < datetime('now', '-2 days')
-                        WHEN COALESCE(n.reminder_count, 0) = 2 THEN u.last_reminder_sent < datetime('now', '-4 days')
-                        WHEN COALESCE(n.reminder_count, 0) = 3 THEN u.last_reminder_sent < datetime('now', '-7 days')
+                        WHEN COALESCE(n.reminder_count, 0) = 0 THEN u.last_reminder_sent IS NULL AND u.created_at < datetime('now', '-1 day')
+                        WHEN COALESCE(n.reminder_count, 0) = 1 THEN datetime(u.last_reminder_sent, '+2 days') < datetime('now')
+                        WHEN COALESCE(n.reminder_count, 0) = 2 THEN datetime(u.last_reminder_sent, '+4 days') < datetime('now')
+                        WHEN COALESCE(n.reminder_count, 0) = 3 THEN datetime(u.last_reminder_sent, '+7 days') < datetime('now')
                     END
                 )
             )
